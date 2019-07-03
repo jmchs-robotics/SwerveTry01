@@ -5,6 +5,11 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
+import com.revrobotics.CANSparkMaxLowLevel.ConfigParameter;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
@@ -24,14 +29,14 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
     private final double mZeroOffset;
 
     private final TalonSRX mAngleMotor;
-    private final TalonSRX mDriveMotor;
+    private final CANSparkMax mDriveMotor;
 
     private boolean driveInverted = false;
     private double driveGearRatio = 1;
     private double driveWheelRadius = 2;
     private boolean angleMotorJam = false;
 
-    public SwerveDriveModuleSparkTalon(int moduleNumber, TalonSRX angleMotor, TalonSRX driveMotor, double zeroOffset) {
+    public SwerveDriveModuleSparkTalon(int moduleNumber, TalonSRX angleMotor, CANSparkMax driveMotor, double zeroOffset) {
         this.moduleNumber = moduleNumber;
 
         mAngleMotor = angleMotor;
@@ -47,20 +52,31 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
         angleMotor.setNeutralMode(NeutralMode.Brake);
         angleMotor.set(ControlMode.Position, 0);
 
-        driveMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+        driveMotor.setMotorType(MotorType.kBrushless);
 
-        driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, 0);
-        driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 0);
+        driveMotor.setParameter(ConfigParameter.kP_0, 15);
+        driveMotor.setParameter(ConfigParameter.kI_0, 0.01);
+        driveMotor.setParameter(ConfigParameter.kD_0, 0.1);
+        driveMotor.setParameter(ConfigParameter.kF_0, 0.2);
 
-        driveMotor.config_kP(0, 15, 0);
-        driveMotor.config_kI(0, 0.01, 0);
-        driveMotor.config_kD(0, 0.1, 0);
-        driveMotor.config_kF(0, 0.2, 0);
+        //set frame..?
+        //driveMotor.setControlFramePeriodMs(periodMs);
+        
+        driveMotor.setIdleMode(IdleMode.kBrake);
+        // driveMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
 
-        driveMotor.configMotionCruiseVelocity(640, 0);
-        driveMotor.configMotionAcceleration(200, 0);
+        // driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, 0);
+        // driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 0);
 
-        driveMotor.setNeutralMode(NeutralMode.Brake);
+        // driveMotor.config_kP(0, 15, 0);
+        // driveMotor.config_kI(0, 0.01, 0);
+        // driveMotor.config_kD(0, 0.1, 0);
+        // driveMotor.config_kF(0, 0.2, 0);
+
+        // driveMotor.configMotionCruiseVelocity(640, 0);
+        // driveMotor.configMotionAcceleration(200, 0);
+
+        // driveMotor.setNeutralMode(NeutralMode.Brake);
 
         // Set amperage limits
         angleMotor.configContinuousCurrentLimit(30, 0);
@@ -68,10 +84,11 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
         angleMotor.configPeakCurrentDuration(100, 0);
         angleMotor.enableCurrentLimit(true);
 
-        driveMotor.configContinuousCurrentLimit(25, 0);
-        driveMotor.configPeakCurrentLimit(25, 0);
-        driveMotor.configPeakCurrentDuration(100, 0);
-        driveMotor.enableCurrentLimit(true);
+        driveMotor.setSmartCurrentLimit(25, 25);
+        // driveMotor.configContinuousCurrentLimit(25, 0);
+        // driveMotor.configPeakCurrentLimit(25, 0);
+        // driveMotor.configPeakCurrentDuration(100, 0);
+        // driveMotor.enableCurrentLimit(true);
         
     	SmartDashboard.putBoolean("Motor Jammed" + moduleNumber, angleMotorJam);
     }
@@ -116,14 +133,14 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
     }
 
     public double getDriveDistance() {
-        int ticks = mDriveMotor.getSelectedSensorPosition(0);
+        double ticks = mDriveMotor.getEncoder().getPosition();
         if (driveInverted)
             ticks = -ticks;
 
         return encoderTicksToInches(ticks);
     }
 
-    public TalonSRX getDriveMotor() {
+    public CANSparkMax getDriveMotor() {
         return mDriveMotor;
     }
 
@@ -226,7 +243,10 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
 
         SmartDashboard.putNumber("Module Ticks " + moduleNumber, distance);
 
-        mDriveMotor.set(ControlMode.MotionMagic, distance);
+        //TODO: Read the docs
+        //do not know if this is correct position control
+        mDriveMotor.pidWrite(distance);
+        // mDriveMotor.set(ControlMode.MotionMagic, distance);
     }
 
     public void setTargetSpeed(double speed) {
@@ -236,11 +256,12 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
 //    	}
         if (driveInverted) speed = -speed;
 
-        mDriveMotor.set(ControlMode.PercentOutput, speed);
+        mDriveMotor.set(speed);
+        // mDriveMotor.set(ControlMode.PercentOutput, speed);
     }
 
     public void zeroDistance() {
-        mDriveMotor.setSelectedSensorPosition(0, 0, 0);
+        mDriveMotor.setEncPosition(0);
     }
     
     public void resetMotor() {
@@ -249,8 +270,17 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
     	SmartDashboard.putBoolean("Motor Jammed" + moduleNumber, angleMotorJam);
     }
 
+    /**
+     * Units all wrong... 
+     * TODO: fix
+     * @param maxAcceleration
+     * @param maxVelocity
+     */
     public void setMotionConstraints(double maxAcceleration, double maxVelocity) {
-        mDriveMotor.configMotionAcceleration(inchesToEncoderTicks(maxAcceleration * 12) / 10, 0);
-        mDriveMotor.configMotionCruiseVelocity(inchesToEncoderTicks(maxVelocity * 12) / 10, 0);
+        mDriveMotor.setParameter(ConfigParameter.kSmartMotionMaxAccel_0, maxAcceleration);
+        mDriveMotor.setParameter(ConfigParameter.kSmartMotionMaxVelocity_0, maxVelocity);
+
+        // mDriveMotor.configMotionAcceleration(inchesToEncoderTicks(maxAcceleration * 12) / 10, 0);
+        // mDriveMotor.configMotionCruiseVelocity(inchesToEncoderTicks(maxVelocity * 12) / 10, 0);
     }
 }
