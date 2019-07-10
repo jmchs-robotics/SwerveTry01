@@ -8,6 +8,7 @@ import frc.robot.commands.autonomous.stage2.VisionTargetingCubeCommand;
 import frc.robot.motion.AutonomousPaths;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GathererSubsystem;
+import frc.robot.subsystems.SwerveDriveModuleSparkTalon;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.util.Side;
 

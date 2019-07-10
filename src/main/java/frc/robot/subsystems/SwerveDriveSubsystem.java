@@ -2,6 +2,9 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import edu.wpi.first.wpilibj.SPI;
 import frc.robot.Robot;
 
@@ -20,13 +23,28 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
 	 * 2 is Back Left
 	 * 3 is Back Right
 	 */
-	private SwerveDriveModule[] mSwerveModules;
+    private SwerveDriveModule[] mSwerveModules;
+    
+	/*
+	* Implement new servedrivemodule with spark and talon blend -- and our proprietary seven herbs and spices
+	*/
+    private static SwerveDriveModuleSparkTalon[] testSystem;
+    
+
 
     private AHRS mNavX = new AHRS(SPI.Port.kMXP, (byte) 200);
 
     public SwerveDriveSubsystem() {
         super(WIDTH, LENGTH);
         zeroGyro();
+
+        //instantiate testsystem with CAN ids 13 (angle) and 14 (drive)
+        testSystem = new SwerveDriveModuleSparkTalon[]{
+            new SwerveDriveModuleSparkTalon(0, new TalonSRX(13), new CANSparkMax(14, MotorType.kBrushless), 0),
+            new SwerveDriveModuleSparkTalon(1, new TalonSRX(15), new CANSparkMax(16, MotorType.kBrushless), 0),
+            new SwerveDriveModuleSparkTalon(2, new TalonSRX(17), new CANSparkMax(18, MotorType.kBrushless), 0),
+            new SwerveDriveModuleSparkTalon(3, new TalonSRX(19), new CANSparkMax(20, MotorType.kBrushless), 0)
+        };
 
         if (Robot.PRACTICE_BOT) {
             mSwerveModules = new SwerveDriveModule[] {
@@ -172,6 +190,59 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
                 mSwerveModules[i].setTargetAngle(mSwerveModules[i].getTargetAngle());
             }
             mSwerveModules[i].setTargetSpeed(speeds[i]);
+        }
+    }
+
+    //drive command with new motors:
+    @Override
+    public void holonomicDriveSparkTalon(double forward, double strafe, double rotation, boolean fieldOriented) {
+        forward *= getSpeedMultiplier();
+        strafe *= getSpeedMultiplier();
+
+        if (fieldOriented) {
+            double angleRad = Math.toRadians(getGyroAngle());
+            double temp = forward * Math.cos(angleRad) +
+                    strafe * Math.sin(angleRad);
+            strafe = -forward * Math.sin(angleRad) + strafe * Math.cos(angleRad);
+            forward = temp;
+        }
+
+        double a = strafe - rotation * (WHEELBASE / TRACKWIDTH);
+        double b = strafe + rotation * (WHEELBASE / TRACKWIDTH);
+        double c = forward - rotation * (TRACKWIDTH / WHEELBASE);
+        double d = forward + rotation * (TRACKWIDTH / WHEELBASE);
+
+        double[] angles = new double[]{
+                Math.atan2(b, c) * 180 / Math.PI,
+                Math.atan2(b, d) * 180 / Math.PI,
+                Math.atan2(a, d) * 180 / Math.PI,
+                Math.atan2(a, c) * 180 / Math.PI
+        };
+
+        double[] speeds = new double[]{
+                Math.sqrt(b * b + c * c),
+                Math.sqrt(b * b + d * d),
+                Math.sqrt(a * a + d * d),
+                Math.sqrt(a * a + c * c)
+        };
+
+        double max = speeds[0];
+
+        for (double speed : speeds) {
+            if (speed > max) {
+                max = speed;
+            }
+        }
+
+        for (int i = 0; i < 4; i++) {
+            if (Math.abs(forward) > 0.05 ||
+                    Math.abs(strafe) > 0.05 ||
+                    Math.abs(rotation) > 0.05) {
+                testSystem[i].setTargetAngle(angles[i] + 180);
+            } else {
+                testSystem[i].setTargetAngle(testSystem[i].getTargetAngle());
+            }
+            testSystem[i].setTargetSpeed(speeds[i]);
         }
     }
 

@@ -42,6 +42,7 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
         mAngleMotor = angleMotor;
         mDriveMotor = driveMotor;
 
+        //the angle the pot has to be offset to be "straight" at input 0 degrees.
         mZeroOffset = zeroOffset;
 
         angleMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog, 0, 0);
