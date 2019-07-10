@@ -38,9 +38,9 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
         super(WIDTH, LENGTH);
         zeroGyro();
 
-        //instantiate testsystem with CAN ids 13 (angle) and 14 (drive)
+        //instantiate testsystem with CAN ids 13 (angle) and 1 (drive)
         testSystem = new SwerveDriveModuleSparkTalon[]{
-            new SwerveDriveModuleSparkTalon(0, new TalonSRX(13), new CANSparkMax(14, MotorType.kBrushless), 0),
+            new SwerveDriveModuleSparkTalon(0, new TalonSRX(13), new CANSparkMax(1, MotorType.kBrushless), 0),
             new SwerveDriveModuleSparkTalon(1, new TalonSRX(15), new CANSparkMax(16, MotorType.kBrushless), 0),
             new SwerveDriveModuleSparkTalon(2, new TalonSRX(17), new CANSparkMax(18, MotorType.kBrushless), 0),
             new SwerveDriveModuleSparkTalon(3, new TalonSRX(19), new CANSparkMax(20, MotorType.kBrushless), 0)
