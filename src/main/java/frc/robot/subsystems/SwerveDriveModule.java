@@ -1,17 +1,35 @@
 package frc.robot.subsystems;
 
+/* Orig and no longer used
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+*/
+
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
+//import com.revrobotics.CANSparkMaxLowLevel.ConfigParameter;  // Eric, and no longer available in Rev Robotics library
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANAnalog;
+import com.revrobotics.CANPIDController;
+import com.revrobotics.CANEncoder;
+import com.revrobotics.EncoderType;
+import com.revrobotics.ControlType;
+
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.commands.SwerveModuleCommand;
+// import frc.robot.commands.SwerveModuleCommandSparkTalon;
 import frc.robot.util.MotorStallException;
 
 public class SwerveDriveModule extends Subsystem {
+    // 42 ticks per rev (embedded Neo motor)
+    // standard MK2 gear ratios 42:14, 18:26, 60:15
+    // 4" dia wheel
+    private static final long DRIVE_TICKS_PER_INCH = 42.0 * 42.0/14.0 * 18.0/26.0 * 60.0/15.0 / ( 4.0*Math.PI);
     private static final long STALL_TIMEOUT = 2000;
 
     private long mStallTimeBegin = Long.MAX_VALUE;
@@ -22,22 +40,36 @@ public class SwerveDriveModule extends Subsystem {
 
     private final double mZeroOffset;
 
-    private final TalonSRX mAngleMotor;
-    private final TalonSRX mDriveMotor;
+    // Spark Max controllers, sensors, PID
+    // private final TalonSRX mAngleMotor; // Orig
+    private final CANSparkMax mAngleMotor;
+    private CANPIDController m_pidControllerAngle;  // new for all Spark Max controllers
+    private CANAnalog m_analogSensorAngle;  // new for all Spark Max controllers
+
+    private final CANSparkMax mDriveMotor; 
+    private CANPIDController m_pidControllerDrive;  // new for all Spark Max controllers
+    private CANEncoder m_encoderDrive;  // new for all Spark Max controllers
+    
 
     private boolean driveInverted = false;
     private double driveGearRatio = 1;
     private double driveWheelRadius = 2;
     private boolean angleMotorJam = false;
 
-    public SwerveDriveModule(int moduleNumber, TalonSRX angleMotor, TalonSRX driveMotor, double zeroOffset) {
-        this.moduleNumber = moduleNumber;
+    //public SwerveDriveModule(int moduleNumber, TalonSRX angleMotor, CANSparkMax driveMotor, double zeroOffset) {
+    public SwerveDriveModule(int moduleNumber, CANSparkMax angleMotor, CANSparkMax driveMotor, double zeroOffset) {        this.moduleNumber = moduleNumber;
 
         mAngleMotor = angleMotor;
         mDriveMotor = driveMotor;
 
+        // 10/26/19 reset Spark Maxes
+        mAngleMotor.restoreFactoryDefaults();
+        mDriveMotor.restoreFactoryDefaults();
+
+        //the angle the pot has to be offset to be "straight" at input 0 degrees.
         mZeroOffset = zeroOffset;
 
+        /* Original angleMotor = Talon
         angleMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog, 0, 0);
         angleMotor.setSensorPhase(true);
         angleMotor.config_kP(0, 30, 0);
@@ -45,68 +77,127 @@ public class SwerveDriveModule extends Subsystem {
         angleMotor.config_kD(0, 200, 0);
         angleMotor.setNeutralMode(NeutralMode.Brake);
         angleMotor.set(ControlMode.Position, 0);
+        */
 
-        driveMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+        // New angleMotor controller = Spark Max:
+        // set feedback device to analog, setSensorPhase, set position control mode
+        // Mk2SwerveModule.java for 2910's 2019 robot has
+        // ANGLE_CONSTANTS = new PidConstants(0.5, 0.0, 0.0001); in P, I, D order
+        m_analogSensorAngle = angleMotor.getAnalog(CANAnalog.AnalogMode.kAbsolute);
+        m_pidControllerAngle = angleMotor.getPIDController();
+        m_pidControllerAngle.setFeedbackDevice(m_analogSensorAngle);
+        angleMotor.setMotorType(MotorType.kBrushless);
+        m_pidControllerAngle.setP(0.5);
+        m_pidControllerAngle.setI(0.0); 
+        m_pidControllerAngle.setD(0.0001);  
+        angleMotor.setIdleMode(IdleMode.kBrake);
+        // prevent more than this many amps to the motor
+        // default is 80, which Rev "thinks is a pretty good number for a drivetrain" per Chief Delphi
+        // 60 is from 2910's 2019 Mk2SwerveModule.java for drive motor
+        angleMotor.setSmartCurrentLimit(60); 
 
-        driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, 0);
-        driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 0);
+        // new driveMotor controller = Spark Max
+        driveMotor.setMotorType(MotorType.kBrushless);
 
-        driveMotor.config_kP(0, 15, 0);
-        driveMotor.config_kI(0, 0.01, 0);
-        driveMotor.config_kD(0, 0.1, 0);
-        driveMotor.config_kF(0, 0.2, 0);
+        /* Orig from Eric's code
+        driveMotor.setParameter(ConfigParameter.kP_0, 15);
+        driveMotor.setParameter(ConfigParameter.kI_0, 0.01);
+        driveMotor.setParameter(ConfigParameter.kD_0, 0.1);
+        driveMotor.setParameter(ConfigParameter.kF_0, 0.2);
+        */
+        // new drive controller PID settings, from Rev Robotics example code
+        m_encoderDrive = driveMotor.getEncoder(EncoderType.kQuadrature, 4096);
+        m_pidControllerDrive = driveMotor.getPIDController();
+        m_pidControllerDrive.setFeedbackDevice(m_encoderDrive);
+     
+        m_pidControllerDrive.setP(15);
+        m_pidControllerDrive.setI(0.01);
+        m_pidControllerDrive.setD(0.1);
+        m_pidControllerDrive.setFF(0.2);
 
-        driveMotor.configMotionCruiseVelocity(640, 0);
-        driveMotor.configMotionAcceleration(200, 0);
+        //set frame..?
+        //driveMotor.setControlFramePeriodMs(periodMs);
+        
+        driveMotor.setIdleMode(IdleMode.kBrake);
+        // prevent more than this many amps to the motor
+        // default is 80, which Rev "thinks is a pretty good number for a drivetrain" per Chief Delphi
+        // 60 is from 2910's 2019 Mk2SwerveModule.java for drive motor
+        driveMotor.setSmartCurrentLimit(60); 
+        // driveMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
 
-        driveMotor.setNeutralMode(NeutralMode.Brake);
+        // driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, 0);
+        // driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 0);
 
-        // Set amperage limits
+        // driveMotor.config_kP(0, 15, 0);
+        // driveMotor.config_kI(0, 0.01, 0);
+        // driveMotor.config_kD(0, 0.1, 0);
+        // driveMotor.config_kF(0, 0.2, 0);
+
+        // driveMotor.configMotionCruiseVelocity(640, 0);
+        // driveMotor.configMotionAcceleration(200, 0);
+
+        // driveMotor.setNeutralMode(NeutralMode.Brake);
+
+        /*
+        // Set amperage limits, Original (Talon)
         angleMotor.configContinuousCurrentLimit(30, 0);
         angleMotor.configPeakCurrentLimit(30, 0);
         angleMotor.configPeakCurrentDuration(100, 0);
         angleMotor.enableCurrentLimit(true);
+        */
 
-        driveMotor.configContinuousCurrentLimit(25, 0);
-        driveMotor.configPeakCurrentLimit(25, 0);
-        driveMotor.configPeakCurrentDuration(100, 0);
-        driveMotor.enableCurrentLimit(true);
+        // Set amperage limits
+        angleMotor.setSmartCurrentLimit(25, 25);
+        driveMotor.setSmartCurrentLimit(25, 25);
+
+        // driveMotor.configContinuousCurrentLimit(25, 0);
+        // driveMotor.configPeakCurrentLimit(25, 0);
+        // driveMotor.configPeakCurrentDuration(100, 0);
+        // driveMotor.enableCurrentLimit(true);
         
     	SmartDashboard.putBoolean("Motor Jammed" + moduleNumber, angleMotorJam);
     }
 
+    /**
+     * Compute and return the number of inches traveled by the robot given a 
+     * given a number of encoder ticks read.
+     * 
+     * @return inches traveled
+     */
     private double encoderTicksToInches(double ticks) {
-        if (Robot.PRACTICE_BOT) {
-            return ticks / 36.65;
-        } else {
-            return ticks / 35.6;
-        }
+        return ticks / DRIVE_TICKS_PER_INCH;
     }
 
+    /**
+     * Compute and return the number of ticks the encoder will have to move
+     * given the number of inches you want the robot to move.
+     * 
+     * @return number of ticks (int)
+     */
     private int inchesToEncoderTicks(double inches) {
-        if (Robot.PRACTICE_BOT) {
-            return (int) Math.round(inches * 36.65);
-        } else {
-            return (int) Math.round(inches * 35.6);
-        }
+        return (int) Math.round( inches * DRIVE_TICKS_PER_INCH);
     }
 
     @Override
     protected void initDefaultCommand() {
-        setDefaultCommand(new SwerveModuleCommand(this));
+        // setDefaultCommand(new SwerveModuleCommandSparkTalon(this));  // Orig from Eric
+        setDefaultCommand(new SwerveModuleCommand(this)); // new for all Spark Max controllers
     }
 
-    public TalonSRX getAngleMotor() {
+    public CANSparkMax getAngleMotor() {
         return mAngleMotor;
     }
 
     /**
      * Get the current angle of the swerve module
+     * corrected for zero offset
      *
      * @return An angle in the range [0, 360)
      */
     public double getCurrentAngle() {
-        double angle = mAngleMotor.getSelectedSensorPosition(0) * (360.0 / 1024.0);
+        // double angle = mAngleMotor.getSelectedSensorPosition(0) * (360.0 / 1024.0); // orig
+        double angle = m_analogSensorAngle.getPosition() * (360.0 / 1024.0); // new all spark max controllers
+ 
         angle -= mZeroOffset;
         angle %= 360;
         if (angle < 0) angle += 360;
@@ -114,15 +205,41 @@ public class SwerveDriveModule extends Subsystem {
         return angle;
     }
 
+    /** 
+     * Get the raw voltage from the angle analog sensor 
+     * 
+     * @return Raw voltage from sensor, presumably in range either [0, 3] or maybe [0, 5]
+     */
+    public double getAngleVoltage() {
+        return m_analogSensorAngle.getVoltage();
+    }
+
     public double getDriveDistance() {
-        int ticks = mDriveMotor.getSelectedSensorPosition(0);
+        double ticks = mDriveMotor.getEncoder().getPosition();
         if (driveInverted)
             ticks = -ticks;
 
         return encoderTicksToInches(ticks);
     }
 
-    public TalonSRX getDriveMotor() {
+    /**
+     * Get the raw position from the embedded drive motor's encoder.  
+     * If you've not set the Position Conversion Factor, (i.e. default) the return is in rotations.  
+     */
+    public double getDrivePosition() {
+        return m_encoderDrive.getPosition();
+    }
+
+    /**
+     * Get the raw velocity from the embedded drive motor's encoder.
+     * If you've not set the Velocity Conversion Factor, (i.e. default) the return is in RPMs.
+     */
+    public double getDriveVelocity() {
+        return m_encoderDrive.getVelocity();
+    }
+
+
+    public CANSparkMax getDriveMotor() {
         return mDriveMotor;
     }
 
@@ -164,7 +281,8 @@ public class SwerveDriveModule extends Subsystem {
 
         targetAngle += mZeroOffset;
 
-        double currentAngle = mAngleMotor.getSelectedSensorPosition(0) * (360.0 / 1024.0);
+        // double currentAngle = mAngleMotor.getSelectedSensorPosition(0) * (360.0 / 1024.0); // orig
+        double currentAngle = m_analogSensorAngle.getPosition() * (360.0 / 1024.0); // new all spark max controllers
         double currentAngleMod = currentAngle % 360;
         if (currentAngleMod < 0) currentAngleMod += 360;
 
@@ -189,7 +307,7 @@ public class SwerveDriveModule extends Subsystem {
 
         targetAngle += currentAngle - currentAngleMod;
 
-        double currentError = mAngleMotor.getClosedLoopError(0);
+        // double currentError = mAngleMotor.getClosedLoopError(0);  // new commented out 10/26/19 hoping not needed
 //        if (Math.abs(currentError - mLastError) < 7.5 &&
 //                Math.abs(currentAngle - targetAngle) > 5) {
 //            if (mStallTimeBegin == Long.MAX_VALUE) {
@@ -205,9 +323,10 @@ public class SwerveDriveModule extends Subsystem {
 //        } else {
 //            mStallTimeBegin = Long.MAX_VALUE;
 //        }
-        mLastError = currentError;
+        // mLastError = currentError;  // new commented out 10/26/19 hoping not needed
         targetAngle *= 1024.0 / 360.0;
-        mAngleMotor.set(ControlMode.Position, targetAngle);
+        // mAngleMotor.set(ControlMode.Position, targetAngle); // orig
+        m_pidControllerAngle.setReference(targetAngle, ControlType.kPosition); // new for all Spark Max controllers
     }
 
     public void setTargetDistance(double distance) {
@@ -225,7 +344,9 @@ public class SwerveDriveModule extends Subsystem {
 
         SmartDashboard.putNumber("Module Ticks " + moduleNumber, distance);
 
-        mDriveMotor.set(ControlMode.MotionMagic, distance);
+        // TODO: confirm the distance is set in the right units
+        m_pidControllerDrive.setReference(distance, ControlType.kPosition);
+        // mDriveMotor.set(ControlMode.MotionMagic, distance);
     }
 
     public void setTargetSpeed(double speed) {
@@ -234,12 +355,19 @@ public class SwerveDriveModule extends Subsystem {
 //    		return;
 //    	}
         if (driveInverted) speed = -speed;
-
-        mDriveMotor.set(ControlMode.PercentOutput, speed);
+        
+        // mDriveMotor.set(ControlMode.PercentOutput, speed);  // all Talons
+        mDriveMotor.set(speed);  
+        // 10/26/19:
+        // If for some reason the simple approach of setting the speed 
+        // as the voltage percent, above, doesn't work, maybe it will be
+        // better to set the motor's speed using the PID controller, i.e.:
+        // m_pidControllerDrive.setReference(speed, ControlType.kVelocity);
     }
 
     public void zeroDistance() {
-        mDriveMotor.setSelectedSensorPosition(0, 0, 0);
+        // mDriveMotor.setEncPosition(0); // Eric
+        m_encoderDrive.setPosition(0);
     }
     
     public void resetMotor() {
@@ -248,8 +376,25 @@ public class SwerveDriveModule extends Subsystem {
     	SmartDashboard.putBoolean("Motor Jammed" + moduleNumber, angleMotorJam);
     }
 
+    /**
+     *  Set the max acceleration and velocity for Smart Motion (Magic Motion for Talons)
+     * TODO: Need to look up the Talon command and then find the equivalent Spark Max  
+     * command (for current version of API), 
+     * then insert the Spark Max command here.  Be very careful about units-- make 
+     * sure to write this code to make the robot do, via the Spark Max, exactly what it
+     * was built and programmed to do with the Talons.
+     * @param maxAcceleration
+     * @param maxVelocity
+     */
     public void setMotionConstraints(double maxAcceleration, double maxVelocity) {
-        mDriveMotor.configMotionAcceleration(inchesToEncoderTicks(maxAcceleration * 12) / 10, 0);
-        mDriveMotor.configMotionCruiseVelocity(inchesToEncoderTicks(maxVelocity * 12) / 10, 0);
+        /* Eric's: [Eric:] Units all wrong...
+        mDriveMotor.setParameter(ConfigParameter.kSmartMotionMaxAccel_0, maxAcceleration);
+        mDriveMotor.setParameter(ConfigParameter.kSmartMotionMaxVelocity_0, maxVelocity); */
+
+        // mDriveMotor.configMotionAcceleration(inchesToEncoderTicks(maxAcceleration * 12) / 10, 0);
+        // mDriveMotor.configMotionCruiseVelocity(inchesToEncoderTicks(maxVelocity * 12) / 10, 0);
+
+        m_pidControllerDrive.setSmartMotionMaxAccel(inchesToEncoderTicks(maxAcceleration * 12) / 10, 0);
+        m_pidControllerDrive.setSmartMotionMaxVelocity(inchesToEncoderTicks(maxVelocity * 12) / 10, 0);
     }
 }

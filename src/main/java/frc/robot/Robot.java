@@ -8,7 +8,7 @@ import frc.robot.commands.autonomous.stage2.VisionTargetingCubeCommand;
 import frc.robot.motion.AutonomousPaths;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GathererSubsystem;
-import frc.robot.subsystems.SwerveDriveModuleSparkTalon;
+// import frc.robot.subsystems.SwerveDriveModuleSparkTalon;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.util.Side;
 
@@ -69,10 +69,10 @@ public class Robot extends TimedRobot {
         for (int i = 0; i < 4; i++) {
             SmartDashboard.putNumber("Module Angle " + i, swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
             SmartDashboard.putNumber("Module Pos " + i, (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
-            SmartDashboard.putNumber("Module Raw Angle " + i, swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getSelectedSensorPosition(0));
-            SmartDashboard.putNumber("Module Drive Speed " + i, swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getMotorOutputPercent());
-            SmartDashboard.putNumber("Module Current Ticks " + i, swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getSelectedSensorPosition(0));
-        	SmartDashboard.putNumber("Module Drive % " + i, swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getMotorOutputPercent());
+            SmartDashboard.putNumber("Module Angle Encoder " + i, swerveDriveSubsystem.getSwerveModule(i).getAngleVoltage()); // getSelectedSensorPosition(0));
+            SmartDashboard.putNumber("Module Output Duty Cycle " + i, swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getAppliedOutput()); // getMotorOutputPercent());
+            SmartDashboard.putNumber("Module Drive Position " + i, swerveDriveSubsystem.getSwerveModule(i).getDrivePosition()); // getDriveMotor().getSelectedSensorPosition(0));
+        	SmartDashboard.putNumber("Module Output Current " + i, swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
         }
 
 		SmartDashboard.putNumber("Elevator encoder", elevatorSubsystem.getEncoderValue());

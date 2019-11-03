@@ -1,6 +1,3 @@
-/******************************************************
- * whole file commented out and ready for removal 10/26/19
- * 
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -8,19 +5,13 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.ConfigParameter;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.commands.SwerveModuleCommand;
-import frc.robot.commands.SwerveModuleCommandSparkTalon;
 import frc.robot.util.MotorStallException;
 
-public class SwerveDriveModuleSparkTalon extends Subsystem {
+public class SwerveDriveModuleOrig extends Subsystem {
     private static final long STALL_TIMEOUT = 2000;
 
     private long mStallTimeBegin = Long.MAX_VALUE;
@@ -32,20 +23,19 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
     private final double mZeroOffset;
 
     private final TalonSRX mAngleMotor;
-    private final CANSparkMax mDriveMotor;
+    private final TalonSRX mDriveMotor;
 
     private boolean driveInverted = false;
     private double driveGearRatio = 1;
     private double driveWheelRadius = 2;
     private boolean angleMotorJam = false;
 
-    public SwerveDriveModuleSparkTalon(int moduleNumber, TalonSRX angleMotor, CANSparkMax driveMotor, double zeroOffset) {
+    public SwerveDriveModuleOrig(int moduleNumber, TalonSRX angleMotor, TalonSRX driveMotor, double zeroOffset) {
         this.moduleNumber = moduleNumber;
 
         mAngleMotor = angleMotor;
         mDriveMotor = driveMotor;
 
-        //the angle the pot has to be offset to be "straight" at input 0 degrees.
         mZeroOffset = zeroOffset;
 
         angleMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog, 0, 0);
@@ -56,31 +46,20 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
         angleMotor.setNeutralMode(NeutralMode.Brake);
         angleMotor.set(ControlMode.Position, 0);
 
-        driveMotor.setMotorType(MotorType.kBrushless);
+        driveMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
 
-        driveMotor.setParameter(ConfigParameter.kP_0, 15);
-        driveMotor.setParameter(ConfigParameter.kI_0, 0.01);
-        driveMotor.setParameter(ConfigParameter.kD_0, 0.1);
-        driveMotor.setParameter(ConfigParameter.kF_0, 0.2);
+        driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, 0);
+        driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 0);
 
-        //set frame..?
-        //driveMotor.setControlFramePeriodMs(periodMs);
-        
-        driveMotor.setIdleMode(IdleMode.kBrake);
-        // driveMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+        driveMotor.config_kP(0, 15, 0);
+        driveMotor.config_kI(0, 0.01, 0);
+        driveMotor.config_kD(0, 0.1, 0);
+        driveMotor.config_kF(0, 0.2, 0);
 
-        // driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, 0);
-        // driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 0);
+        driveMotor.configMotionCruiseVelocity(640, 0);
+        driveMotor.configMotionAcceleration(200, 0);
 
-        // driveMotor.config_kP(0, 15, 0);
-        // driveMotor.config_kI(0, 0.01, 0);
-        // driveMotor.config_kD(0, 0.1, 0);
-        // driveMotor.config_kF(0, 0.2, 0);
-
-        // driveMotor.configMotionCruiseVelocity(640, 0);
-        // driveMotor.configMotionAcceleration(200, 0);
-
-        // driveMotor.setNeutralMode(NeutralMode.Brake);
+        driveMotor.setNeutralMode(NeutralMode.Brake);
 
         // Set amperage limits
         angleMotor.configContinuousCurrentLimit(30, 0);
@@ -88,11 +67,10 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
         angleMotor.configPeakCurrentDuration(100, 0);
         angleMotor.enableCurrentLimit(true);
 
-        driveMotor.setSmartCurrentLimit(25, 25);
-        // driveMotor.configContinuousCurrentLimit(25, 0);
-        // driveMotor.configPeakCurrentLimit(25, 0);
-        // driveMotor.configPeakCurrentDuration(100, 0);
-        // driveMotor.enableCurrentLimit(true);
+        driveMotor.configContinuousCurrentLimit(25, 0);
+        driveMotor.configPeakCurrentLimit(25, 0);
+        driveMotor.configPeakCurrentDuration(100, 0);
+        driveMotor.enableCurrentLimit(true);
         
     	SmartDashboard.putBoolean("Motor Jammed" + moduleNumber, angleMotorJam);
     }
@@ -115,7 +93,9 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
 
     @Override
     protected void initDefaultCommand() {
-        setDefaultCommand(new SwerveModuleCommandSparkTalon(this));
+        /*  removed 10/26/19 to resolve compile error
+        setDefaultCommand(new SwerveModuleCommand(this));  
+        */
     }
 
     public TalonSRX getAngleMotor() {
@@ -126,7 +106,7 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
      * Get the current angle of the swerve module
      *
      * @return An angle in the range [0, 360)
-     * /
+     */
     public double getCurrentAngle() {
         double angle = mAngleMotor.getSelectedSensorPosition(0) * (360.0 / 1024.0);
         angle -= mZeroOffset;
@@ -137,14 +117,14 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
     }
 
     public double getDriveDistance() {
-        double ticks = mDriveMotor.getEncoder().getPosition();
+        int ticks = mDriveMotor.getSelectedSensorPosition(0);
         if (driveInverted)
             ticks = -ticks;
 
         return encoderTicksToInches(ticks);
     }
 
-    public CANSparkMax getDriveMotor() {
+    public TalonSRX getDriveMotor() {
         return mDriveMotor;
     }
 
@@ -247,10 +227,7 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
 
         SmartDashboard.putNumber("Module Ticks " + moduleNumber, distance);
 
-        //TODO: Read the docs
-        //do not know if this is correct position control
-        mDriveMotor.pidWrite(distance);
-        // mDriveMotor.set(ControlMode.MotionMagic, distance);
+        mDriveMotor.set(ControlMode.MotionMagic, distance);
     }
 
     public void setTargetSpeed(double speed) {
@@ -260,12 +237,11 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
 //    	}
         if (driveInverted) speed = -speed;
 
-        mDriveMotor.set(speed);
-        // mDriveMotor.set(ControlMode.PercentOutput, speed);
+        mDriveMotor.set(ControlMode.PercentOutput, speed);
     }
 
     public void zeroDistance() {
-        mDriveMotor.setEncPosition(0);
+        mDriveMotor.setSelectedSensorPosition(0, 0, 0);
     }
     
     public void resetMotor() {
@@ -274,18 +250,8 @@ public class SwerveDriveModuleSparkTalon extends Subsystem {
     	SmartDashboard.putBoolean("Motor Jammed" + moduleNumber, angleMotorJam);
     }
 
-    /**
-     * Units all wrong... 
-     * TODO: fix
-     * @param maxAcceleration
-     * @param maxVelocity
-     * /
     public void setMotionConstraints(double maxAcceleration, double maxVelocity) {
-        mDriveMotor.setParameter(ConfigParameter.kSmartMotionMaxAccel_0, maxAcceleration);
-        mDriveMotor.setParameter(ConfigParameter.kSmartMotionMaxVelocity_0, maxVelocity);
-
-        // mDriveMotor.configMotionAcceleration(inchesToEncoderTicks(maxAcceleration * 12) / 10, 0);
-        // mDriveMotor.configMotionCruiseVelocity(inchesToEncoderTicks(maxVelocity * 12) / 10, 0);
+        mDriveMotor.configMotionAcceleration(inchesToEncoderTicks(maxAcceleration * 12) / 10, 0);
+        mDriveMotor.configMotionCruiseVelocity(inchesToEncoderTicks(maxVelocity * 12) / 10, 0);
     }
 }
-*/

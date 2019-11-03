@@ -11,6 +11,7 @@ import frc.robot.Robot;
 import static frc.robot.RobotMap.*;
 
 public class SwerveDriveSubsystem extends HolonomicDrivetrain {
+    // TODO: put our dimensions here
     public static final double WHEELBASE = 14.5;  // Swerve bot: 14.5 Comp bot: 20.5
     public static final double TRACKWIDTH = 13.5; // Swerve bot: 13.5 Comp bot: 25.5
 
@@ -28,7 +29,8 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
 	/*
 	* Implement new servedrivemodule with spark and talon blend -- and our proprietary seven herbs and spices
 	*/
-    private static SwerveDriveModuleSparkTalon[] testSystem;
+    // private static SwerveDriveModuleSparkTalon[] testSystem;
+    private static SwerveDriveModule[] testSystem;
     
 
 
@@ -39,13 +41,15 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
         zeroGyro();
 
         //instantiate testsystem with CAN ids 13 (angle) and 1 (drive)
+        /* removed 10/26/19
         testSystem = new SwerveDriveModuleSparkTalon[]{
             new SwerveDriveModuleSparkTalon(0, new TalonSRX(13), new CANSparkMax(1, MotorType.kBrushless), 0),
             new SwerveDriveModuleSparkTalon(1, new TalonSRX(15), new CANSparkMax(16, MotorType.kBrushless), 0),
             new SwerveDriveModuleSparkTalon(2, new TalonSRX(17), new CANSparkMax(18, MotorType.kBrushless), 0),
             new SwerveDriveModuleSparkTalon(3, new TalonSRX(19), new CANSparkMax(20, MotorType.kBrushless), 0)
-        };
+        }; */
 
+        /* orig from all talon controllers
         if (Robot.PRACTICE_BOT) {
             mSwerveModules = new SwerveDriveModule[] {
                     new SwerveDriveModule(0, new TalonSRX(3), new TalonSRX(4), 255.5859),
@@ -56,29 +60,39 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
 
             mSwerveModules[0].setDriveInverted(true);
             mSwerveModules[3].setDriveInverted(true);
-        } else {
+        } else { */
+            // 10/26/19 Big Switch from Talon to Spark Max controllers
             mSwerveModules = new SwerveDriveModule[] {
                     new SwerveDriveModule(0,
-                            new TalonSRX(DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR),
-                            new TalonSRX(DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR),
+                        new CANSparkMax(DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR, MotorType.kBrushless),
+                        new CANSparkMax(DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR, MotorType.kBrushless),
+                            /* new TalonSRX(DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR),
+                            new TalonSRX(DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR), */
                             87.890),
                     new SwerveDriveModule(1,
-                            new TalonSRX(DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR),
-                            new TalonSRX(DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR),
+                    new CANSparkMax(DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR, MotorType.kBrushless),
+                    new CANSparkMax(DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR, MotorType.kBrushless),
+                        /* new TalonSRX(DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR),
+                            new TalonSRX(DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR), */
                             235.195),
+                    // 10/26/19 need to change the other 2 modules to SparkMax
                     new SwerveDriveModule(2,
-                            new TalonSRX(DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR),
-                            new TalonSRX(DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR),
+                        new CANSparkMax(DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR, MotorType.kBrushless),
+                        new CANSparkMax(DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR, MotorType.kBrushless),
+                        /* new TalonSRX(DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR),
+                            new TalonSRX(DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR), */
                             320.976),
                     new SwerveDriveModule(3,
-                            new TalonSRX(DRIVETRAIn_BACK_LEFT_ANGLE_MOTOR),
-                            new TalonSRX(DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR),
-                            245.742),
+                        new CANSparkMax(DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR, MotorType.kBrushless),
+                        new CANSparkMax(DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR, MotorType.kBrushless),
+                        /* new TalonSRX(DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR),
+                            new TalonSRX(DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR), */
+                            245.742), 
             };
 
             mSwerveModules[0].setDriveInverted(true);
             mSwerveModules[3].setDriveInverted(true);
-        }
+      //  }
 
         for (SwerveDriveModule module : mSwerveModules) {
             module.setTargetAngle(0);
@@ -270,6 +284,6 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
 
     @Override
     public double getMaxVelocity() {
-        return 10;
+        return 10; 
     }
 }

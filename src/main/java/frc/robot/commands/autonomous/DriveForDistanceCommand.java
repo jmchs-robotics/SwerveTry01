@@ -107,10 +107,10 @@ public class DriveForDistanceCommand extends Command {
             try {
                 encPosLoggers[i].write(String.format("%d,%d\n",
                         iterCount,            
-                        Math.abs(drivetrain.getSwerveModule(i).getDrivePosition())));   // getDriveMotor().getSelectedSensorPosition(0)))); // 191026
+                        Math.abs(drivetrain.getSwerveModule(i).getDrivePosition())));   // getDriveMotor().getSelectedSensorPosition(0))));
                 encVelLoggers[i].write(String.format("%d,%d\n",
                         iterCount,
-                        Math.abs(drivetrain.getSwerveModule(i).getDriveVelocity()))); // getDriveMotor().getSelectedSensorVelocity(0))));  // 191026
+                        Math.abs(drivetrain.getSwerveModule(i).getDriveVelocity()))); // getDriveMotor().getSelectedSensorVelocity(0))));
 
             } catch (IOException e) { }
         }

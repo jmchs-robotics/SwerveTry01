@@ -1,3 +1,6 @@
+/* 
+ *  Whole file commented out and ready for removal 10/26/19
+ * 
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
@@ -24,3 +27,4 @@ public class SwerveModuleCommandSparkTalon extends Command {
 		return false;
 	}
 }
+*/
