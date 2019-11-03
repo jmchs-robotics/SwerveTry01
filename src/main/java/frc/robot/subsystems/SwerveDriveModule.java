@@ -29,7 +29,7 @@ public class SwerveDriveModule extends Subsystem {
     // 42 ticks per rev (embedded Neo motor)
     // standard MK2 gear ratios 42:14, 18:26, 60:15
     // 4" dia wheel
-    private static final long DRIVE_TICKS_PER_INCH = 42.0 * 42.0/14.0 * 18.0/26.0 * 60.0/15.0 / ( 4.0*Math.PI);
+    private static final double DRIVE_TICKS_PER_INCH = 42.0 * 42.0/14.0 * 18.0/26.0 * 60.0/15.0 / ( 4.0*Math.PI);
     private static final long STALL_TIMEOUT = 2000;
 
     private long mStallTimeBegin = Long.MAX_VALUE;
