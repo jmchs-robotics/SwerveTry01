@@ -18,11 +18,15 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
     public static final double WIDTH = 20;  // Swerve bot: 20 Comp bot: 37
     public static final double LENGTH = 19; // Swerve bot: 19 Comp bot: 32
 
+    private double angle_kP;
+    private double angle_kI;
+    private double angle_kD;
+
 	/*
-	 * 0 is Front Right
-	 * 1 is Front Left
-	 * 2 is Back Left
-	 * 3 is Back Right
+	 * 0 is Front Left
+	 * 1 is Front Right
+	 * 2 is Back Right
+	 * 3 is Back Left
 	 */
     private SwerveDriveModule[] mSwerveModules;
     
@@ -30,7 +34,7 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
 	* Implement new servedrivemodule with spark and talon blend -- and our proprietary seven herbs and spices
 	*/
     // private static SwerveDriveModuleSparkTalon[] testSystem;
-    private static SwerveDriveModule[] testSystem;
+    // private static SwerveDriveModule[] testSystem;
     
 
 
@@ -39,6 +43,10 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
     public SwerveDriveSubsystem() {
         super(WIDTH, LENGTH);
         zeroGyro();
+
+        angle_kP = 0.0;
+        angle_kI = 0.0;
+        angle_kD = 0.0;
 
         //instantiate testsystem with CAN ids 13 (angle) and 1 (drive)
         /* removed 10/26/19
@@ -89,9 +97,10 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
                             new TalonSRX(DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR), */
                             245.742), 
             };
-
+/*
             mSwerveModules[0].setDriveInverted(true);
             mSwerveModules[3].setDriveInverted(true);
+            */
       //  }
 
         for (SwerveDriveModule module : mSwerveModules) {
@@ -207,7 +216,7 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
         }
     }
 
-    //drive command with new motors:
+    //drive command for spark max and Talon controllers
     @Override
     public void holonomicDriveSparkTalon(double forward, double strafe, double rotation, boolean fieldOriented) {
         forward *= getSpeedMultiplier();
@@ -252,11 +261,11 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
             if (Math.abs(forward) > 0.05 ||
                     Math.abs(strafe) > 0.05 ||
                     Math.abs(rotation) > 0.05) {
-                testSystem[i].setTargetAngle(angles[i] + 180);
+                    mSwerveModules[i].setTargetAngle(angles[i] + 180);
             } else {
-                testSystem[i].setTargetAngle(testSystem[i].getTargetAngle());
+                mSwerveModules[i].setTargetAngle(mSwerveModules[i].getTargetAngle());
             }
-            testSystem[i].setTargetSpeed(speeds[i]);
+            mSwerveModules[i].setTargetSpeed(speeds[i]);
         }
     }
 
@@ -286,4 +295,33 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
     public double getMaxVelocity() {
         return 10; 
     }
+
+    public double getAngleKP() {
+        return angle_kP;
+    }
+    public double getAngleKI() {
+        return angle_kI;
+    }
+    public double getAngleKD() {
+        return angle_kD;
+    }
+    public void setAngleKP( double k) {
+        angle_kP = k;
+        for (int i = 0; i < 4; i++) {
+            mSwerveModules[i].setAngleKP( k);
+        }
+    }
+    public void setAngleKI( double k) {
+        angle_kI = k;
+        for (int i = 0; i < 4; i++) {
+            mSwerveModules[i].setAngleKI( k);
+        }
+    }
+    public void setAngleKD( double k) {
+        angle_kD = k;
+        for (int i = 0; i < 4; i++) {
+            mSwerveModules[i].setAngleKD( k);
+        }
+    }
+
 }

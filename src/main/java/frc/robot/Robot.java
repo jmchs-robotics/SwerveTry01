@@ -55,9 +55,9 @@ public class Robot extends TimedRobot {
 	public void robotInit() {
 		mOI = new OI(this);
 
-		gathererSubsystem = new GathererSubsystem();
+		// gathererSubsystem = new GathererSubsystem();
 		swerveDriveSubsystem = new SwerveDriveSubsystem();
-		elevatorSubsystem = new ElevatorSubsystem();
+		// elevatorSubsystem = new ElevatorSubsystem();
 
 		mOI.registerControls();
 
@@ -66,22 +66,45 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
+		double k;
         for (int i = 0; i < 4; i++) {
             SmartDashboard.putNumber("Module Angle " + i, swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
             SmartDashboard.putNumber("Module Pos " + i, (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
             SmartDashboard.putNumber("Module Angle Encoder " + i, swerveDriveSubsystem.getSwerveModule(i).getAngleVoltage()); // getSelectedSensorPosition(0));
             SmartDashboard.putNumber("Module Output Duty Cycle " + i, swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getAppliedOutput()); // getMotorOutputPercent());
             SmartDashboard.putNumber("Module Drive Position " + i, swerveDriveSubsystem.getSwerveModule(i).getDrivePosition()); // getDriveMotor().getSelectedSensorPosition(0));
-        	SmartDashboard.putNumber("Module Output Current " + i, swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
+			SmartDashboard.putNumber("Module Output Current " + i, swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
+			SmartDashboard.putNumber("Angle Motor Faults " + i, swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getFaults());
+			
         }
+		
+		/* Put angle PID onto Smart Dashboard, and read Smart Dashboard for changes to them */
+		k = SmartDashboard.getNumber( "Angle kP", 0.0);
+		if( k != swerveDriveSubsystem.getAngleKP()) {
+			swerveDriveSubsystem.setAngleKP( k);
+		}
+		k = SmartDashboard.getNumber( "Angle kI", 0.0);
+		if( k != swerveDriveSubsystem.getAngleKI()) {
+			swerveDriveSubsystem.setAngleKI( k);
+		}
+		k = SmartDashboard.getNumber( "Angle kD", 0.0);
+		if( k != swerveDriveSubsystem.getAngleKD()) {
+			swerveDriveSubsystem.setAngleKD( k);
+		}
+		SmartDashboard.putNumber("Angle kP ", swerveDriveSubsystem.getAngleKP());
+		SmartDashboard.putNumber("Angle kI ", swerveDriveSubsystem.getAngleKI());
+		SmartDashboard.putNumber("Angle kD ", swerveDriveSubsystem.getAngleKD());
 
+
+		SmartDashboard.putNumber("Drivetrain Angle", swerveDriveSubsystem.getGyroAngle());
+
+		/*
 		SmartDashboard.putNumber("Elevator encoder", elevatorSubsystem.getEncoderValue());
 		SmartDashboard.putNumber("Elevator height", elevatorSubsystem.getCurrentHeight() + Math.random() * 1e-9);
 		SmartDashboard.putNumber("Elevator target", elevatorSubsystem.getTargetHeight() + Math.random() * 1e-9);
 		SmartDashboard.putNumber("Elevator percent", elevatorSubsystem.getMotors()[0].getMotorOutputPercent() + Math.random() * 1e-9);
 		SmartDashboard.putNumber("Elevator speed", elevatorSubsystem.getMotors()[0].getSelectedSensorVelocity(0));
-
-		SmartDashboard.putNumber("Drivetrain Angle", swerveDriveSubsystem.getGyroAngle());
+		*/
 	}
 
 	/**

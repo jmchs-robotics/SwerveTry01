@@ -108,12 +108,23 @@ public class SwerveDriveModuleOrig extends Subsystem {
      * @return An angle in the range [0, 360)
      */
     public double getCurrentAngle() {
-        double angle = mAngleMotor.getSelectedSensorPosition(0) * (360.0 / 1024.0);
+        // double angle = mAngleMotor.getSelectedSensorPosition(0) * (360.0 / 1024.0);
+        double angle = ( 1.0 - mAngleMotor.getSelectedSensorPosition(0) / 3.0) * 360.0;
         angle -= mZeroOffset;
-        angle %= 360;
-        if (angle < 0) angle += 360;
+        angle %= 360.0;
+        if (angle < 0.0) angle += 360.0;
 
         return angle;
+        /*
+        // from 2910's 2019 code:
+        double angle = (1.0 - angleEncoder.getVoltage() / RobotController.getVoltage5V()) * 2.0 * Math.PI + angleOffset;
+        angle %= 2.0 * Math.PI;
+        if (angle < 0.0) {
+            angle += 2.0 * Math.PI;
+        }
+
+        return angle;
+    */
     }
 
     public double getDriveDistance() {

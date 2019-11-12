@@ -45,6 +45,9 @@ public class SwerveDriveModule extends Subsystem {
     private final CANSparkMax mAngleMotor;
     private CANPIDController m_pidControllerAngle;  // new for all Spark Max controllers
     private CANAnalog m_analogSensorAngle;  // new for all Spark Max controllers
+    private double angle_kP;
+    private double angle_kI;
+    private double angle_kD;
 
     private final CANSparkMax mDriveMotor; 
     private CANPIDController m_pidControllerDrive;  // new for all Spark Max controllers
@@ -59,12 +62,18 @@ public class SwerveDriveModule extends Subsystem {
     //public SwerveDriveModule(int moduleNumber, TalonSRX angleMotor, CANSparkMax driveMotor, double zeroOffset) {
     public SwerveDriveModule(int moduleNumber, CANSparkMax angleMotor, CANSparkMax driveMotor, double zeroOffset) {        this.moduleNumber = moduleNumber;
 
+        angle_kP = 0.0;
+        angle_kI = 0.0;
+        angle_kD = 0.0;
+
         mAngleMotor = angleMotor;
         mDriveMotor = driveMotor;
 
         // 10/26/19 reset Spark Maxes
         mAngleMotor.restoreFactoryDefaults();
+        mAngleMotor.clearFaults();
         mDriveMotor.restoreFactoryDefaults();
+        mDriveMotor.clearFaults();
 
         //the angle the pot has to be offset to be "straight" at input 0 degrees.
         mZeroOffset = zeroOffset;
@@ -87,9 +96,9 @@ public class SwerveDriveModule extends Subsystem {
         m_pidControllerAngle = angleMotor.getPIDController();
         m_pidControllerAngle.setFeedbackDevice(m_analogSensorAngle);
         angleMotor.setMotorType(MotorType.kBrushless);
-        m_pidControllerAngle.setP(0.5);
-        m_pidControllerAngle.setI(0.0); 
-        m_pidControllerAngle.setD(0.0001);  
+        m_pidControllerAngle.setP( angle_kP); // 0.5);
+        m_pidControllerAngle.setI( angle_kI); // 0.0); 
+        m_pidControllerAngle.setD( angle_kD); // 0.0001);  
         angleMotor.setIdleMode(IdleMode.kBrake);
         // prevent more than this many amps to the motor
         // default is 80, which Rev "thinks is a pretty good number for a drivetrain" per Chief Delphi
@@ -188,6 +197,20 @@ public class SwerveDriveModule extends Subsystem {
         return mAngleMotor;
     }
 
+    public void setAngleKP( double k) {
+        angle_kP = k;
+        m_pidControllerAngle.setP( k); // 0.5);
+    }
+    public void setAngleKI( double k) {
+        angle_kI = k;
+        m_pidControllerAngle.setI( k); // 0.5);
+    }
+    public void setAngleKD( double k) {
+        angle_kD = k;
+        m_pidControllerAngle.setD( k); // 0.5);
+    }
+ 
+
     /**
      * Get the current angle of the swerve module
      * corrected for zero offset
@@ -196,13 +219,31 @@ public class SwerveDriveModule extends Subsystem {
      */
     public double getCurrentAngle() {
         // double angle = mAngleMotor.getSelectedSensorPosition(0) * (360.0 / 1024.0); // orig
-        double angle = m_analogSensorAngle.getPosition() * (360.0 / 1024.0); // new all spark max controllers
+        // new all spark max controllers and based on 2910's 2019 code
+        double angle = ( 1.0 - m_analogSensorAngle.getPosition() / 3.0) * 360.0; 
  
         angle -= mZeroOffset;
         angle %= 360;
         if (angle < 0) angle += 360;
 
         return angle;
+
+              /*
+              // from 2910's 2019 code in
+              // Common-Public/robot/src/main/java/org/frcteam2910/common/robot/drivers/Mk2SwerveModule.java
+              // They switched to radians.
+              readAngle() {
+              double angle = (1.0 - angleEncoder.getVoltage() / RobotController.getVoltage5V()) * 2.0 * Math.PI + angleOffset;
+              angle %= 2.0 * Math.PI;
+              if (angle < 0.0) {
+                  angle += 2.0 * Math.PI;
+              }
+      
+              return angle; }
+          */
+
+          
+
     }
 
     /** 
