@@ -60,7 +60,7 @@ public class SwerveDriveModule extends Subsystem {
     private boolean angleMotorJam = false;
 
     private double ANGLE_SENSOR_MAX_VOLTAGE = 3.84375;
-    private double ANGLE_SENSOR_MIN_VOLTAGE = 0.0;
+    private double ANGLE_SENSOR_MIN_VOLTAGE = 0.04;
     private double ANGLE_SENSOR_RANGE = ANGLE_SENSOR_MAX_VOLTAGE - ANGLE_SENSOR_MIN_VOLTAGE;
 
     //public SwerveDriveModule(int moduleNumber, TalonSRX angleMotor, CANSparkMax driveMotor, double zeroOffset) {
@@ -97,6 +97,7 @@ public class SwerveDriveModule extends Subsystem {
         // Mk2SwerveModule.java for 2910's 2019 robot has
         // ANGLE_CONSTANTS = new PidConstants(0.5, 0.0, 0.0001); in P, I, D order
         m_analogSensorAngle = angleMotor.getAnalog(CANAnalog.AnalogMode.kAbsolute);
+        m_analogSensorAngle.setPositionConversionFactor( 1.0 / ANGLE_SENSOR_RANGE); // sets getPosition to return in range [0.1) for one full rotation
         m_pidControllerAngle = angleMotor.getPIDController();
         m_pidControllerAngle.setFeedbackDevice(m_analogSensorAngle);
         angleMotor.setMotorType(MotorType.kBrushless);
@@ -215,6 +216,9 @@ public class SwerveDriveModule extends Subsystem {
     }
  
 
+    public double getRawSensorPosition() {
+        return m_analogSensorAngle.getPosition();
+    }
     /**
      * Get the current angle of the swerve module
      * corrected for zero offset
@@ -224,8 +228,8 @@ public class SwerveDriveModule extends Subsystem {
     public double getCurrentAngle() {
         // double angle = mAngleMotor.getSelectedSensorPosition(0) * (360.0 / 1024.0); // orig
         // new all spark max controllers and based on 2910's 2019 code
-        double angle = ( 1.0 - (m_analogSensorAngle.getPosition() - ANGLE_SENSOR_MIN_VOLTAGE) / ANGLE_SENSOR_RANGE) * 360.0; 
- 
+        // double angle = ( 1.0 - (m_analogSensorAngle.getPosition() - ANGLE_SENSOR_MIN_VOLTAGE) / ANGLE_SENSOR_RANGE) * 360.0; 
+        double angle = ( 1.0 - m_analogSensorAngle.getPosition()) * 360.0; // getPosition returning a value in [0,1)
         angle -= mZeroOffset;
         angle %= 360;
         if (angle < 0) angle += 360;
@@ -327,8 +331,9 @@ public class SwerveDriveModule extends Subsystem {
 
         // double currentAngle = mAngleMotor.getSelectedSensorPosition(0) * (360.0 / 1024.0); // orig
         // double currentAngle = (m_analogSensorAngle.getPosition() - ANGLE_SENSOR_MIN_VOLTAGE) * (360.0 / ANGLE_SENSOR_RANGE); // new all spark max controllers
-        double currentAngle = ( 1.0 - (m_analogSensorAngle.getPosition() - ANGLE_SENSOR_MIN_VOLTAGE) / ANGLE_SENSOR_RANGE) * 360.0; 
- 
+        // double currentAngle = ( 1.0 - (m_analogSensorAngle.getPosition() - ANGLE_SENSOR_MIN_VOLTAGE) / ANGLE_SENSOR_RANGE) * 360.0; 
+        double currentAngle = ( 1.0 - m_analogSensorAngle.getPosition()) * 360.0; // getPosition returning a value in [0,1)
+        
         double currentAngleMod = currentAngle % 360;
         if (currentAngleMod < 0) currentAngleMod += 360;
 
@@ -371,7 +376,7 @@ public class SwerveDriveModule extends Subsystem {
 //        }
         // mLastError = currentError;  // new commented out 10/26/19 hoping not needed
         // targetAngle *= 1024.0 / 360.0;
-        targetAngle *= ANGLE_SENSOR_RANGE / 360.0;  // changed 11/13/19
+        targetAngle /= 360.0;  // changed 11/13/19 to be range of [0, 1)
         // mAngleMotor.set(ControlMode.Position, targetAngle); // orig
         m_pidControllerAngle.setReference(targetAngle, ControlType.kPosition); // new for all Spark Max controllers
     }
