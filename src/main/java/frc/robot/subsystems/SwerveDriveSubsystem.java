@@ -6,6 +6,7 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 
 import static frc.robot.RobotMap.*;
@@ -44,7 +45,7 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
         super(WIDTH, LENGTH);
         zeroGyro();
 
-        angle_kP = 0.0;
+        angle_kP = 0.1;
         angle_kI = 0.0;
         angle_kD = 0.0;
 
@@ -108,6 +109,9 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
             module.setDriveGearRatio(5.7777);
             module.setDriveWheelRadius(module.getDriveWheelRadius() * 1.05);
             module.setMotionConstraints(getMaxAcceleration(), getMaxVelocity());
+            module.setAngleKD(angle_kD);
+            module.setAngleKI(angle_kI);
+            module.setAngleKP(angle_kP);
         }
     }
 
@@ -214,6 +218,7 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
             }
             mSwerveModules[i].setTargetSpeed(speeds[i]);
         }
+        SmartDashboard.putNumber("YahooYahooYahooYahooYahooYahooYahooYahoo YahooYahooYahooYahooYahooYahooYahooYahoo", 100);
     }
 
     //drive command for spark max and Talon controllers
