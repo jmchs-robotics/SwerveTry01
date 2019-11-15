@@ -23,8 +23,7 @@ public class RobotMap {
     public static final int DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR = 26;
     public static final int DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR = 24;
     public static final int DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR = 33;
-    public static final int DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR = 31;
-
+	public static final int DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR = 31;
 
 	public static final int ELEVATOR_MASTER_MOTOR = 28;
 	public static final int ELEVATOR_SLAVE_MOTOR = 27;

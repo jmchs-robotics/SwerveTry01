@@ -67,6 +67,10 @@ public class Robot extends TimedRobot {
 		mOI.registerControls();
 
 		SmartDashboard.putData("Reset Motors", new ResetMotorsCommand(swerveDriveSubsystem));
+
+		SmartDashboard.putNumber("Angle kP ", swerveDriveSubsystem.getAngleKP());
+		SmartDashboard.putNumber("Angle kI ", swerveDriveSubsystem.getAngleKI());
+		SmartDashboard.putNumber("Angle kD ", swerveDriveSubsystem.getAngleKD());
 }
 
     @Override
@@ -99,24 +103,19 @@ public class Robot extends TimedRobot {
 		
 		/* Put angle PID onto Smart Dashboard, and read Smart Dashboard for changes to them */
 		SmartDashboard.putNumber("Module Angle Raw Encoder Position 1 ", swerveDriveSubsystem.getSwerveModule(1).getRawSensorPosition());
-		k = SmartDashboard.getNumber( "Angle kP", 0.1);
+		k = SmartDashboard.getNumber( "Angle kP ", 0.0);
 		if( k != swerveDriveSubsystem.getAngleKP()) {
 			swerveDriveSubsystem.setAngleKP( k);
 		}
-		k = SmartDashboard.getNumber( "Angle kI", 0.0);
+		k = SmartDashboard.getNumber( "Angle kI ", 0.0);
 		if( k != swerveDriveSubsystem.getAngleKI()) {
 			swerveDriveSubsystem.setAngleKI( k);
 		}
-		k = SmartDashboard.getNumber( "Angle kD", 0.0);
+		k = SmartDashboard.getNumber( "Angle kD ", 0.0);
 		if( k != swerveDriveSubsystem.getAngleKD()) {
 			swerveDriveSubsystem.setAngleKD( k);
 		}
-		/*
-		SmartDashboard.putNumber("Angle kP ", swerveDriveSubsystem.getAngleKP());
-		SmartDashboard.putNumber("Angle kI ", swerveDriveSubsystem.getAngleKI());
-		SmartDashboard.putNumber("Angle kD ", swerveDriveSubsystem.getAngleKD());
-		*/
-
+		
 		SmartDashboard.putNumber("Drivetrain Angle", swerveDriveSubsystem.getGyroAngle());
 
 		/*

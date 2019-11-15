@@ -19,9 +19,9 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
     public static final double WIDTH = 20;  // Swerve bot: 20 Comp bot: 37
     public static final double LENGTH = 19; // Swerve bot: 19 Comp bot: 32
 
-    private double angle_kP;
-    private double angle_kI;
-    private double angle_kD;
+    private double angle_kP = 3.0;
+    private double angle_kI = 0.0;
+    private double angle_kD = 0.0;
 
 	/*
 	 * 0 is Front Left
@@ -44,32 +44,7 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
     public SwerveDriveSubsystem() {
         super(WIDTH, LENGTH);
         zeroGyro();
-
-        angle_kP = 0.1;
-        angle_kI = 0.0;
-        angle_kD = 0.0;
-
-        //instantiate testsystem with CAN ids 13 (angle) and 1 (drive)
-        /* removed 10/26/19
-        testSystem = new SwerveDriveModuleSparkTalon[]{
-            new SwerveDriveModuleSparkTalon(0, new TalonSRX(13), new CANSparkMax(1, MotorType.kBrushless), 0),
-            new SwerveDriveModuleSparkTalon(1, new TalonSRX(15), new CANSparkMax(16, MotorType.kBrushless), 0),
-            new SwerveDriveModuleSparkTalon(2, new TalonSRX(17), new CANSparkMax(18, MotorType.kBrushless), 0),
-            new SwerveDriveModuleSparkTalon(3, new TalonSRX(19), new CANSparkMax(20, MotorType.kBrushless), 0)
-        }; */
-
-        /* orig from all talon controllers
-        if (Robot.PRACTICE_BOT) {
-            mSwerveModules = new SwerveDriveModule[] {
-                    new SwerveDriveModule(0, new TalonSRX(3), new TalonSRX(4), 255.5859),
-                    new SwerveDriveModule(1, new TalonSRX(6), new TalonSRX(5), 338.906),
-                    new SwerveDriveModule(2, new TalonSRX(2), new TalonSRX(1), 13.359),
-                    new SwerveDriveModule(3, new TalonSRX(7), new TalonSRX(8), 15.82),
-            };
-
-            mSwerveModules[0].setDriveInverted(true);
-            mSwerveModules[3].setDriveInverted(true);
-        } else { */
+        
             // 10/26/19 Big Switch from Talon to Spark Max controllers
             mSwerveModules = new SwerveDriveModule[] {
                     new SwerveDriveModule(0,
