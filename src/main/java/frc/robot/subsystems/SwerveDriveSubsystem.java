@@ -30,14 +30,6 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
 	 * 3 is Back Left
 	 */
     private SwerveDriveModule[] mSwerveModules;
-    
-	/*
-	* Implement new servedrivemodule with spark and talon blend -- and our proprietary seven herbs and spices
-	*/
-    // private static SwerveDriveModuleSparkTalon[] testSystem;
-    // private static SwerveDriveModule[] testSystem;
-    
-
 
     private AHRS mNavX = new AHRS(SPI.Port.kMXP, (byte) 200);
 
@@ -45,35 +37,28 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
         super(WIDTH, LENGTH);
         zeroGyro();
         
-            // 10/26/19 Big Switch from Talon to Spark Max controllers
-            mSwerveModules = new SwerveDriveModule[] {
-                    new SwerveDriveModule(0,
-                        new CANSparkMax(DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR, MotorType.kBrushless),
-                        new CANSparkMax(DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR, MotorType.kBrushless),
-                            /* new TalonSRX(DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR),
-                            new TalonSRX(DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR), */
-                            87.890),
-                    new SwerveDriveModule(1,
-                    new CANSparkMax(DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR, MotorType.kBrushless),
-                    new CANSparkMax(DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR, MotorType.kBrushless),
-                        /* new TalonSRX(DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR),
-                            new TalonSRX(DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR), */
-                            235.195),
-                    // 10/26/19 need to change the other 2 modules to SparkMax
-                    new SwerveDriveModule(2,
-                        new CANSparkMax(DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR, MotorType.kBrushless),
-                        new CANSparkMax(DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR, MotorType.kBrushless),
-                        /* new TalonSRX(DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR),
-                            new TalonSRX(DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR), */
-                            320.976),
-                    new SwerveDriveModule(3,
-                        new CANSparkMax(DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR, MotorType.kBrushless),
-                        new CANSparkMax(DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR, MotorType.kBrushless),
-                        /* new TalonSRX(DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR),
-                            new TalonSRX(DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR), */
-                            245.742), 
-            };
+        // 10/26/19 Big Switch from Talon to Spark Max controllers
+        mSwerveModules = new SwerveDriveModule[] {
+            new SwerveDriveModule(0,
+                new CANSparkMax(DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR, MotorType.kBrushless),
+                new CANSparkMax(DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR, MotorType.kBrushless),
+                87.890), 
+            new SwerveDriveModule(1,
+                new CANSparkMax(DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR, MotorType.kBrushless),
+                new CANSparkMax(DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR, MotorType.kBrushless),
+                235.195),
+            // 10/26/19 need to change the other 2 modules to SparkMax
+            new SwerveDriveModule(2,
+                new CANSparkMax(DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR, MotorType.kBrushless),
+                new CANSparkMax(DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR, MotorType.kBrushless),
+                320.976),
+            new SwerveDriveModule(3,
+                new CANSparkMax(DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR, MotorType.kBrushless),
+                new CANSparkMax(DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR, MotorType.kBrushless),
+                245.742), 
+        };
 /*
+            // 2910's 2018 code.  We may need to do somethig similar for SwervyJr
             mSwerveModules[0].setDriveInverted(true);
             mSwerveModules[3].setDriveInverted(true);
             */

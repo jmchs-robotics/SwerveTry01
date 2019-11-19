@@ -75,7 +75,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
-		double k;
+		// display status of all 4 modules
         for (int i = 0; i < 4; i++) {
             SmartDashboard.putNumber("Module Angle " + i + " ", swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
 			SmartDashboard.putNumber("Module Pos " + i + " ", (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
@@ -86,23 +86,23 @@ public class Robot extends TimedRobot {
             SmartDashboard.putNumber("Module Drive Position " + i + " ", swerveDriveSubsystem.getSwerveModule(i).getDrivePosition()); // getDriveMotor().getSelectedSensorPosition(0));
 			SmartDashboard.putNumber("Module Output Current " + i + " ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
 			SmartDashboard.putNumber("Angle Motor Faults " + i + " ", swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getFaults());
-			
 		}
+
+		// for debugging and tuning initial swerve software (first module)
+		SmartDashboard.putNumber("Module Angle Raw Encoder Position 1 ", swerveDriveSubsystem.getSwerveModule(1).getRawSensorPosition());
 		double x = swerveDriveSubsystem.getSwerveModule(1).getAngleVoltage();
-		if (x > modAngEncMax)
-			{
+		if (x > modAngEncMax) {
 				modAngEncMax = x; 
 			}
 		SmartDashboard.putNumber("Module Endcoder Angle Max", modAngEncMax);
 
-		if (x < modAngEncMin)
-			{
+		if (x < modAngEncMin) {
 				modAngEncMin = x; 
 			}
 		SmartDashboard.putNumber("Module Endcoder Angle Min", modAngEncMin);
 		
 		/* Put angle PID onto Smart Dashboard, and read Smart Dashboard for changes to them */
-		SmartDashboard.putNumber("Module Angle Raw Encoder Position 1 ", swerveDriveSubsystem.getSwerveModule(1).getRawSensorPosition());
+		double k;
 		k = SmartDashboard.getNumber( "Angle kP ", 0.0);
 		if( k != swerveDriveSubsystem.getAngleKP()) {
 			swerveDriveSubsystem.setAngleKP( k);
@@ -119,6 +119,7 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Drivetrain Angle", swerveDriveSubsystem.getGyroAngle());
 
 		/*
+		// from 2910's 2018 code, left in comments as example for 2020
 		SmartDashboard.putNumber("Elevator encoder", elevatorSubsystem.getEncoderValue());
 		SmartDashboard.putNumber("Elevator height", elevatorSubsystem.getCurrentHeight() + Math.random() * 1e-9);
 		SmartDashboard.putNumber("Elevator target", elevatorSubsystem.getTargetHeight() + Math.random() * 1e-9);
