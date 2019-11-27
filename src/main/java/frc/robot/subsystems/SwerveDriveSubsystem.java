@@ -38,24 +38,25 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
         zeroGyro();
         
         // 10/26/19 Big Switch from Talon to Spark Max controllers
+        // 11/26/19 less positive angle offset settings turns wheel angle clockwise looking from the top
         mSwerveModules = new SwerveDriveModule[] {
             new SwerveDriveModule(0,
                 new CANSparkMax(DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR, MotorType.kBrushless),
                 new CANSparkMax(DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR, MotorType.kBrushless),
-                87.890), 
+                210), // 
             new SwerveDriveModule(1,
                 new CANSparkMax(DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR, MotorType.kBrushless),
                 new CANSparkMax(DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR, MotorType.kBrushless),
-                235.195),
+                287), // 
             // 10/26/19 need to change the other 2 modules to SparkMax
             new SwerveDriveModule(2,
                 new CANSparkMax(DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR, MotorType.kBrushless),
                 new CANSparkMax(DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR, MotorType.kBrushless),
-                320.976),
+                45), 
             new SwerveDriveModule(3,
                 new CANSparkMax(DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR, MotorType.kBrushless),
                 new CANSparkMax(DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR, MotorType.kBrushless),
-                245.742), 
+                225),
         };
 /*
             // 2910's 2018 code.  We may need to do somethig similar for SwervyJr
