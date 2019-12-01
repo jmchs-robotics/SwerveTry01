@@ -333,7 +333,7 @@ public class SwerveDriveModule extends Subsystem {
 
         targetAngle %= 360;
 
-        SmartDashboard.putNumber("Module Target Angle " + moduleNumber, targetAngle % 360);
+        SmartDashboard.putNumber("Module " + moduleNumber + " Target Angle Desired ", targetAngle % 360);
 
         targetAngle += mZeroOffset;
 
@@ -341,7 +341,7 @@ public class SwerveDriveModule extends Subsystem {
         // double currentAngle = (m_analogSensorAngle.getPosition() - ANGLE_SENSOR_MIN_VOLTAGE) * (360.0 / ANGLE_SENSOR_RANGE); // new all spark max controllers
         // double currentAngle = ( 1.0 - (m_analogSensorAngle.getPosition() - ANGLE_SENSOR_MIN_VOLTAGE) / ANGLE_SENSOR_RANGE) * 360.0; 
         // double currentAngle = ( 1.0 - m_analogSensorAngle.getPosition()) * 360.0; // getPosition returning a value in [0,1)
-        double currentAngle = ( m_analogSensorAngle.getPosition()) * 360.0; // getPosition returning a value in [0,1)
+        double currentAngle = ( m_analogSensorAngle.getPosition()) * 360.0; // getPosition returns a value in [0,1)
         
         double currentAngleMod = currentAngle % 360;
         if (currentAngleMod < 0) currentAngleMod += 360;
@@ -385,9 +385,11 @@ public class SwerveDriveModule extends Subsystem {
 //        }
         // mLastError = currentError;  // new commented out 10/26/19 hoping not needed
         // targetAngle *= 1024.0 / 360.0;
-        targetAngle /= 360.0;  // changed 11/13/19 to be range of [0, 1)
+        targetAngle = targetAngle  / 360.0; // * 3.3;  // changed 11/13/19 to be range of [0, 1) 11/29 range [0, 3.3)
         // mAngleMotor.set(ControlMode.Position, targetAngle); // orig
         m_pidControllerAngle.setReference(targetAngle, ControlType.kPosition); // new for all Spark Max controllers
+        SmartDashboard.putNumber("Module " + moduleNumber + " Target Angle Set ", targetAngle);
+
     }
 
     public void setTargetDistance(double distance) {

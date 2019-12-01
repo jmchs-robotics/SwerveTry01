@@ -39,7 +39,8 @@ public class HolonomicDriveCommand extends Command {
 		SmartDashboard.putNumber("Strafe", strafe);
 		SmartDashboard.putNumber("Rotation", rotation);
 
-		mDrivetrain.holonomicDriveSparkTalon(forward, strafe, rotation, false);
+		// mDrivetrain.holonomicDriveSparkTalon(forward, strafe, rotation, false);
+		mDrivetrain.holonomicDrive(forward, strafe, rotation, false);
 	}
 
 	@Override

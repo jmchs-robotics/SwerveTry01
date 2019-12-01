@@ -77,29 +77,29 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
 		// display status of all 4 modules
         for (int i = 0; i < 4; i++) {
-            SmartDashboard.putNumber("Module Angle " + i + " ", swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
-			SmartDashboard.putNumber("Module Pos " + i + " ", (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
+			SmartDashboard.putNumber("Module " + i + " Current Angle ", swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
+			SmartDashboard.putNumber("Module " + i + " Angle Raw Encoder Position ", swerveDriveSubsystem.getSwerveModule(i).getRawSensorPosition());
 			double x = swerveDriveSubsystem.getSwerveModule(i).getAngleVoltage();
-			SmartDashboard.putNumber("Module Angle Encoder Voltage" + i + " ", x); // getSelectedSensorPosition(0));
+			SmartDashboard.putNumber("Module " + i + " Angle Encoder Voltage ", x); // getSelectedSensorPosition(0));
 			
-            SmartDashboard.putNumber("Module Output Duty Cycle " + i + " ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getAppliedOutput()); // getMotorOutputPercent());
-            SmartDashboard.putNumber("Module Drive Position " + i + " ", swerveDriveSubsystem.getSwerveModule(i).getDrivePosition()); // getDriveMotor().getSelectedSensorPosition(0));
-			SmartDashboard.putNumber("Module Output Current " + i + " ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
-			SmartDashboard.putNumber("Angle Motor Faults " + i + " ", swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getFaults());
+            SmartDashboard.putNumber("Module " + i + " Drive Dist ", (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
+			SmartDashboard.putNumber("Module " + i + " Drive Applied Output ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getAppliedOutput()); // getMotorOutputPercent());
+            SmartDashboard.putNumber("Module " + i + " Drive Position ", swerveDriveSubsystem.getSwerveModule(i).getDrivePosition()); // getDriveMotor().getSelectedSensorPosition(0));
+			SmartDashboard.putNumber("Module " + i + " Drive Output Current ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
+			SmartDashboard.putNumber("Module " + i + " Angle Motor Faults ", swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getFaults());
 		}
 
 		// for debugging and tuning initial swerve software (first module)
-		SmartDashboard.putNumber("Module Angle Raw Encoder Position 1 ", swerveDriveSubsystem.getSwerveModule(1).getRawSensorPosition());
 		double x = swerveDriveSubsystem.getSwerveModule(1).getAngleVoltage();
 		if (x > modAngEncMax) {
 				modAngEncMax = x; 
 			}
-		SmartDashboard.putNumber("Module Endcoder Angle Max", modAngEncMax);
+		SmartDashboard.putNumber("Module 1 Endcoder Angle Max ", modAngEncMax);
 
 		if (x < modAngEncMin) {
 				modAngEncMin = x; 
 			}
-		SmartDashboard.putNumber("Module Endcoder Angle Min", modAngEncMin);
+		SmartDashboard.putNumber("Module 1 Endcoder Angle Min ", modAngEncMin);
 		
 		/* Put angle PID onto Smart Dashboard, and read Smart Dashboard for changes to them */
 		double k;
