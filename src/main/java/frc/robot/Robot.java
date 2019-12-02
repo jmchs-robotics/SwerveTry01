@@ -102,6 +102,7 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putNumber("Module 1 Endcoder Angle Min ", modAngEncMin);
 		
 		/* Put angle PID onto Smart Dashboard, and read Smart Dashboard for changes to them */
+		
 		double k;
 		k = SmartDashboard.getNumber( "Angle kP ", 0.0);
 		if( k != swerveDriveSubsystem.getAngleKP()) {
@@ -115,6 +116,7 @@ public class Robot extends TimedRobot {
 		if( k != swerveDriveSubsystem.getAngleKD()) {
 			swerveDriveSubsystem.setAngleKD( k);
 		}
+		
 		
 		SmartDashboard.putNumber("Drivetrain Angle", swerveDriveSubsystem.getGyroAngle());
 
@@ -146,6 +148,27 @@ public class Robot extends TimedRobot {
 	}
 
 	/**
+	 * Super-simple autonomous command, first try 12/1/19.
+	 * also simplified the autonomousChooser.getCommand() to only return "auto line" path
+	 */
+	@Override
+	public void autonomousInit() {
+		autoTimer = new Timer();
+		
+		swerveDriveSubsystem.setFieldOriented( true);
+		CommandGroup autoGroup = new CommandGroup();
+        
+		//autoGroup.addSequential( autoChooser.getCommand(this)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
+		autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 1.0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
+		autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 2));
+        autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 1.0, 0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
+		// autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 1.0, 0.0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
+		// autoGroup.addSequential( new SetDrivetrainAngleCommand( swerveDriveSubsystem, 90));
+		//autoGroup.addSequential( autoChooser.getCommand(this)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
+		autoTimer.start();
+		autoGroup.start();
+	}
+	/**
 	 * This autonomous (along with the chooser code above) shows how to select
 	 * between different autonomous modes using the dashboard. The sendable
 	 * chooser code works with the Java SmartDashboard. If you prefer the
@@ -156,6 +179,7 @@ public class Robot extends TimedRobot {
 	 * chooser code above (like the commented example) or additional comparisons
 	 * to the switch structure below with additional strings & commands.
 	 */
+	/*
 	@Override
 	public void autonomousInit() {
 		autoTimer = new Timer();
@@ -172,6 +196,7 @@ public class Robot extends TimedRobot {
         System.out.println("[INFO]: Waiting for field info");
 		Timer waitTimer = new Timer();
 		waitTimer.start();
+
 		while (DriverStation.getInstance().getGameSpecificMessage().isEmpty()
 				&& !waitTimer.hasPeriodPassed(FIELD_INFO_TIMEOUT)) {
 			Scheduler.getInstance().run();
@@ -198,6 +223,7 @@ public class Robot extends TimedRobot {
 		
 		autoCommand.start();
 	}
+	*/
 
 	/**
 	 * This function is called periodically during autonomous

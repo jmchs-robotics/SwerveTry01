@@ -61,8 +61,9 @@ public class SwerveDriveModule extends Subsystem {
     private double driveWheelRadius = 2;
     private boolean angleMotorJam = false;
 
-    public static final double SWERVE_1_ENC_MIN = 0.0; // 0.0234375;
-	public static final double SWERVE_1_ENC_MAX = 3.3; // 2.2265625; // 2.87109375;
+    public static final double SWERVE_1_ENC_MIN = 0.0; 
+    // input to breakout is 3.3 but it expects max 5.0 and then downconverts to max 3.3
+	public static final double SWERVE_1_ENC_MAX = 3.3 * 3.3 / 5.0; 
 	
     private double ANGLE_SENSOR_MAX_VOLTAGE = SWERVE_1_ENC_MAX;
     private double ANGLE_SENSOR_MIN_VOLTAGE = SWERVE_1_ENC_MIN;
@@ -405,7 +406,7 @@ public class SwerveDriveModule extends Subsystem {
 
         distance = inchesToEncoderTicks(distance);
 
-        SmartDashboard.putNumber("Module Ticks " + moduleNumber, distance);
+        SmartDashboard.putNumber("Module " + moduleNumber + " Drive Ticks ", distance);
 
         // TODO: confirm the distance is set in the right units
         m_pidControllerDrive.setReference(distance, ControlType.kPosition);
@@ -436,7 +437,7 @@ public class SwerveDriveModule extends Subsystem {
     public void resetMotor() {
     	angleMotorJam = false;
     	mStallTimeBegin = Long.MAX_VALUE;
-    	SmartDashboard.putBoolean("Motor Jammed" + moduleNumber, angleMotorJam);
+    	SmartDashboard.putBoolean("Module " + moduleNumber + " Angle Motor Jammed ", angleMotorJam);
     }
 
     /**

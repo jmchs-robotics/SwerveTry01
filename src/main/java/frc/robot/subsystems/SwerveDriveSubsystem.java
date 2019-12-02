@@ -41,25 +41,25 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
         // 11/26/19 less positive angle offset settings turns wheel angle clockwise looking from the top
         //  more positive angle offset turns wheel counterclockwise looking from top
         mSwerveModules = new SwerveDriveModule[] {
-            new SwerveDriveModule(0,
+            new SwerveDriveModule(0, 
                 new CANSparkMax(DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR, MotorType.kBrushless),
                 new CANSparkMax(DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR, MotorType.kBrushless),
-                210+6-3), // 213
+                330), 
 
-            new SwerveDriveModule(1,
+            new SwerveDriveModule(1, 
                 new CANSparkMax(DRIVETRAIN_FRONT_RIGHT_ANGLE_MOTOR, MotorType.kBrushless),
                 new CANSparkMax(DRIVETRAIN_FRONT_RIGHT_DRIVE_MOTOR, MotorType.kBrushless),
-                287-5-3+2), // 281 
+                60), 
             // 10/26/19 need to change the other 2 modules to SparkMax
             new SwerveDriveModule(2,
                 new CANSparkMax(DRIVETRAIN_BACK_RIGHT_ANGLE_MOTOR, MotorType.kBrushless),
                 new CANSparkMax(DRIVETRAIN_BACK_RIGHT_DRIVE_MOTOR, MotorType.kBrushless),
-                45+6),
+                180),
             // 11/26/19 less positive angle offset settings turns wheel angle clockwise looking from the top
             new SwerveDriveModule(3,
                 new CANSparkMax(DRIVETRAIN_BACK_LEFT_ANGLE_MOTOR, MotorType.kBrushless),
                 new CANSparkMax(DRIVETRAIN_BACK_LEFT_DRIVE_MOTOR, MotorType.kBrushless),
-                225+7-45+22),
+                331),
             // 11/26/19 less positive angle offset settings turns wheel angle clockwise looking from the top   
         };
 /*
@@ -183,7 +183,7 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
             }
             mSwerveModules[i].setTargetSpeed(speeds[i]);
         }
-        SmartDashboard.putNumber("YahooYahooYahooYahooYahooYahooYahooYahoo YahooYahooYahooYahooYahooYahooYahooYahoo", 100);
+        // SmartDashboard.putNumber("YahooYahooYahooYahooYahooYahooYahooYahoo YahooYahooYahooYahooYahooYahooYahooYahoo", 100);
     }
 
     
