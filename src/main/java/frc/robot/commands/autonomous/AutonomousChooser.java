@@ -21,16 +21,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AutonomousChooser {
-    public static final int CHOICE_COUNT = 6;
+    public static final int CHOICE_COUNT = 1;
     private final SendableChooser<StartingPosition> startPosChooser = new SendableChooser<>();
     private List<SendableChooser<AutonomousStageChoice>> priorityChoices = new ArrayList<>();
 
     private final String OPPOSITE_SPECIAL_WAIT_TIME_NAME = "Opposite Special Wait Time";
 
     public AutonomousChooser() {
-        startPosChooser.addDefault("Left", StartingPosition.LEFT);
-        startPosChooser.addObject("Center", StartingPosition.CENTER);
-        startPosChooser.addObject("Right", StartingPosition.RIGHT);
+        startPosChooser.addOption("Left", StartingPosition.LEFT);
+        startPosChooser.setDefaultOption("Center", StartingPosition.CENTER);
+        startPosChooser.addOption("Right", StartingPosition.RIGHT);
 
         SmartDashboard.putData("Start Position", startPosChooser);
 
@@ -116,6 +116,10 @@ public class AutonomousChooser {
         StartingPosition startPos = startPosChooser.getSelected();
 
         CommandGroup autoGroup = new CommandGroup();
+        // simplified 12/1/19 as first try
+        autoGroup.addSequential(new AutoLineCommand(robot, startPos));
+        return autoGroup;
+        /*
 
         robot.getElevator().setEncoderPosition(ElevatorSubsystem.STARTING_ENCODER_TICKS);
         robot.getElevator().setElevatorPosition(robot.getElevator().getCurrentHeight());
@@ -202,6 +206,7 @@ public class AutonomousChooser {
         autoGroup.addSequential(new GrabCubeFromPlatformZoneCommand(robot, lastSide, lastSide));
 
         return autoGroup;
+*/
     }
 
     public Command getCommand(Robot robot, Side switchSide, Side scaleSide) {

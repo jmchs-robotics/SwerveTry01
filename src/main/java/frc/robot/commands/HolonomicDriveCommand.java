@@ -8,6 +8,7 @@ import frc.robot.subsystems.HolonomicDrivetrain;
 public class HolonomicDriveCommand extends Command {
 	private final HolonomicDrivetrain mDrivetrain;
 
+	//this is the default drive command for their drivetrain, inherited from HolonomicDrivetrain.java. SO FAR AWAY :(
 	public HolonomicDriveCommand(HolonomicDrivetrain drivetrain) {
 		mDrivetrain = drivetrain;
 
@@ -19,6 +20,7 @@ public class HolonomicDriveCommand extends Command {
 		return input;
 	}
 
+	//they use a quadratic drive system -- not linear. Worth noting.
 	@Override
 	protected void execute() {
 		double forward = -Robot.getOI().getPrimaryController().getLeftYValue();
@@ -37,7 +39,8 @@ public class HolonomicDriveCommand extends Command {
 		SmartDashboard.putNumber("Strafe", strafe);
 		SmartDashboard.putNumber("Rotation", rotation);
 
-		mDrivetrain.holonomicDrive(forward, strafe, rotation);
+		// mDrivetrain.holonomicDriveSparkTalon(forward, strafe, rotation, false);
+		mDrivetrain.holonomicDrive(forward, strafe, rotation, false);
 	}
 
 	@Override

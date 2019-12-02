@@ -8,12 +8,14 @@ import frc.robot.commands.autonomous.stage2.VisionTargetingCubeCommand;
 import frc.robot.motion.AutonomousPaths;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GathererSubsystem;
+// import frc.robot.subsystems.SwerveDriveModuleSparkTalon;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.util.Side;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -26,10 +28,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * creating this project, you must also update the manifest file in the resource
  * directory.
  */
-public class Robot extends IterativeRobot {
+public class Robot extends TimedRobot {
 	public static final boolean PRACTICE_BOT = false;
 
 	public static final double FIELD_INFO_TIMEOUT = 5;
+
+	public double modAngEncMax = 0;
+	public double modAngEncMin = 100;
 
 	private static OI mOI;
 	private static SwerveDriveSubsystem swerveDriveSubsystem;
@@ -53,33 +58,76 @@ public class Robot extends IterativeRobot {
 	public void robotInit() {
 		mOI = new OI(this);
 
-		gathererSubsystem = new GathererSubsystem();
+		// gathererSubsystem = new GathererSubsystem();
 		swerveDriveSubsystem = new SwerveDriveSubsystem();
-		elevatorSubsystem = new ElevatorSubsystem();
+		// elevatorSubsystem = new ElevatorSubsystem();
+
+		
 
 		mOI.registerControls();
 
 		SmartDashboard.putData("Reset Motors", new ResetMotorsCommand(swerveDriveSubsystem));
+
+		SmartDashboard.putNumber("Angle kP ", swerveDriveSubsystem.getAngleKP());
+		SmartDashboard.putNumber("Angle kI ", swerveDriveSubsystem.getAngleKI());
+		SmartDashboard.putNumber("Angle kD ", swerveDriveSubsystem.getAngleKD());
 }
 
     @Override
     public void robotPeriodic() {
+		// display status of all 4 modules
         for (int i = 0; i < 4; i++) {
-            SmartDashboard.putNumber("Module Angle " + i, swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
-            SmartDashboard.putNumber("Module Pos " + i, (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
-            SmartDashboard.putNumber("Module Raw Angle " + i, swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getSelectedSensorPosition(0));
-            SmartDashboard.putNumber("Module Drive Speed " + i, swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getMotorOutputPercent());
-            SmartDashboard.putNumber("Module Current Ticks " + i, swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getSelectedSensorPosition(0));
-        	SmartDashboard.putNumber("Module Drive % " + i, swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getMotorOutputPercent());
-        }
+			SmartDashboard.putNumber("Module " + i + " Current Angle ", swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
+			SmartDashboard.putNumber("Module " + i + " Angle Raw Encoder Position ", swerveDriveSubsystem.getSwerveModule(i).getRawSensorPosition());
+			double x = swerveDriveSubsystem.getSwerveModule(i).getAngleVoltage();
+			SmartDashboard.putNumber("Module " + i + " Angle Encoder Voltage ", x); // getSelectedSensorPosition(0));
+			
+            SmartDashboard.putNumber("Module " + i + " Drive Dist ", (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
+			SmartDashboard.putNumber("Module " + i + " Drive Applied Output ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getAppliedOutput()); // getMotorOutputPercent());
+            SmartDashboard.putNumber("Module " + i + " Drive Position ", swerveDriveSubsystem.getSwerveModule(i).getDrivePosition()); // getDriveMotor().getSelectedSensorPosition(0));
+			SmartDashboard.putNumber("Module " + i + " Drive Output Current ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
+			SmartDashboard.putNumber("Module " + i + " Angle Motor Faults ", swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getFaults());
+		}
 
+		// for debugging and tuning initial swerve software (first module)
+		double x = swerveDriveSubsystem.getSwerveModule(1).getAngleVoltage();
+		if (x > modAngEncMax) {
+				modAngEncMax = x; 
+			}
+		SmartDashboard.putNumber("Module 1 Endcoder Angle Max ", modAngEncMax);
+
+		if (x < modAngEncMin) {
+				modAngEncMin = x; 
+			}
+		SmartDashboard.putNumber("Module 1 Endcoder Angle Min ", modAngEncMin);
+		
+		/* Put angle PID onto Smart Dashboard, and read Smart Dashboard for changes to them */
+		
+		double k;
+		k = SmartDashboard.getNumber( "Angle kP ", 0.0);
+		if( k != swerveDriveSubsystem.getAngleKP()) {
+			swerveDriveSubsystem.setAngleKP( k);
+		}
+		k = SmartDashboard.getNumber( "Angle kI ", 0.0);
+		if( k != swerveDriveSubsystem.getAngleKI()) {
+			swerveDriveSubsystem.setAngleKI( k);
+		}
+		k = SmartDashboard.getNumber( "Angle kD ", 0.0);
+		if( k != swerveDriveSubsystem.getAngleKD()) {
+			swerveDriveSubsystem.setAngleKD( k);
+		}
+		
+		
+		SmartDashboard.putNumber("Drivetrain Angle", swerveDriveSubsystem.getGyroAngle());
+
+		/*
+		// from 2910's 2018 code, left in comments as example for 2020
 		SmartDashboard.putNumber("Elevator encoder", elevatorSubsystem.getEncoderValue());
 		SmartDashboard.putNumber("Elevator height", elevatorSubsystem.getCurrentHeight() + Math.random() * 1e-9);
 		SmartDashboard.putNumber("Elevator target", elevatorSubsystem.getTargetHeight() + Math.random() * 1e-9);
 		SmartDashboard.putNumber("Elevator percent", elevatorSubsystem.getMotors()[0].getMotorOutputPercent() + Math.random() * 1e-9);
 		SmartDashboard.putNumber("Elevator speed", elevatorSubsystem.getMotors()[0].getSelectedSensorVelocity(0));
-
-		SmartDashboard.putNumber("Drivetrain Angle", swerveDriveSubsystem.getGyroAngle());
+		*/
 	}
 
 	/**
@@ -100,6 +148,27 @@ public class Robot extends IterativeRobot {
 	}
 
 	/**
+	 * Super-simple autonomous command, first try 12/1/19.
+	 * also simplified the autonomousChooser.getCommand() to only return "auto line" path
+	 */
+	@Override
+	public void autonomousInit() {
+		autoTimer = new Timer();
+		
+		swerveDriveSubsystem.setFieldOriented( true);
+		CommandGroup autoGroup = new CommandGroup();
+        
+		//autoGroup.addSequential( autoChooser.getCommand(this)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
+		autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 1.0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
+		autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 2));
+        autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 1.0, 0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
+		// autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 1.0, 0.0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
+		// autoGroup.addSequential( new SetDrivetrainAngleCommand( swerveDriveSubsystem, 90));
+		//autoGroup.addSequential( autoChooser.getCommand(this)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
+		autoTimer.start();
+		autoGroup.start();
+	}
+	/**
 	 * This autonomous (along with the chooser code above) shows how to select
 	 * between different autonomous modes using the dashboard. The sendable
 	 * chooser code works with the Java SmartDashboard. If you prefer the
@@ -110,6 +179,7 @@ public class Robot extends IterativeRobot {
 	 * chooser code above (like the commented example) or additional comparisons
 	 * to the switch structure below with additional strings & commands.
 	 */
+	/*
 	@Override
 	public void autonomousInit() {
 		autoTimer = new Timer();
@@ -126,6 +196,7 @@ public class Robot extends IterativeRobot {
         System.out.println("[INFO]: Waiting for field info");
 		Timer waitTimer = new Timer();
 		waitTimer.start();
+
 		while (DriverStation.getInstance().getGameSpecificMessage().isEmpty()
 				&& !waitTimer.hasPeriodPassed(FIELD_INFO_TIMEOUT)) {
 			Scheduler.getInstance().run();
@@ -152,6 +223,7 @@ public class Robot extends IterativeRobot {
 		
 		autoCommand.start();
 	}
+	*/
 
 	/**
 	 * This function is called periodically during autonomous
