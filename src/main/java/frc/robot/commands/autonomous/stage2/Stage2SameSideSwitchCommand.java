@@ -5,9 +5,7 @@ import edu.wpi.first.wpilibj.command.WaitCommand;
 import frc.robot.Robot;
 import frc.robot.commands.IntakeCubeCommand;
 import frc.robot.commands.LaunchCubeCommand;
-import frc.robot.commands.SetElevatorPositionCommand;
 import frc.robot.commands.autonomous.*;
-import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.util.Side;
 
@@ -41,13 +39,11 @@ public class Stage2SameSideSwitchCommand extends CommandGroup {
                 (side == Side.LEFT ? 1 : -1) * 3,
                 (WALL_TO_SWITCH + SWITCH_DEPTH + 14) - WALL_TO_PLATFORM_ZONE));
         addSequential(new WaitCommand(0.5));
-        addSequential(new SetElevatorPositionCommand(robot.getElevator(), ElevatorSubsystem.SCORE_SWITCH_POISITON));
 //        addSequential(new SetDrivetrainAngleCommand(robot.getDrivetrain(),(angleToCube > 0 ? 15 : -15) + angleToCube));
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(), 0, -10), 0.5);
         addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(), 0, 10), 0.5);
         //        addSequential(new SetDrivetrainAngleCommand(robot.getDrivetrain(),(angleToCube > 0 ? -15 : 15) + angleToCube));
-        addParallel(new SetElevatorPositionCommand(robot.getElevator(), 0));
         addSequential(new DriveForDistanceCommand(drivetrain,
                 (side == Side.LEFT ? 1 : -1) * ((distToSwitch + switchEdgeToCube) - 7),
                 -((WALL_TO_SWITCH + SWITCH_DEPTH + 14) - WALL_TO_PLATFORM_ZONE)));

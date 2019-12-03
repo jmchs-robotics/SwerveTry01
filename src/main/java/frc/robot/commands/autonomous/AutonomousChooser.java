@@ -8,12 +8,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.commands.AdjustFieldOrientedAngleCommand;
-import frc.robot.commands.SetElevatorPositionCommand;
 import frc.robot.commands.SetFieldOrientedAngleCommand;
 import frc.robot.commands.SetGathererArmsStateCommand;
 import frc.robot.commands.autonomous.stage1.*;
 import frc.robot.commands.autonomous.stage2.Stage2SameSideSwitchCommand;
-import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.GathererSubsystem;
 import frc.robot.util.Side;
 
@@ -212,8 +210,6 @@ public class AutonomousChooser {
     public Command getCommand(Robot robot, Side switchSide, Side scaleSide) {
         StartingPosition startPos = startPosChooser.getSelected();
 
-        robot.getElevator().setEncoderPosition(ElevatorSubsystem.STARTING_ENCODER_TICKS);
-        robot.getElevator().setElevatorPosition(robot.getElevator().getCurrentHeight());
 
         CommandGroup autoGroup = new CommandGroup();
         autoGroup.addSequential(new SetFieldOrientedAngleCommand(robot.getDrivetrain(), robot.getDrivetrain().getRawGyroAngle()));
@@ -256,7 +252,6 @@ public class AutonomousChooser {
                     case SAME_SIDE_SCALE:
                     case OPPOSITE_SIDE_SCALE:
                         autoGroup.addSequential(new ScoreScaleFrontFromStartForward(robot, startSide, scaleSide));
-                        autoGroup.addSequential(new ScaleFromScaleFront(robot, scaleSide));
                         atScale = true;
                         break;
                     case SAME_SIDE_SWITCH:
@@ -284,9 +279,6 @@ public class AutonomousChooser {
                     case OPPOSITE_SIDE_SCALE:
                         if (atScale) {
                             autoGroup.addSequential(new GrabCubeFromScale(robot, scaleSide));
-                            autoGroup.addSequential(new ScoreScaleFrontFromScale(robot, scaleSide));
-                            autoGroup.addSequential(new ScaleFromScaleFront(robot, scaleSide));
-                            autoGroup.addSequential(new SetElevatorPositionCommand(robot.getElevator(), 0));
                         } else
                             System.err.println("[WARNING]: I don't know how to score in the scale when I'm not at the scale!");
                         atScale = true;

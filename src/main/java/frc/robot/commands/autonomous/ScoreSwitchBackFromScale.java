@@ -7,7 +7,6 @@ import frc.robot.commands.*;
 import frc.robot.motion.AutonomousPaths;
 import frc.robot.motion.Path;
 import frc.robot.motion.Trajectory;
-import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.util.Side;
 
 public class ScoreSwitchBackFromScale extends CommandGroup {
@@ -36,8 +35,6 @@ public class ScoreSwitchBackFromScale extends CommandGroup {
         addSequential(new VisionLineUpWithCubeCommand(robot));
         addParallel(intakeGroup);
         addSequential(new FollowPathCommand(robot.getDrivetrain(), pathToCube));
-        addSequential(new SetElevatorPositionCommand(robot.getElevator(), ElevatorSubsystem.SCORE_SWITCH_POISITON));
-        addSequential(new WaitForElevatorPositionCommand(robot.getElevator(), ElevatorSubsystem.SCORE_SWITCH_POISITON));
         addSequential(new LaunchCubeCommand(robot.getGatherer(), 1, 0.8));
 	}
 }

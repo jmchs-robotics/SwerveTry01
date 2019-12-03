@@ -2,13 +2,10 @@ package frc.robot.commands.autonomous.stage1;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.Robot;
-import frc.robot.commands.CalibrateElevatorEncoderCommand;
 import frc.robot.commands.LaunchCubeCommand;
-import frc.robot.commands.SetElevatorPositionCommand;
 import frc.robot.commands.SetFieldOrientedAngleCommand;
 import frc.robot.commands.autonomous.DriveForDistanceCommand;
 import frc.robot.commands.autonomous.SetDrivetrainAngleCommand;
-import frc.robot.subsystems.ElevatorSubsystem;
 
 import static frc.robot.commands.autonomous.AutonomousConstants.*;
 
@@ -61,7 +58,6 @@ public class Stage1ScaleCommand extends CommandGroup {
                 0));
         addSequential(new SetDrivetrainAngleCommand(robot.getDrivetrain(),
                 (startPos == StartingPosition.LEFT ? 90 : 270)));
-        addParallel(new SetElevatorPositionCommand(robot.getElevator(), ElevatorSubsystem.TOP_POSITION));
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 0,
                 WALL_TO_SCALE - WALL_TO_PLATFORM_ZONE));
@@ -70,24 +66,20 @@ public class Stage1ScaleCommand extends CommandGroup {
                 0));
 
         addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
-        addParallel(new SetElevatorPositionCommand(robot.getElevator(), ElevatorSubsystem.GROUND_POSITION, 1.0));
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 (startPos == StartingPosition.LEFT ? -1 : 1) * SCORE_SCALE,
                 WALL_TO_PLATFORM_ZONE - WALL_TO_SCALE));
     }
 
     private void driveSideToNearScale(StartingPosition startPos) {
-        addParallel(new SetElevatorPositionCommand(robot.getElevator(), ElevatorSubsystem.SCORE_SCALE_POSITION, 2));
         /* HACK: Move less right when on the left side because the energy chain was hitting the scale when on the
         * practice field. */
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 (startPos == StartingPosition.LEFT ? -1 : 1) * SCORE_SCALE,
                 WALL_TO_SCALE - robot.getDrivetrain().getWidth() / 2));
         addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
-        addParallel(new SetElevatorPositionCommand(robot.getElevator(), 5, 1.0));
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 (startPos == StartingPosition.LEFT ? 1 : -1) * SCORE_SCALE,
                 WALL_TO_PLATFORM_ZONE - WALL_TO_SCALE));
-        addSequential(new CalibrateElevatorEncoderCommand(robot.getElevator()));
     }
 }
