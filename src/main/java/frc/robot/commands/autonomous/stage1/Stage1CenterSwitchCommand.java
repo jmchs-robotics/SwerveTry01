@@ -17,6 +17,6 @@ public class Stage1CenterSwitchCommand extends CommandGroup {
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 (switchSide == Side.LEFT ? 1.2 : -1) * 50,
                 WALL_TO_SWITCH - robot.getDrivetrain().getWidth() + 3));
-//       addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
+//       addSequential(new LaunchCubeCommand(robot.getGatherer(), 1)); //needed to change something to commit
     }
 }
