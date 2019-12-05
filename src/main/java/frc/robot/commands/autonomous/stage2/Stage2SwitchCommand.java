@@ -2,7 +2,7 @@ package frc.robot.commands.autonomous.stage2;
 
 
 import frc.robot.Robot;
-import frc.robot.commands.LaunchCubeCommand;
+//import frc.robot.commands.LaunchCubeCommand;
 import frc.robot.commands.autonomous.AutonomousConstants;
 import frc.robot.commands.autonomous.DriveForDistanceCommand;
 import frc.robot.util.Side;
@@ -28,7 +28,7 @@ public class Stage2SwitchCommand extends CommandGroup{
 			addSequential(new DriveForDistanceCommand(robot.getDrivetrain(), AutonomousConstants.SWITCH_SCORE_TO_SWITCH_WALL, 0));
 		}
 
-		addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
+		//addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
 		
 		if(side == Side.LEFT) {
 			addSequential(new DriveForDistanceCommand(robot.getDrivetrain(), AutonomousConstants.SWITCH_SCORE_TO_SWITCH_WALL, 0));

@@ -1,4 +1,4 @@
-package frc.robot.commands.autonomous;
+/*package frc.robot.commands.autonomous;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.WaitCommand;
@@ -36,3 +36,4 @@ public class GrabCubeFromScale extends CommandGroup {
         addSequential(new FollowPathCommand(robot.getDrivetrain(), pathToScale));
     }
 }
+*/

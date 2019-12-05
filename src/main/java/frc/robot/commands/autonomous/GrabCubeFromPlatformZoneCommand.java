@@ -1,4 +1,4 @@
-package frc.robot.commands.autonomous;
+/*package frc.robot.commands.autonomous;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.Robot;
@@ -96,3 +96,4 @@ public class GrabCubeFromPlatformZoneCommand extends CommandGroup {
             availableCubes[i] = true;
     }
 }
+*/

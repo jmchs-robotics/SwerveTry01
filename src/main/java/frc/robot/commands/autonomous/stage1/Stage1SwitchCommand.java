@@ -1,7 +1,7 @@
 package frc.robot.commands.autonomous.stage1;
 
 import frc.robot.Robot;
-import frc.robot.commands.LaunchCubeCommand;
+//import frc.robot.commands.LaunchCubeCommand;
 import frc.robot.commands.SetFieldOrientedAngleCommand;
 import frc.robot.commands.autonomous.DriveForDistanceCommand;
 import frc.robot.commands.autonomous.SetDrivetrainAngleCommand;
@@ -66,7 +66,7 @@ public class Stage1SwitchCommand extends CommandGroup {
                 (startPos == StartingPosition.LEFT ? 1 : -1) * SCORE_SWITCH,
                 0), 1);
 
-        addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
+//        addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
 
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 (startPos == StartingPosition.LEFT ? -1 : 1) * SCORE_SWITCH,
@@ -81,7 +81,7 @@ public class Stage1SwitchCommand extends CommandGroup {
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 (startPos == StartingPosition.LEFT ? -1 : 1) * SCORE_SWITCH,
                 WALL_TO_SWITCH + SWITCH_DEPTH / 2 - robot.getDrivetrain().getWidth() / 2), 7);
-        addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
+  //      addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 (startPos == StartingPosition.LEFT ? 1 : -1) * SCORE_SWITCH,
                 WALL_TO_PLATFORM_ZONE - (WALL_TO_SWITCH + SWITCH_DEPTH / 2)));

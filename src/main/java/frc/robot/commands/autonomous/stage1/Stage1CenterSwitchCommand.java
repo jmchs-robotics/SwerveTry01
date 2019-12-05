@@ -2,7 +2,7 @@ package frc.robot.commands.autonomous.stage1;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.Robot;
-import frc.robot.commands.LaunchCubeCommand;
+//import frc.robot.commands.LaunchCubeCommand;
 import frc.robot.commands.SetFieldOrientedAngleCommand;
 import frc.robot.commands.autonomous.DriveForDistanceCommand;
 import frc.robot.util.Side;
@@ -17,6 +17,6 @@ public class Stage1CenterSwitchCommand extends CommandGroup {
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 (switchSide == Side.LEFT ? 1.2 : -1) * 50,
                 WALL_TO_SWITCH - robot.getDrivetrain().getWidth() + 3));
-        addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
+//       addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
     }
 }

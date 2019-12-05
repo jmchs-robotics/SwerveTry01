@@ -3,8 +3,8 @@ package frc.robot.commands.autonomous;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.WaitCommand;
 import frc.robot.Robot;
-import frc.robot.commands.IntakeCubeCommand;
-import frc.robot.commands.LaunchCubeCommand;
+//import frc.robot.commands.IntakeCubeCommand;
+//import frc.robot.commands.LaunchCubeCommand;
 import frc.robot.motion.AutonomousPaths;
 import frc.robot.motion.Path;
 import frc.robot.motion.Trajectory;
@@ -13,7 +13,7 @@ import frc.robot.util.Side;
 public class ScoreSwitchFrontFromSwitchFront extends CommandGroup {
     private static final double INTAKE_TIME = 2.5;
     private static final double LAUNCH_TIME = 0.5;
-    private static final double ELEVATOR_WAIT = 1;
+   // private static final double ELEVATOR_WAIT = 1;
 
     public ScoreSwitchFrontFromSwitchFront(Robot robot, Side switchSide) {
 
@@ -32,11 +32,11 @@ public class ScoreSwitchFrontFromSwitchFront extends CommandGroup {
 
         CommandGroup intakeGroup = new CommandGroup();
         intakeGroup.addSequential(new WaitCommand(Math.max(0, trajectoryToCube.getDuration() - INTAKE_TIME / 2)));
-        intakeGroup.addSequential(new IntakeCubeCommand(robot.getGatherer(), INTAKE_TIME));
+ //       intakeGroup.addSequential(new IntakeCubeCommand(robot.getGatherer(), INTAKE_TIME));
 
         CommandGroup scoreGroup = new CommandGroup();
         scoreGroup.addSequential(new WaitCommand(Math.max(0, trajectoryToSwitch.getDuration() - LAUNCH_TIME)));
-        scoreGroup.addSequential(new LaunchCubeCommand(robot.getGatherer(),  LAUNCH_TIME));
+   //     scoreGroup.addSequential(new LaunchCubeCommand(robot.getGatherer(),  LAUNCH_TIME));
 
 
         addParallel(intakeGroup);
@@ -48,6 +48,6 @@ public class ScoreSwitchFrontFromSwitchFront extends CommandGroup {
                 robot.getDrivetrain().getMaxVelocity() * 0.6));
         addParallel(scoreGroup);
         addSequential(new SetDrivetrainAngleIfNotAngledCommand(robot.getDrivetrain(), 0));
-        addSequential(new LaunchCubeCommand(robot.getGatherer(), 0.5));
+ //       addSequential(new LaunchCubeCommand(robot.getGatherer(), 0.5));
     }
 }

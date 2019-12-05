@@ -2,7 +2,7 @@ package frc.robot.commands.autonomous;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.Robot;
-import frc.robot.commands.LaunchCubeCommand;
+//import frc.robot.commands.LaunchCubeCommand;
 import frc.robot.commands.autonomous.stage1.StartingPosition;
 import frc.robot.motion.AutonomousPaths;
 import frc.robot.util.Side;
@@ -32,6 +32,6 @@ public class ScoreSwitchFromStart extends CommandGroup {
 				// TODO: Switch from side
 				break;
 		}
-		addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
+//		addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
 	}
 }

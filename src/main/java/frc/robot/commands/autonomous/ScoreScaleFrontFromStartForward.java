@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.WaitCommand;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
-import frc.robot.commands.LaunchCubeCommand;
+//import frc.robot.commands.LaunchCubeCommand;
 import frc.robot.motion.AutonomousPaths;
 import frc.robot.motion.Path;
 import frc.robot.motion.Trajectory;
@@ -14,7 +14,6 @@ public class ScoreScaleFrontFromStartForward extends CommandGroup {
 	/**
 	 * Time from the end of the path that the elevator's position is set
 	 */
-	private static final double ELEVATOR_TIME = 2;
 
 	/**
 	 * Time from the end of the path that the cube is launched
@@ -23,7 +22,6 @@ public class ScoreScaleFrontFromStartForward extends CommandGroup {
 
 	public ScoreScaleFrontFromStartForward(Robot robot, Side startSide, Side scaleSide) {
 		double launchSpeed;
-		double elevatorHeight;
 		Path pathToScale;
 		if (startSide == Side.LEFT) {
 			if (scaleSide == Side.LEFT) {
@@ -50,7 +48,7 @@ public class ScoreScaleFrontFromStartForward extends CommandGroup {
 		// Wait until x seconds are left in the path to launch the cube.
 		CommandGroup launchCubeGroup = new CommandGroup();
 		launchCubeGroup.addSequential(new WaitCommand(Math.max(0, trajectoryToScale.getDuration() - LAUNCH_TIME)));
-		launchCubeGroup.addSequential(new LaunchCubeCommand(robot.getGatherer(), 0.5, launchSpeed));
+	//	launchCubeGroup.addSequential(new LaunchCubeCommand(robot.getGatherer(), 0.5, launchSpeed));
 
 		addParallel(launchCubeGroup);
 		addSequential(new FollowPathCommand(robot.getDrivetrain(), pathToScale));

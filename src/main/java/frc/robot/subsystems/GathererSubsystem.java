@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+/*package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -6,8 +6,8 @@ import frc.robot.Robot;
 import frc.robot.RobotMap;
 import frc.robot.commands.GathererCommand;
 
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+//import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+//import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -28,11 +28,11 @@ public class GathererSubsystem  extends Subsystem {
 		OUT
 	};
 	
-	private TalonSRX leftIntake = new TalonSRX(GATHERER_LEFT_MOTOR);
-	private TalonSRX rightIntake = new TalonSRX(GATHERER_RIGHT_MOTOR);
+//	private TalonSRX leftIntake = new TalonSRX(GATHERER_LEFT_MOTOR);
+//	private TalonSRX rightIntake = new TalonSRX(GATHERER_RIGHT_MOTOR);
 	
-	private WPI_TalonSRX leftCarriage = new WPI_TalonSRX(CARRIAGE_LEFT_MOTOR);
-	private WPI_TalonSRX rightCarriage = new WPI_TalonSRX(CARRIAGE_RIGHT_MOTOR);
+//	private WPI_TalonSRX leftCarriage = new WPI_TalonSRX(CARRIAGE_LEFT_MOTOR);
+//	private WPI_TalonSRX rightCarriage = new WPI_TalonSRX(CARRIAGE_RIGHT_MOTOR);
 	
 	private Solenoid leftSolenoid = new Solenoid(RobotMap.GATHERER_LEFT_SOLENOID);
 	private Solenoid rightSolenoid = new Solenoid(RobotMap.GATHERER_RIGHT_SOLENOID);
@@ -43,26 +43,26 @@ public class GathererSubsystem  extends Subsystem {
 		setLeftArm(Position.OUT);
 		setRightArm(Position.IN);
 
-		leftCarriage.setInverted(true);
-		rightCarriage.setInverted(true);
-		leftIntake.setInverted(true);
-		rightIntake.setInverted(true);
+//		leftCarriage.setInverted(true);
+//		rightCarriage.setInverted(true);
+//		leftIntake.setInverted(true);
+//		rightIntake.setInverted(true);
 
 		// Tell the carriage talons that they have encoders
-		leftCarriage.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
-		rightCarriage.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+//		leftCarriage.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+//		rightCarriage.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
 
 		// Configure PID constants for left carriage
-		leftCarriage.config_kP(0, CARRIAGE_POSITION_P, 0);
-		leftCarriage.config_kI(0, CARRIAGE_POSITION_I, 0);
-		leftCarriage.config_kD(0, CARRIAGE_POSITION_D, 0);
-		leftCarriage.config_kF(0, CARRIAGE_POSITION_F, 0);
+//		leftCarriage.config_kP(0, CARRIAGE_POSITION_P, 0);
+//		leftCarriage.config_kI(0, CARRIAGE_POSITION_I, 0);
+//		leftCarriage.config_kD(0, CARRIAGE_POSITION_D, 0);
+//		leftCarriage.config_kF(0, CARRIAGE_POSITION_F, 0);
 
 		// Configure PID constants for right carriage
-		rightCarriage.config_kP(0, CARRIAGE_POSITION_P, 0);
-		rightCarriage.config_kI(0, CARRIAGE_POSITION_I, 0);
-		rightCarriage.config_kD(0, CARRIAGE_POSITION_D, 0);
-		rightCarriage.config_kF(0, CARRIAGE_POSITION_F, 0);
+//		rightCarriage.config_kP(0, CARRIAGE_POSITION_P, 0);
+//		rightCarriage.config_kI(0, CARRIAGE_POSITION_I, 0);
+//		rightCarriage.config_kD(0, CARRIAGE_POSITION_D, 0);
+//		rightCarriage.config_kF(0, CARRIAGE_POSITION_F, 0);
 
 		leftIntake.follow(leftCarriage);
 		rightIntake.follow(rightCarriage);
@@ -109,3 +109,4 @@ public class GathererSubsystem  extends Subsystem {
 		setDefaultCommand(new GathererCommand(this, Robot.getOI().getSecondaryController()));	
 	}
 }
+*/

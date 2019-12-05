@@ -6,7 +6,7 @@ import frc.robot.commands.autonomous.*;
 import frc.robot.commands.autonomous.stage1.StartingPosition;
 import frc.robot.commands.autonomous.stage2.VisionTargetingCubeCommand;
 import frc.robot.motion.AutonomousPaths;
-import frc.robot.subsystems.GathererSubsystem;
+//import frc.robot.subsystems.GathererSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.util.Side;
 
@@ -36,7 +36,7 @@ public class Robot extends TimedRobot {
 
 	private static OI mOI;
 	private static SwerveDriveSubsystem swerveDriveSubsystem;
-	private static GathererSubsystem gathererSubsystem;
+//	private static GathererSubsystem gathererSubsystem;
 
 	private final AutonomousChooser autoChooser = new AutonomousChooser();
 	private Command autoCommand;
@@ -257,9 +257,9 @@ public class Robot extends TimedRobot {
 	}
 
 
-	public GathererSubsystem getGatherer() {
-		return gathererSubsystem;
-	}
+	//public GathererSubsystem getGatherer() {
+	//	return gathererSubsystem;
+	//}
 
 	public Timer getAutoTimer() {
 		return autoTimer;

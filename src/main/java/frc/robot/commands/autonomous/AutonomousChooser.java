@@ -9,10 +9,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.commands.AdjustFieldOrientedAngleCommand;
 import frc.robot.commands.SetFieldOrientedAngleCommand;
-import frc.robot.commands.SetGathererArmsStateCommand;
+//import frc.robot.commands.SetGathererArmsStateCommand;
 import frc.robot.commands.autonomous.stage1.*;
-import frc.robot.commands.autonomous.stage2.Stage2SameSideSwitchCommand;
-import frc.robot.subsystems.GathererSubsystem;
+//import frc.robot.commands.autonomous.stage2.Stage2SameSideSwitchCommand;
+//import frc.robot.subsystems.GathererSubsystem;
 import frc.robot.util.Side;
 
 import java.util.ArrayList;
@@ -108,7 +108,7 @@ public class AutonomousChooser {
     }
 
     public Command getCommand(Robot robot) {
-        GrabCubeFromPlatformZoneCommand.resetAvailableCubes();
+       // GrabCubeFromPlatformZoneCommand.resetAvailableCubes();
 
         String fieldConfiguration = DriverStation.getInstance().getGameSpecificMessage();
         StartingPosition startPos = startPosChooser.getSelected();
@@ -278,7 +278,7 @@ public class AutonomousChooser {
                     case SAME_SIDE_SCALE:
                     case OPPOSITE_SIDE_SCALE:
                         if (atScale) {
-                            autoGroup.addSequential(new GrabCubeFromScale(robot, scaleSide));
+                            //autoGroup.addSequential(new GrabCubeFromScale(robot, scaleSide));
                         } else
                             System.err.println("[WARNING]: I don't know how to score in the scale when I'm not at the scale!");
                         atScale = true;
