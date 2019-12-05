@@ -2,16 +2,13 @@ package frc.robot.commands.autonomous;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.Robot;
-import frc.robot.commands.LaunchCubeCommand;
-import frc.robot.commands.SetElevatorPositionCommand;
+//import frc.robot.commands.LaunchCubeCommand;
 import frc.robot.commands.autonomous.stage1.StartingPosition;
 import frc.robot.motion.AutonomousPaths;
-import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.util.Side;
 
 public class ScoreSwitchFromStart extends CommandGroup {
 	public ScoreSwitchFromStart(Robot robot, StartingPosition startingPosition, Side switchSide, StartingOrientation orientation) {
-		addParallel(new SetElevatorPositionCommand(robot.getElevator(), ElevatorSubsystem.SCORE_SWITCH_POISITON));
 		switch (startingPosition) {
 			case LEFT:
 				// TODO: Switch from side
@@ -35,6 +32,6 @@ public class ScoreSwitchFromStart extends CommandGroup {
 				// TODO: Switch from side
 				break;
 		}
-		addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
+//		addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
 	}
 }

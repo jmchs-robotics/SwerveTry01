@@ -1,4 +1,4 @@
-package frc.robot.commands;
+/*package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.subsystems.GathererSubsystem;
@@ -23,3 +23,4 @@ public class SetGathererArmsStateCommand extends Command {
         return true;
     }
 }
+*/

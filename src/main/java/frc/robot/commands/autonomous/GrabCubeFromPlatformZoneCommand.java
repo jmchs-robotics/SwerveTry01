@@ -1,12 +1,10 @@
-package frc.robot.commands.autonomous;
+/*package frc.robot.commands.autonomous;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.Robot;
 import frc.robot.commands.IntakeCubeCommand;
 import frc.robot.commands.LaunchCubeCommand;
-import frc.robot.commands.SetElevatorPositionCommand;
 import frc.robot.commands.autonomous.stage2.VisionTargetingCubeCommand;
-import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.util.Side;
 
@@ -98,3 +96,4 @@ public class GrabCubeFromPlatformZoneCommand extends CommandGroup {
             availableCubes[i] = true;
     }
 }
+*/

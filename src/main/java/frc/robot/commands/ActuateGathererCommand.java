@@ -1,4 +1,4 @@
-package frc.robot.commands;
+/*package frc.robot.commands;
 
 import frc.robot.subsystems.GathererSubsystem;
 
@@ -40,3 +40,4 @@ public class ActuateGathererCommand extends Command {
 		end();
 	}
 }
+*/
