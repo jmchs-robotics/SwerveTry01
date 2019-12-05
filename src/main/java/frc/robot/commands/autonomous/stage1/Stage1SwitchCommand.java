@@ -1,15 +1,12 @@
 package frc.robot.commands.autonomous.stage1;
 
 import frc.robot.Robot;
-import frc.robot.commands.CalibrateElevatorEncoderCommand;
-import frc.robot.commands.LaunchCubeCommand;
-import frc.robot.commands.SetElevatorPositionCommand;
+//import frc.robot.commands.LaunchCubeCommand;
 import frc.robot.commands.SetFieldOrientedAngleCommand;
 import frc.robot.commands.autonomous.DriveForDistanceCommand;
 import frc.robot.commands.autonomous.SetDrivetrainAngleCommand;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
-import frc.robot.subsystems.ElevatorSubsystem;
 
 import static frc.robot.commands.autonomous.AutonomousConstants.*;
 
@@ -65,18 +62,15 @@ public class Stage1SwitchCommand extends CommandGroup {
                 (WALL_TO_SWITCH + SWITCH_DEPTH / 2) - WALL_TO_PLATFORM_ZONE));
         addSequential(new SetDrivetrainAngleCommand(robot.getDrivetrain(),
                 (startPos == StartingPosition.LEFT ? 90 : 270)));
-        addParallel(new SetElevatorPositionCommand(robot.getElevator(), ElevatorSubsystem.SCORE_SWITCH_POISITON));
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 (startPos == StartingPosition.LEFT ? 1 : -1) * SCORE_SWITCH,
                 0), 1);
 
-        addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
-        addParallel(new SetElevatorPositionCommand(robot.getElevator(), ElevatorSubsystem.GROUND_POSITION + 5));
+//        addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
 
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 (startPos == StartingPosition.LEFT ? -1 : 1) * SCORE_SWITCH,
                 0));
-        addParallel(new CalibrateElevatorEncoderCommand(robot.getElevator()));
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 0,
                 WALL_TO_PLATFORM_ZONE - (WALL_TO_SWITCH + SWITCH_DEPTH / 2)));
@@ -84,15 +78,12 @@ public class Stage1SwitchCommand extends CommandGroup {
     }
 
     private void driveSideToNearSwitch(StartingPosition startPos) {
-        addParallel(new SetElevatorPositionCommand(robot.getElevator(), ElevatorSubsystem.SCORE_SWITCH_POISITON));
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 (startPos == StartingPosition.LEFT ? -1 : 1) * SCORE_SWITCH,
                 WALL_TO_SWITCH + SWITCH_DEPTH / 2 - robot.getDrivetrain().getWidth() / 2), 7);
-        addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
-        addParallel(new SetElevatorPositionCommand(robot.getElevator(), ElevatorSubsystem.GROUND_POSITION + 5));
+  //      addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 (startPos == StartingPosition.LEFT ? 1 : -1) * SCORE_SWITCH,
                 WALL_TO_PLATFORM_ZONE - (WALL_TO_SWITCH + SWITCH_DEPTH / 2)));
-        addSequential(new CalibrateElevatorEncoderCommand(robot.getElevator()));
     }
 }
