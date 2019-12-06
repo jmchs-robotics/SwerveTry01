@@ -6,6 +6,7 @@ import frc.robot.commands.autonomous.*;
 import frc.robot.commands.autonomous.stage1.StartingPosition;
 import frc.robot.commands.autonomous.stage2.VisionTargetingCubeCommand;
 import frc.robot.motion.AutonomousPaths;
+import frc.robot.subsystems.SwerveDriveModule;
 //import frc.robot.subsystems.GathererSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.util.Side;
@@ -150,6 +151,7 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousInit() {
+
 		autoTimer = new Timer();
 		
 		swerveDriveSubsystem.setFieldOriented( true);
@@ -232,6 +234,9 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
+		Command c = new SetAngleCommand(swerveDriveSubsystem,0);
+		c.start();
+		SmartDashboard.putNumber("WHERE IS MY MAYO!!!!@#%$%#$@#$", 1000000);
 		if (autoCommand != null) autoCommand.cancel();
 
 		for (int i = 0; i < 4; i++)
