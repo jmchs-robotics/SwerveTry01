@@ -158,14 +158,12 @@ public class Robot extends TimedRobot {
 		CommandGroup autoGroup = new CommandGroup();
         
 		//autoGroup.addSequential( autoChooser.getCommand(this)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem,0));
-		autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 48.0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 1));
-		autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem,90));
-        autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 12.0, 0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		// autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 1.0, 0.0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		// autoGroup.addSequential( new SetDrivetrainAngleCommand( swerveDriveSubsystem, 90));
-		//autoGroup.addSequential( autoChooser.getCommand(this)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
+		autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
+		autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.5));
+		autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , -48.0, 48.0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
+		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.3));
+		// autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem,90));
+        // autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 12.0, 0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
 		autoTimer.start();
 		autoGroup.start();
 	}
