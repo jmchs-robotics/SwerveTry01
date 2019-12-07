@@ -158,9 +158,11 @@ public class Robot extends TimedRobot {
 		CommandGroup autoGroup = new CommandGroup();
         
 		//autoGroup.addSequential( autoChooser.getCommand(this)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 10.0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 2));
-        autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 10.0, 0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
+		autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem,0));
+		autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 48.0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
+		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 1));
+		autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem,90));
+        autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 12.0, 0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
 		// autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 1.0, 0.0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
 		// autoGroup.addSequential( new SetDrivetrainAngleCommand( swerveDriveSubsystem, 90));
 		//autoGroup.addSequential( autoChooser.getCommand(this)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
@@ -241,6 +243,8 @@ public class Robot extends TimedRobot {
 
 		for (int i = 0; i < 4; i++)
 			swerveDriveSubsystem.getSwerveModule(i).zeroDistance();
+		
+		swerveDriveSubsystem.setFieldOriented( true);
 	}
 
 	/**

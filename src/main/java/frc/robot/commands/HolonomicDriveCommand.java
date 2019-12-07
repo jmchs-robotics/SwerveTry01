@@ -39,7 +39,8 @@ public class HolonomicDriveCommand extends Command {
 		SmartDashboard.putNumber("Strafe", strafe);
 		SmartDashboard.putNumber("Rotation", rotation);
 
-		mDrivetrain.holonomicDrive(forward, strafe, rotation, false);
+		// by reading the isFieldOriented() we allow the left bumper to control if driving field oriented or not
+		mDrivetrain.holonomicDrive(forward, strafe, rotation, mDrivetrain.isFieldOriented()); // false);
 	}
 
 	@Override

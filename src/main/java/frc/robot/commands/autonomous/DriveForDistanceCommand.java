@@ -83,8 +83,8 @@ public class DriveForDistanceCommand extends Command {
         iterCount = 0;
         for (int i = 0; i < 4; i++) {
             try {
-                encPosLoggers[i] = Files.newBufferedWriter(Paths.get(String.format("/home/lvuser/encPos %d.csv", i)));
-                encVelLoggers[i] = Files.newBufferedWriter(Paths.get(String.format("/home/lvuser/encVel %d.csv", i)));
+                encPosLoggers[i] = Files.newBufferedWriter(Paths.get(String.format("/home/lvuser/encPos%d.csv", i)));
+                encVelLoggers[i] = Files.newBufferedWriter(Paths.get(String.format("/home/lvuser/encVel%d.csv", i)));
             } catch (IOException e) {
                 encPosLoggers[i] = null;
                 encVelLoggers[i] = null;

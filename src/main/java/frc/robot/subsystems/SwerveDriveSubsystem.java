@@ -137,7 +137,7 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
     public void holonomicDrive(double forward, double strafe, double rotation, boolean fieldOriented) {
         forward *= getSpeedMultiplier();
         strafe *= getSpeedMultiplier();
-        fieldOriented = SmartDashboard.getBoolean("holonomicDrive is FieldOriented", false);
+        // fieldOriented = SmartDashboard.getBoolean("holonomicDrive is FieldOriented", false);
 
         if (fieldOriented) {
             double angleRad = Math.toRadians(getGyroAngle());

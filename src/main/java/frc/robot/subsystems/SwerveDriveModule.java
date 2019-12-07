@@ -133,16 +133,18 @@ public class SwerveDriveModule extends Subsystem {
         m_pidControllerDrive = driveMotor.getPIDController();
         m_pidControllerDrive.setFeedbackDevice(m_encoderDrive);
      
-        m_pidControllerDrive.setP(15);
-        m_pidControllerDrive.setI(0.01);
-        m_pidControllerDrive.setD(0.1);
-        m_pidControllerDrive.setFF(0.2);
-
+        // 191206 tweaking PID coefficeints
+         m_pidControllerDrive.setP(.05);
+        m_pidControllerDrive.setI(0.00001);
+        m_pidControllerDrive.setD(0);
+        m_pidControllerDrive.setFF(0);
 
         //set frame..?
         //driveMotor.setControlFramePeriodMs(periodMs);
         
         driveMotor.setIdleMode(IdleMode.kBrake);
+        // driveMotor.setIdleMode(IdleMode.kCoast);
+        
         // prevent more than this many amps to the motor
         // default is 80, which Rev "thinks is a pretty good number for a drivetrain" per Chief Delphi
         // 60 is from 2910's 2019 Mk2SwerveModule.java for drive motor
