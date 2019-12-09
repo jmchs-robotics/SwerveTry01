@@ -44,6 +44,11 @@ public class Robot extends TimedRobot {
 
 	private Timer autoTimer;
 
+	//Socket receivers. One is needed for each port to read from
+	public static SocketVision rft_;		//5801
+	//Socket constants
+	public static final boolean SHOW_DEBUG_VISION = true;
+
 	public static OI getOI() {
 		return mOI;
 	}
@@ -59,8 +64,6 @@ public class Robot extends TimedRobot {
 		// gathererSubsystem = new GathererSubsystem();
 		swerveDriveSubsystem = new SwerveDriveSubsystem();
 		// elevatorSubsystem = new ElevatorSubsystem();
-
-		
 
 		mOI.registerControls();
 
@@ -151,19 +154,26 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousInit() {
+		// open the socket connection to comminucate with the coprocessor, i.e. the UP Board
+		socketVisionInit();
 
 		autoTimer = new Timer();
 		
 		swerveDriveSubsystem.setFieldOriented( true);
 		CommandGroup autoGroup = new CommandGroup();
-        
+		
+		//
+		// Testing various autonomous commands, and fixing and tuning them (PIDs etc) 191207
+		//
 		//autoGroup.addSequential( autoChooser.getCommand(this)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 10.0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 2));
-        autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 10.0, 0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		// autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 1.0, 0.0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		// autoGroup.addSequential( new SetDrivetrainAngleCommand( swerveDriveSubsystem, 90));
-		//autoGroup.addSequential( autoChooser.getCommand(this)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
+		// autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
+		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.5));
+		// autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , -24.0, 24.0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
+		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 1.0));
+		autoGroup.addSequential( new SetDrivetrainAngleCommand( swerveDriveSubsystem, 90));
+		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.3));
+		// autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem,90));
+        // autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 12.0, 0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
 		autoTimer.start();
 		autoGroup.start();
 	}
@@ -234,6 +244,9 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void teleopInit() {
+		// open the socket connection to read/write the coprocessor, in case it wasn't already done in auto
+		socketVisionInit();
+
 		Command c = new SetAngleCommand(swerveDriveSubsystem,0);
 		c.start();
 		SmartDashboard.putNumber("WHERE IS MY MAYO!!!!@#%$%#$@#$", 1000000);
@@ -241,6 +254,8 @@ public class Robot extends TimedRobot {
 
 		for (int i = 0; i < 4; i++)
 			swerveDriveSubsystem.getSwerveModule(i).zeroDistance();
+		
+		swerveDriveSubsystem.setFieldOriented( true);
 	}
 
 	/**
@@ -268,5 +283,34 @@ public class Robot extends TimedRobot {
 
 	public Timer getAutoTimer() {
 		return autoTimer;
+	}
+
+
+	/**
+	 * This method properly instantiates and initializes sockets to read from and write to
+	 * coprocessors. This needs to be called before
+	 * any of these objects could be used -- so don't use them during disabled mode. This should be called during autonomous
+	 * and teleop init methods. For ease of access, these objects are global and instantiated through the main class.
+	 */
+	private void socketVisionInit() {
+		if (rft_ == null) {
+			rft_ = new SocketVision("10.59.33.255", 5801);
+			if (SHOW_DEBUG_VISION) {
+				System.out.println("Vision to RFT started.");
+			}
+			rft_.start();
+
+			if (!rft_.is_connected()) {
+				if (!rft_.connect()) {
+					if (SHOW_DEBUG_VISION) {
+						System.err.println("socketVisionInit() Failed to connect to the Helmsman.");
+					}
+				} else {
+					if (SHOW_DEBUG_VISION) {
+						System.out.println("socketVisionInit() Connected. Love that mayo.");
+					}
+				}
+			}
+		}
 	}
 }

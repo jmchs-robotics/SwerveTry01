@@ -11,7 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class DriveForDistanceCommand extends Command {
-    private static final double TARGET_DISTANCE_BUFFER = 2;
+    private static final double TARGET_DISTANCE_BUFFER = 4; // 2;
     private static final double DISTANCE_CHECK_TIME = 0.25;
 
     private final SwerveDriveSubsystem drivetrain;
@@ -37,10 +37,11 @@ public class DriveForDistanceCommand extends Command {
         this.drivetrain = drivetrain;
         this.angle = Math.toDegrees(Math.atan2(distRight, distForward));
 
-        this.distRight = -distRight;
+        this.distRight = distRight; // -distRight;  // 191206 seems like this should not get inverted
         this.distForward = distForward;
 
         this.distance = Math.sqrt(distRight * distRight + distForward * distForward);
+        // 191206 this PID isn't working... probably needs more P
         angleErrorController = new PIDController(0.02, 0, 0, new PIDSource() {
             @Override
             public void setPIDSourceType(PIDSourceType pidSource) { }
@@ -83,8 +84,10 @@ public class DriveForDistanceCommand extends Command {
         iterCount = 0;
         for (int i = 0; i < 4; i++) {
             try {
-                encPosLoggers[i] = Files.newBufferedWriter(Paths.get(String.format("/home/lvuser/encPos %d.csv", i)));
-                encVelLoggers[i] = Files.newBufferedWriter(Paths.get(String.format("/home/lvuser/encVel %d.csv", i)));
+                // 191206 take space out of filename
+                encPosLoggers[i] = Files.newBufferedWriter(Paths.get(String.format("/home/lvuser/encPos%d.csv", i)));
+                encPosLoggers[i].write( "count, millisecs, abs(encoderPos), driveDist, gyroAngle, rotationFactor\n");
+                encVelLoggers[i] = Files.newBufferedWriter(Paths.get(String.format("/home/lvuser/encVel%d.csv", i)));
             } catch (IOException e) {
                 encPosLoggers[i] = null;
                 encVelLoggers[i] = null;
@@ -100,18 +103,23 @@ public class DriveForDistanceCommand extends Command {
         double forwardFactor = distForward / distance;
         double strafeFactor = -distRight / distance;
 
-        double[] moduleAngles = drivetrain.calculateSwerveModuleAngles(forwardFactor, strafeFactor, -rotationFactor);
+        double[] moduleAngles = drivetrain.calculateSwerveModuleAngles(forwardFactor, strafeFactor, rotationFactor);  // -rotationFactor); // 191206
 
         for (int i = 0; i < 4; i++) {
             drivetrain.getSwerveModule(i).setTargetAngle(moduleAngles[i]);
             
             try {
-                encPosLoggers[i].write(String.format("%d,%f\n",
-                        iterCount,            
-                        Math.abs(drivetrain.getSwerveModule(i).getDrivePosition())));   // getDriveMotor().getSelectedSensorPosition(0))));
+                // 191206 also save the time in milliseconds, and the driveDistance
+                encPosLoggers[i].write( String.format("%d, %d, %f, %f, %f, %f\n",
+                        iterCount, 
+                        (int) System.currentTimeMillis(),
+                        Math.abs(drivetrain.getSwerveModule(i).getDrivePosition()), 
+                        drivetrain.getSwerveModule(i).getDriveDistance(),
+                        drivetrain.getGyroAngle(),
+                        rotationFactor));
                 encVelLoggers[i].write(String.format("%d,%f\n",
                         iterCount,
-                        Math.abs(drivetrain.getSwerveModule(i).getDriveVelocity()))); // getDriveMotor().getSelectedSensorVelocity(0))));
+                        Math.abs(drivetrain.getSwerveModule(i).getDriveVelocity())));
 
             } catch (IOException e) { }
             
@@ -119,10 +127,15 @@ public class DriveForDistanceCommand extends Command {
         iterCount++;
     }
 
+    /**
+     * This command finishes when all 4 of the the robot's wheels stay within TARGET_DISTANCE_BUFFER (inches)
+     * of the desired drive distance for DISTANC_CHECK_TIME
+     */
     @Override
     protected boolean isFinished() {
         boolean inBuffer = true;
         for (int i = 0; i < 4; i++) {
+            // check that all wheels are within the TARGET_DISTANCE_BUFFER of the desired travel distance
             inBuffer &= Math.abs(distance - Math.abs(drivetrain.getSwerveModule(i).getDriveDistance())) < TARGET_DISTANCE_BUFFER;
         }
 

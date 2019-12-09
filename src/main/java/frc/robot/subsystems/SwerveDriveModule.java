@@ -55,7 +55,10 @@ public class SwerveDriveModule extends Subsystem {
     private final CANSparkMax mDriveMotor; 
     private CANPIDController m_pidControllerDrive;  // new for all Spark Max controllers
     private CANEncoder m_encoderDrive;  // new for all Spark Max controllers
-    
+    private double drive_kP;  // PID initial values are set in SwerveDriveSubsystem
+    private double drive_kI;
+    private double drive_kD;
+    private double drive_kFF;
 
     private boolean driveInverted = false;
     private double driveGearRatio = 1;
@@ -120,29 +123,25 @@ public class SwerveDriveModule extends Subsystem {
         // new driveMotor controller = Spark Max
         driveMotor.setMotorType(MotorType.kBrushless);
 
-        /* Orig from Eric's code
-        driveMotor.setParameter(ConfigParameter.kP_0, 15);
-        driveMotor.setParameter(ConfigParameter.kI_0, 0.01);
-        driveMotor.setParameter(ConfigParameter.kD_0, 0.1);
-        driveMotor.setParameter(ConfigParameter.kF_0, 0.2);
-        */
         // new drive controller PID settings, from Rev Robotics example code
         m_encoderDrive = driveMotor.getEncoder(); // EncoderType.kQuadrature, 4096);
         //m_encoderDrive.setPositionConversionFactor( 1.0 / DRIVE_SENSOR_TICKS_PER_REV); // sets getPosition to return in range [ 0, 42) for one full rotation
-        m_encoderDrive.setPositionConversionFactor( 1.0 ); // sets getPosition to return in range [ 0, 42) for one full rotation
+        m_encoderDrive.setPositionConversionFactor( 1.0 ); // sets getPosition to return in range [ 0, 1) for one full rotation
         m_pidControllerDrive = driveMotor.getPIDController();
         m_pidControllerDrive.setFeedbackDevice(m_encoderDrive);
      
-        m_pidControllerDrive.setP(15);
-        m_pidControllerDrive.setI(0.01);
-        m_pidControllerDrive.setD(0.1);
-        m_pidControllerDrive.setFF(0.2);
-
+        // 191206 tweaking PID coefficeints
+        m_pidControllerDrive.setP( 0.05); // .05);
+        m_pidControllerDrive.setI(0.00001);
+        m_pidControllerDrive.setD(0);
+        m_pidControllerDrive.setFF(0);
 
         //set frame..?
         //driveMotor.setControlFramePeriodMs(periodMs);
         
         driveMotor.setIdleMode(IdleMode.kBrake);
+        // driveMotor.setIdleMode(IdleMode.kCoast);
+        
         // prevent more than this many amps to the motor
         // default is 80, which Rev "thinks is a pretty good number for a drivetrain" per Chief Delphi
         // 60 is from 2910's 2019 Mk2SwerveModule.java for drive motor
@@ -152,6 +151,7 @@ public class SwerveDriveModule extends Subsystem {
         // driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, 0);
         // driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 0);
 
+        // original drive (autonomous) PID, from 2910's 2018 code
         // driveMotor.config_kP(0, 15, 0);
         // driveMotor.config_kI(0, 0.01, 0);
         // driveMotor.config_kD(0, 0.1, 0);
@@ -196,10 +196,11 @@ public class SwerveDriveModule extends Subsystem {
      * Compute and return the number of ticks the encoder will have to move
      * given the number of inches you want the robot to move.
      * 
-     * @return number of ticks (int)
+     * @return number of ticks (float)
      */
-    private int inchesToEncoderTicks(double inches) {
-        return (int) Math.round( inches * DRIVE_TICKS_PER_INCH);
+    private double inchesToEncoderTicks(double inches) {
+        // 191206 since we're working in revolutions, not ticks, need to work in double, not int
+        return inches * DRIVE_TICKS_PER_INCH;  
     }
 
     @Override
@@ -274,6 +275,10 @@ public class SwerveDriveModule extends Subsystem {
         return m_analogSensorAngle.getVoltage();
     }
 
+    /**
+     * returns the distance driven in inches
+     * @return
+     */
     public double getDriveDistance() {
         double ticks = mDriveMotor.getEncoder().getPosition();
         if (driveInverted)
@@ -311,10 +316,22 @@ public class SwerveDriveModule extends Subsystem {
         mStallTimeBegin = Long.MAX_VALUE;
     }
 
+    /**
+     * Sets private member driveGearRatio, 
+     * which is Not used anywhere else in SwerveDriveModule.java as of 12/6/19
+     * @param ratio gear ratio to set
+     */
     public void setDriveGearRatio(double ratio) {
         driveGearRatio = ratio;
     }
 
+    /**
+     * Set private member driveInverted.
+     * Used in 2910's 2018 code for their MK1 modules. 
+     * The MK1 had a different module for the LF,RB than the module for the RF,LB
+     * As of 12/6/19 this is never called, so all driveInverted remain in default, false state.
+     * @param inverted
+     */
     public void setDriveInverted(boolean inverted) {
         driveInverted = inverted;
     }
@@ -340,11 +357,9 @@ public class SwerveDriveModule extends Subsystem {
 
         targetAngle += mZeroOffset;
 
-        // double currentAngle = mAngleMotor.getSelectedSensorPosition(0) * (360.0 / 1024.0); // orig
-        // double currentAngle = (m_analogSensorAngle.getPosition() - ANGLE_SENSOR_MIN_VOLTAGE) * (360.0 / ANGLE_SENSOR_RANGE); // new all spark max controllers
-        // double currentAngle = ( 1.0 - (m_analogSensorAngle.getPosition() - ANGLE_SENSOR_MIN_VOLTAGE) / ANGLE_SENSOR_RANGE) * 360.0; 
-        // double currentAngle = ( 1.0 - m_analogSensorAngle.getPosition()) * 360.0; // getPosition returning a value in [0,1)
-        double currentAngle = ( m_analogSensorAngle.getPosition()) * 360.0; // getPosition returns a value in [0,1)
+        // double currentAngle = mAngleMotor.getSelectedSensorPosition(0) * (360.0 / 1024.0); // 2910's original 2018 code
+        // we've set the conversion factor so getPosition returns a value in [0,1)
+        double currentAngle = ( m_analogSensorAngle.getPosition()) * 360.0; 
         
         double currentAngleMod = currentAngle % 360;
         if (currentAngleMod < 0) currentAngleMod += 360;
