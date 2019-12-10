@@ -29,10 +29,23 @@ public class DriveForDistanceCommand extends Command {
     private BufferedWriter[] encVelLoggers = new BufferedWriter[4];
     private int iterCount;
 
+    /**
+     * Move the robot forward/backwards this many inches. 
+     * Field oriented.
+     * @param drivetrain 
+     * @param distance inches; positive if forwards, negative is backwards.
+     */
     public DriveForDistanceCommand(SwerveDriveSubsystem drivetrain, double distance) {
         this(drivetrain, 0, distance);
     }
 
+    /**
+     * Move the robot this many inches.  Robot does not turn, just strafes.
+     * Field oriented.
+     * @param drivetrain
+     * @param distRight inches positive is to the right; negative is to the left.
+     * @param distForward inches positive is forward; negaitve is backwards.
+     */
     public DriveForDistanceCommand(SwerveDriveSubsystem drivetrain, double distRight, double distForward) {
         this.drivetrain = drivetrain;
         this.angle = Math.toDegrees(Math.atan2(distRight, distForward));
