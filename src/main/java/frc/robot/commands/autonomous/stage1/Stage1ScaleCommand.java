@@ -2,7 +2,6 @@ package frc.robot.commands.autonomous.stage1;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.Robot;
-//import frc.robot.commands.LaunchCubeCommand;
 import frc.robot.commands.SetFieldOrientedAngleCommand;
 import frc.robot.commands.autonomous.DriveForDistanceCommand;
 import frc.robot.commands.autonomous.SetDrivetrainAngleCommand;
@@ -65,7 +64,6 @@ public class Stage1ScaleCommand extends CommandGroup {
                 (startPos == StartingPosition.LEFT ? 1 : -1) * SCORE_SCALE,
                 0));
 
-        //addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 (startPos == StartingPosition.LEFT ? -1 : 1) * SCORE_SCALE,
                 WALL_TO_PLATFORM_ZONE - WALL_TO_SCALE));
@@ -77,7 +75,6 @@ public class Stage1ScaleCommand extends CommandGroup {
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 (startPos == StartingPosition.LEFT ? -1 : 1) * SCORE_SCALE,
                 WALL_TO_SCALE - robot.getDrivetrain().getWidth() / 2));
-        //addSequential(new LaunchCubeCommand(robot.getGatherer(), 1));
         addSequential(new DriveForDistanceCommand(robot.getDrivetrain(),
                 (startPos == StartingPosition.LEFT ? 1 : -1) * SCORE_SCALE,
                 WALL_TO_PLATFORM_ZONE - WALL_TO_SCALE));
