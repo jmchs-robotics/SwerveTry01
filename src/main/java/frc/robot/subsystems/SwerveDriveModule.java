@@ -31,7 +31,8 @@ public class SwerveDriveModule extends Subsystem {
     private static final double DRIVE_SENSOR_TICKS_PER_REV = 42.0;
     // standard MK2 gear ratios 42:14, 18:26, 60:15
     // 4" dia wheel
-    private static final double DRIVE_TICKS_PER_INCH = DRIVE_SENSOR_TICKS_PER_REV * 42.0/14.0 * 18.0/26.0 * 60.0/15.0 / ( 4.0*Math.PI);
+    //private static final double DRIVE_TICKS_PER_INCH = DRIVE_SENSOR_TICKS_PER_REV * 42.0/14.0 * 18.0/26.0 * 60.0/15.0 / ( 4.0*Math.PI);
+    private static final double DRIVE_TICKS_PER_INCH =  42.0/14.0 * 18.0/26.0 * 60.0/15.0 / ( 4.0*Math.PI);
     private static final long STALL_TIMEOUT = 2000;
 
     private long mStallTimeBegin = Long.MAX_VALUE;
@@ -127,7 +128,6 @@ public class SwerveDriveModule extends Subsystem {
         */
         // new drive controller PID settings, from Rev Robotics example code
         m_encoderDrive = driveMotor.getEncoder(); // EncoderType.kQuadrature, 4096);
-        m_encoderDrive.setPositionConversionFactor( 1.0 / DRIVE_SENSOR_TICKS_PER_REV); // sets getPosition to return in range [ 0, 42) for one full rotation
         m_pidControllerDrive = driveMotor.getPIDController();
         m_pidControllerDrive.setFeedbackDevice(m_encoderDrive);
      
