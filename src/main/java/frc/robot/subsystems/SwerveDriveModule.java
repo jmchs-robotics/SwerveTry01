@@ -1,16 +1,8 @@
 package frc.robot.subsystems;
 
-/* Orig and no longer used
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-*/
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
-//import com.revrobotics.CANSparkMaxLowLevel.ConfigParameter;  // Eric, and no longer available in Rev Robotics library
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.CANAnalog;
 import com.revrobotics.CANPIDController;
@@ -23,7 +15,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.RobotMap;
 import frc.robot.commands.SwerveModuleCommand;
-// import frc.robot.commands.SwerveModuleCommandSparkTalon;
 import frc.robot.util.MotorStallException;
 
 public class SwerveDriveModule extends Subsystem {
@@ -74,8 +65,7 @@ public class SwerveDriveModule extends Subsystem {
     private double ANGLE_SENSOR_RANGE = ANGLE_SENSOR_MAX_VOLTAGE - ANGLE_SENSOR_MIN_VOLTAGE;
     public long bfc = 0;
 
-    //public SwerveDriveModule(int moduleNumber, TalonSRX angleMotor, CANSparkMax driveMotor, double zeroOffset) {
-    public SwerveDriveModule(int moduleNumber, CANSparkMax angleMotor, CANSparkMax driveMotor, double zeroOffset) {        this.moduleNumber = moduleNumber;
+     public SwerveDriveModule(int moduleNumber, CANSparkMax angleMotor, CANSparkMax driveMotor, double zeroOffset) {        this.moduleNumber = moduleNumber;
         
         mAngleMotor = angleMotor;
         mDriveMotor = driveMotor;
@@ -88,16 +78,6 @@ public class SwerveDriveModule extends Subsystem {
 
         //the angle the pot has to be offset to be "straight" at input 0 degrees.
         mZeroOffset = zeroOffset;
-
-        /* Original angleMotor = Talon
-        angleMotor.configSelectedFeedbackSensor(FeedbackDevice.Analog, 0, 0);
-        angleMotor.setSensorPhase(true);
-        angleMotor.config_kP(0, 30, 0);
-        angleMotor.config_kI(0, 0.001, 0);
-        angleMotor.config_kD(0, 200, 0);
-        angleMotor.setNeutralMode(NeutralMode.Brake);
-        angleMotor.set(ControlMode.Position, 0);
-        */
 
         // New angleMotor controller = Spark Max:
         // set feedback device to analog, setSensorPhase, set position control mode
@@ -146,38 +126,12 @@ public class SwerveDriveModule extends Subsystem {
         // default is 80, which Rev "thinks is a pretty good number for a drivetrain" per Chief Delphi
         // 60 is from 2910's 2019 Mk2SwerveModule.java for drive motor
         driveMotor.setSmartCurrentLimit(60); 
-        // driveMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
-
-        // driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, 0);
-        // driveMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, 0);
-
-        // original drive (autonomous) PID, from 2910's 2018 code
-        // driveMotor.config_kP(0, 15, 0);
-        // driveMotor.config_kI(0, 0.01, 0);
-        // driveMotor.config_kD(0, 0.1, 0);
-        // driveMotor.config_kF(0, 0.2, 0);
-
-        // driveMotor.configMotionCruiseVelocity(640, 0);
-        // driveMotor.configMotionAcceleration(200, 0);
-
-        // driveMotor.setNeutralMode(NeutralMode.Brake);
-
-        /*
-        // Set amperage limits, Original (Talon)
-        angleMotor.configContinuousCurrentLimit(30, 0);
-        angleMotor.configPeakCurrentLimit(30, 0);
-        angleMotor.configPeakCurrentDuration(100, 0);
-        angleMotor.enableCurrentLimit(true);
-        */
+       
 
         // Set amperage limits
         angleMotor.setSmartCurrentLimit(25, 25);
         driveMotor.setSmartCurrentLimit(25, 25);
 
-        // driveMotor.configContinuousCurrentLimit(25, 0);
-        // driveMotor.configPeakCurrentLimit(25, 0);
-        // driveMotor.configPeakCurrentDuration(100, 0);
-        // driveMotor.enableCurrentLimit(true);
         
     	SmartDashboard.putBoolean("Motor Jammed" + moduleNumber, angleMotorJam);
     }
@@ -248,19 +202,6 @@ public class SwerveDriveModule extends Subsystem {
 
         return angle;
 
-              /*
-              // from 2910's 2019 code in
-              // Common-Public/robot/src/main/java/org/frcteam2910/common/robot/drivers/Mk2SwerveModule.java
-              // They switched to radians.
-              readAngle() {
-              double angle = (1.0 - angleEncoder.getVoltage() / RobotController.getVoltage5V()) * 2.0 * Math.PI + angleOffset;
-              angle %= 2.0 * Math.PI;
-              if (angle < 0.0) {
-                  angle += 2.0 * Math.PI;
-              }
-      
-              return angle; }
-          */
 
           
 
@@ -345,10 +286,7 @@ public class SwerveDriveModule extends Subsystem {
     }
 
     public void setTargetAngle(double targetAngle) {
-//    	if(angleMotorJam) {
-//    		mAngleMotor.set(ControlMode.Disabled, 0);
-//    		return;
-//    	}
+
         lastTargetAngle = targetAngle;
 
         targetAngle %= 360;
@@ -385,41 +323,15 @@ public class SwerveDriveModule extends Subsystem {
 
         targetAngle += currentAngle - currentAngleMod;
 
-        // double currentError = mAngleMotor.getClosedLoopError(0);  // new commented out 10/26/19 hoping not needed
-//        if (Math.abs(currentError - mLastError) < 7.5 &&
-//                Math.abs(currentAngle - targetAngle) > 5) {
-//            if (mStallTimeBegin == Long.MAX_VALUE) {
-//            	mStallTimeBegin = System.currentTimeMillis();
-//            }
-//            if (System.currentTimeMillis() - mStallTimeBegin > STALL_TIMEOUT) {
-//            	angleMotorJam = true;
-//            	mAngleMotor.set(ControlMode.Disabled, 0);
-//            	mDriveMotor.set(ControlMode.Disabled, 0);
-//            	SmartDashboard.putBoolean("Motor Jammed" + moduleNumber, angleMotorJam);
-//            	return;
-//            }
-//        } else {
-//            mStallTimeBegin = Long.MAX_VALUE;
-//        }
-        // mLastError = currentError;  // new commented out 10/26/19 hoping not needed
-        // targetAngle *= 1024.0 / 360.0;
         targetAngle = targetAngle  / 360.0; // * 3.3;  // changed 11/13/19 to be range of [0, 1) 11/29 range [0, 3.3)
-        // mAngleMotor.set(ControlMode.Position, targetAngle); // orig
         m_pidControllerAngle.setReference(targetAngle, ControlType.kPosition); // new for all Spark Max controllers
         SmartDashboard.putNumber("Module " + moduleNumber + " Target Angle Set ", targetAngle);
 
     }
 
     public void setTargetDistance(double distance) {
-//    	if(angleMotorJam) {
-//    		mDriveMotor.set(ControlMode.Disabled, 0);
-//    		return;
-//    	}
         if (driveInverted) distance = -distance;
 
-//        distance /= 2 * Math.PI * driveWheelRadius; // to wheel rotations
-//        distance *= driveGearRatio; // to encoder rotations
-//        distance *= 80; // to encoder ticks
 
         distance = inchesToEncoderTicks(distance);
 
@@ -431,13 +343,8 @@ public class SwerveDriveModule extends Subsystem {
     }
 
     public void setTargetSpeed(double speed) {
-//    	if(angleMotorJam) {
-//    		mDriveMotor.set(ControlMode.Disabled, 0);
-//    		return;
-//    	}
         if (driveInverted) speed = -speed;
         
-        // mDriveMotor.set(ControlMode.PercentOutput, speed);  // all Talons
         mDriveMotor.set(speed);  
         // 10/26/19:
         // If for some reason the simple approach of setting the speed 
@@ -468,12 +375,6 @@ public class SwerveDriveModule extends Subsystem {
      * @param maxVelocity
      */
     public void setMotionConstraints(double maxAcceleration, double maxVelocity) {
-        /* Eric's: [Eric:] Units all wrong...
-        mDriveMotor.setParameter(ConfigParameter.kSmartMotionMaxAccel_0, maxAcceleration);
-        mDriveMotor.setParameter(ConfigParameter.kSmartMotionMaxVelocity_0, maxVelocity); */
-
-        // mDriveMotor.configMotionAcceleration(inchesToEncoderTicks(maxAcceleration * 12) / 10, 0);
-        // mDriveMotor.configMotionCruiseVelocity(inchesToEncoderTicks(maxVelocity * 12) / 10, 0);
 
         m_pidControllerDrive.setSmartMotionMaxAccel(inchesToEncoderTicks(maxAcceleration * 12) / 10, 0);
         m_pidControllerDrive.setSmartMotionMaxVelocity(inchesToEncoderTicks(maxVelocity * 12) / 10, 0);

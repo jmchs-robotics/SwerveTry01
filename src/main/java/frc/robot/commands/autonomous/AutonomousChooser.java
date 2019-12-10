@@ -9,10 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.commands.AdjustFieldOrientedAngleCommand;
 import frc.robot.commands.SetFieldOrientedAngleCommand;
-//import frc.robot.commands.SetGathererArmsStateCommand;
 import frc.robot.commands.autonomous.stage1.*;
-//import frc.robot.commands.autonomous.stage2.Stage2SameSideSwitchCommand;
-//import frc.robot.subsystems.GathererSubsystem;
 import frc.robot.util.Side;
 
 import java.util.ArrayList;
@@ -117,94 +114,6 @@ public class AutonomousChooser {
         // simplified 12/1/19 as first try
         autoGroup.addSequential(new AutoLineCommand(robot, startPos));
         return autoGroup;
-        /*
-
-        robot.getElevator().setEncoderPosition(ElevatorSubsystem.STARTING_ENCODER_TICKS);
-        robot.getElevator().setElevatorPosition(robot.getElevator().getCurrentHeight());
-
-        Side lastSide = Side.LEFT;
-        int stageNumber = 1;
-        for (int i = 0; i < priorityChoices.size(); i++) {
-            AutonomousStageChoice choice = priorityChoices.get(i).getSelected();
-            if (isChoiceGood(choice, fieldConfiguration, startPos)) {
-                System.out.printf("%d: %s\n", stageNumber, choice);
-                if (stageNumber == 1) {
-                    switch (choice) {
-                        case NONE:
-                            return autoGroup;
-                        case AUTOLINE:
-                            autoGroup.addSequential(new AutoLineCommand(robot, startPos));
-                            return autoGroup;
-                        case SAME_SIDE_SCALE:
-                        case OPPOSITE_SIDE_SCALE:
-                            autoGroup.addSequential(new Stage1ScaleCommand(robot,
-                                    startPos, fieldConfiguration.charAt(1)));
-                            lastSide = Side.fromChar(fieldConfiguration.charAt(1));
-                            break;
-                        case SAME_SIDE_SWITCH:
-                        case OPPOSITE_SIDE_SWITCH:
-                            if (startPos == StartingPosition.CENTER) {
-                                autoGroup.addSequential(new Stage1CenterSwitchCommand(robot,
-                                        Side.fromChar(fieldConfiguration.charAt(0))));
-                                return autoGroup;
-                            }
-                            autoGroup.addSequential(new Stage1SwitchCommand(robot,
-                                    startPos, fieldConfiguration.charAt(0)));
-                            lastSide = Side.fromChar(fieldConfiguration.charAt(0));
-                            break;
-                    }
-                } else {
-                    // Grab Cube
-
-                    if (i + 1 < priorityChoices.size()) {
-                        if (priorityChoices.get(i + 1).getSelected() == AutonomousStageChoice.SAME_SIDE_SWITCH &&
-                                lastSide == Side.fromChar(fieldConfiguration.charAt(0))) {
-                            autoGroup.addSequential(new Stage2SameSideSwitchCommand(robot, lastSide));
-                            return autoGroup;
-                        } else {
-                            continue;
-                        }
-                    }
-//
-//                    Side targetSide;
-//                    Side startSide = (startPos == StartingPosition.LEFT ? Side.LEFT : Side.RIGHT);
-//                    switch (priorityChoices.get(i).getSelected()) {
-//                        case OPPOSITE_SIDE_SCALE:
-//                        case OPPOSITE_SIDE_SWITCH:
-//                            targetSide = startSide.opposite();
-//                            break;
-//                        case SAME_SIDE_SCALE:
-//                        case SAME_SIDE_SWITCH:
-//                            targetSide = startSide;
-//                            break;
-//                        default:
-//                            continue;
-//                    }
-//
-//                    autoGroup.addSequential(new GrabCubeFromPlatformZoneCommand(robot, lastSide, targetSide));
-//
-//                    switch (priorityChoices.get(i).getSelected()) {
-//                        case SAME_SIDE_SCALE:
-//                        case OPPOSITE_SIDE_SCALE:
-//                            autoGroup.addSequential(new Stage2ScaleCommand(robot, targetSide));
-//                            break;
-//                        case SAME_SIDE_SWITCH:
-//                        case OPPOSITE_SIDE_SWITCH:
-//                            autoGroup.addSequential(new Stage2SwitchCommand(robot, targetSide));
-//                            break;
-//                    }
-//
-//                    lastSide = targetSide;
-                }
-
-                stageNumber++;
-            }
-        }
-
-        autoGroup.addSequential(new GrabCubeFromPlatformZoneCommand(robot, lastSide, lastSide));
-
-        return autoGroup;
-*/
     }
 
     public Command getCommand(Robot robot, Side switchSide, Side scaleSide) {
@@ -214,13 +123,6 @@ public class AutonomousChooser {
         CommandGroup autoGroup = new CommandGroup();
         autoGroup.addSequential(new SetFieldOrientedAngleCommand(robot.getDrivetrain(), robot.getDrivetrain().getRawGyroAngle()));
 
-//        {
-//            CommandGroup intakeArmGroup = new CommandGroup();
-//            intakeArmGroup.addSequential(new WaitCommand(5));
-//            intakeArmGroup.addSequential(new SetGathererArmsStateCommand(robot.getGatherer(), GathererSubsystem.Position.OUT));
-//
-//            autoGroup.addParallel(intakeArmGroup);
-//        }
 
         System.out.printf("[INFO] Starting in position: %s%n", startPos);
         // Print out the selected choices because logging
@@ -278,7 +180,6 @@ public class AutonomousChooser {
                     case SAME_SIDE_SCALE:
                     case OPPOSITE_SIDE_SCALE:
                         if (atScale) {
-                            //autoGroup.addSequential(new GrabCubeFromScale(robot, scaleSide));
                         } else
                             System.err.println("[WARNING]: I don't know how to score in the scale when I'm not at the scale!");
                         atScale = true;

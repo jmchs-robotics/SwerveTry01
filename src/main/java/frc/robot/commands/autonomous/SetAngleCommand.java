@@ -8,12 +8,8 @@ import frc.robot.subsystems.SwerveDriveModule;
 
 public class SetAngleCommand extends Command {
 
-   // private final Timer timer = new Timer();
     private final SwerveDriveSubsystem drivetrain;
     private SwerveDriveModule[] mSwerveModules;
-    //private final double time;
-    //private final double forward;
-    //private final double strafe;
     private final double angleWant;
 
     public SetAngleCommand(SwerveDriveSubsystem drivetrain, double a) {
@@ -33,20 +29,17 @@ public class SetAngleCommand extends Command {
 
 
 
-      // drivetrain.holonomicDrive(forward, strafe, 0);
     }
 
     @Override
     protected boolean isFinished() {
-        //return timer.hasPeriodPassed(time);
+
         return true;
     }
 
     @Override
     protected void end() {
-        //timer.stop();
-        //timer.reset();
-        //drivetrain.holonomicDrive(0, 0, 0);
+
     }
 
     @Override

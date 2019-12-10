@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-//import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -139,8 +138,6 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
     public void holonomicDrive(double forward, double strafe, double rotation, boolean fieldOriented) {
         forward *= getSpeedMultiplier();
         strafe *= getSpeedMultiplier();
-        // fieldOriented = SmartDashboard.getBoolean("holonomicDrive is FieldOriented", false);
-        // SmartDashboard.putBoolean("holonomicDrive is FieldOriented", fieldOriented);
  
         if (fieldOriented) {
             double angleRad = Math.toRadians(getGyroAngle());

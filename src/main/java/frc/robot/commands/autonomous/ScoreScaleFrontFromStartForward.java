@@ -4,7 +4,6 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.WaitCommand;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
-//import frc.robot.commands.LaunchCubeCommand;
 import frc.robot.motion.AutonomousPaths;
 import frc.robot.motion.Path;
 import frc.robot.motion.Trajectory;
@@ -48,7 +47,6 @@ public class ScoreScaleFrontFromStartForward extends CommandGroup {
 		// Wait until x seconds are left in the path to launch the cube.
 		CommandGroup launchCubeGroup = new CommandGroup();
 		launchCubeGroup.addSequential(new WaitCommand(Math.max(0, trajectoryToScale.getDuration() - LAUNCH_TIME)));
-	//	launchCubeGroup.addSequential(new LaunchCubeCommand(robot.getGatherer(), 0.5, launchSpeed));
 
 		addParallel(launchCubeGroup);
 		addSequential(new FollowPathCommand(robot.getDrivetrain(), pathToScale));
