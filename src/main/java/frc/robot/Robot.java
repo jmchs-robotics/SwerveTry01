@@ -45,6 +45,13 @@ public class Robot extends TimedRobot {
 	private Command autoCommand;
 
 	private Timer autoTimer;
+	
+	// Counters for the SmartDashboard so the code doesn't crash.
+	public int dashboardCounterInit = 1;
+	// The two counters had to be intialized at different values so that
+	//they could hit dashboard at different times.
+	public int dashboardCounterPeriodic;
+	//public int dashboardCounter;
 
 	public static OI getOI() {
 		return mOI;
@@ -67,26 +74,41 @@ public class Robot extends TimedRobot {
 		mOI.registerControls();
 
 		SmartDashboard.putData("Reset Motors", new ResetMotorsCommand(swerveDriveSubsystem));
+		
+		// Since the WatchDog Timer warnings were giving us crashes on the SmartDashboard, we made the code update every 25 cycles it ran.
+		dashboardCounterInit++;
+		if (dashboardCounterInit == 25){
 
-		/*SmartDashboard.putNumber("Angle kP ", swerveDriveSubsystem.getAngleKP());
-		SmartDashboard.putNumber("Angle kI ", swerveDriveSubsystem.getAngleKI());
-		SmartDashboard.putNumber("Angle kD ", swerveDriveSubsystem.getAngleKD());*/
+			dashboardCounterInit = 1;
+			SmartDashboard.putNumber("Angle kP ", swerveDriveSubsystem.getAngleKP());
+			SmartDashboard.putNumber("Angle kI ", swerveDriveSubsystem.getAngleKI());
+			SmartDashboard.putNumber("Angle kD ", swerveDriveSubsystem.getAngleKD());
+
+		}	
+		
 }
 
     @Override
     public void robotPeriodic() {
 		// display status of all 4 modules
         for (int i = 0; i < 4; i++) {
-			//SmartDashboard.putNumber("Module " + i + " Current Angle ", swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
-			//SmartDashboard.putNumber("Module " + i + " Angle Raw Encoder Position ", swerveDriveSubsystem.getSwerveModule(i).getRawSensorPosition());
 			double x = swerveDriveSubsystem.getSwerveModule(i).getAngleVoltage();
-			//SmartDashboard.putNumber("Module " + i + " Angle Encoder Voltage ", x); // getSelectedSensorPosition(0));
+			dashboardCounterPeriodic++;
+
+			// Since the WatchDog Timer warnings were giving us crashes on the SmartDashboard, we made the code update every 25 cycles it ran.
+			if (dashboardCounterPeriodic == 25){
+				dashboardCounterPeriodic = 0;
+				SmartDashboard.putNumber("Module " + i + " Current Angle ", swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
+				SmartDashboard.putNumber("Module " + i + " Angle Raw Encoder Position ", swerveDriveSubsystem.getSwerveModule(i).getRawSensorPosition());
 			
-            //SmartDashboard.putNumber("Module " + i + " Drive Dist ", (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
-			//SmartDashboard.putNumber("Module " + i + " Drive Applied Output ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getAppliedOutput()); // getMotorOutputPercent());
-            //SmartDashboard.putNumber("Module " + i + " Drive Position ", swerveDriveSubsystem.getSwerveModule(i).getDrivePosition()); // getDriveMotor().getSelectedSensorPosition(0));
-			//SmartDashboard.putNumber("Module " + i + " Drive Output Current ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
-			//SmartDashboard.putNumber("Module " + i + " Angle Motor Faults ", swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getFaults());*/
+				SmartDashboard.putNumber("Module " + i + " Angle Encoder Voltage ", x); // getSelectedSensorPosition(0));
+			
+            	SmartDashboard.putNumber("Module " + i + " Drive Dist ", (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
+				SmartDashboard.putNumber("Module " + i + " Drive Applied Output ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getAppliedOutput()); // getMotorOutputPercent());
+            	SmartDashboard.putNumber("Module " + i + " Drive Position ", swerveDriveSubsystem.getSwerveModule(i).getDrivePosition()); // getDriveMotor().getSelectedSensorPosition(0));
+				SmartDashboard.putNumber("Module " + i + " Drive Output Current ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
+				SmartDashboard.putNumber("Module " + i + " Angle Motor Faults ", swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getFaults());
+			}
 		}
 
 		// for debugging and tuning initial swerve software (first module)
@@ -94,32 +116,37 @@ public class Robot extends TimedRobot {
 		if (x > modAngEncMax) {
 				modAngEncMax = x; 
 			}
-		//SmartDashboard.putNumber("Module 1 Endcoder Angle Max ", modAngEncMax);
+		// Since the WatchDog Timer warnings were giving us crashes on the SmartDashboard, we made the code update every 25 cycles it ran.
+		if (dashboardCounterPeriodic == 25)
+			SmartDashboard.putNumber("Module 1 Endcoder Angle Max ", modAngEncMax);
 
 		if (x < modAngEncMin) {
 				modAngEncMin = x; 
 			}
-		//SmartDashboard.putNumber("Module 1 Endcoder Angle Min ", modAngEncMin);
+		// Since the WatchDog Timer warnings were giving us crashes on the SmartDashboard, we made the code update every 25 cycles it ran.
+		if (dashboardCounterPeriodic == 25)
+			SmartDashboard.putNumber("Module 1 Endcoder Angle Min ", modAngEncMin);
 		
 		/* Put angle PID onto Smart Dashboard, and read Smart Dashboard for changes to them */
 		
-		//double k;
-		/*k = SmartDashboard.getNumber( "Angle kP ", 0.0);
-		if( k != swerveDriveSubsystem.getAngleKP()) {
-			swerveDriveSubsystem.setAngleKP( k);
+		double k;
+		// Since the WatchDog Timer warnings were giving us crashes on the SmartDashboard, we made the code update every 25 cycles it ran.
+		if (dashboardCounterPeriodic == 25){
+			k = SmartDashboard.getNumber( "Angle kP ", 0.0);
+			if( k != swerveDriveSubsystem.getAngleKP()) {
+				swerveDriveSubsystem.setAngleKP( k);
+			}
+			k = SmartDashboard.getNumber( "Angle kI ", 0.0);
+			if( k != swerveDriveSubsystem.getAngleKI()) {
+				swerveDriveSubsystem.setAngleKI( k);
+			}
+			//k = SmartDashboard.getNumber( "Angle kD ", 0.0);
+			if( k != swerveDriveSubsystem.getAngleKD()) {
+				swerveDriveSubsystem.setAngleKD( k);
+			}
+			
+			SmartDashboard.putNumber("Drivetrain Angle", swerveDriveSubsystem.getGyroAngle());
 		}
-		k = SmartDashboard.getNumber( "Angle kI ", 0.0);
-		if( k != swerveDriveSubsystem.getAngleKI()) {
-			swerveDriveSubsystem.setAngleKI( k);
-		}
-		//k = SmartDashboard.getNumber( "Angle kD ", 0.0);
-		if( k != swerveDriveSubsystem.getAngleKD()) {
-			swerveDriveSubsystem.setAngleKD( k);
-		}*/
-		
-		
-		//SmartDashboard.putNumber("Drivetrain Angle", swerveDriveSubsystem.getGyroAngle());
-
 		/*
 		// from 2910's 2018 code, left in comments as example for 2020
 		SmartDashboard.putNumber("Elevator encoder", elevatorSubsystem.getEncoderValue());
@@ -263,7 +290,9 @@ public class Robot extends TimedRobot {
 		return elevatorSubsystem;
 	}
 
-	public GathererSubsystem getGatherer() {
+	public GathererSubsystem getGatherer(
+		
+	) {
 		return gathererSubsystem;
 	}
 
