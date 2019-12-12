@@ -2,11 +2,8 @@ package frc.robot.commands.autonomous;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.Robot;
-import frc.robot.commands.LaunchCubeCommand;
-import frc.robot.commands.SetElevatorPositionCommand;
 import frc.robot.motion.AutonomousPaths;
 import frc.robot.motion.Path;
-import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.util.Side;
 
 public class ScoreSwitchSideFromStartForward extends CommandGroup {
@@ -31,9 +28,7 @@ public class ScoreSwitchSideFromStartForward extends CommandGroup {
         }
 
         addSequential(new FollowPathCommand(robot.getDrivetrain(), pathToSwitch));
-        addParallel(new SetElevatorPositionCommand(robot.getElevator(), ElevatorSubsystem.SCORE_SWITCH_POISITON));
         addSequential(new SetDrivetrainAngleCommand(robot.getDrivetrain(), switchAngle));
         addSequential(new FollowPathCommand(robot.getDrivetrain(), pathToSwitchSide));
-        addSequential(new LaunchCubeCommand(robot.getGatherer(), 0.5));
     }
 }

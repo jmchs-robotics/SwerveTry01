@@ -3,18 +3,14 @@ package frc.robot.commands.autonomous;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.WaitCommand;
 import frc.robot.Robot;
-import frc.robot.commands.CalibrateElevatorEncoderCommand;
-import frc.robot.commands.LaunchCubeCommand;
-import frc.robot.commands.SetElevatorPositionCommand;
 import frc.robot.motion.Path;
 import frc.robot.motion.Trajectory;
-import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.util.Side;
 
 import static frc.robot.motion.AutonomousPaths.*;
 
 public class ScoreScaleSideFromStartSide extends CommandGroup {
-    public static final double ELEVATOR_WAIT = 3;
+   // public static final double ELEVATOR_WAIT = 3;
     
     public ScoreScaleSideFromStartSide(Robot robot, Side startSide, Side scaleSide, double oppositeWaitTime) {
         double angle = scaleSide == Side.LEFT ? 270 : 90;
@@ -58,39 +54,22 @@ public class ScoreScaleSideFromStartSide extends CommandGroup {
 
         Trajectory step2Trajectory = new Trajectory(step2, robot.getDrivetrain().getMaxAcceleration(), robot.getDrivetrain().getMaxVelocity());
 
-        CommandGroup elevatorGroup = new CommandGroup();
-        elevatorGroup.addSequential(new WaitCommand(Math.max(0, step2Trajectory.getDuration() - ELEVATOR_WAIT)));
-        elevatorGroup.addSequential(new SetElevatorPositionCommand(robot.getElevator(), ElevatorSubsystem.TOP_POSITION));
-
-        addParallel(elevatorGroup);
         addSequential(new FollowPathCommand(robot.getDrivetrain(), step1));
         addSequential(new SetDrivetrainAngleCommand(robot.getDrivetrain(), angle));
         addSequential(new FollowPathCommand(robot.getDrivetrain(), step2));
-        addSequential(new LaunchCubeCommand(robot.getGatherer(), 0.5));
         addSequential(new FollowPathCommand(robot.getDrivetrain(), step3));
-        addSequential(new SetElevatorPositionCommand(robot.getElevator(), 15));
-        addSequential(new WaitForElevatorPositionCommand(robot.getElevator(), 15));
-        addSequential(new CalibrateElevatorEncoderCommand(robot.getElevator()));
     }
     
     private void scoreOpposite(Robot robot, Path step1, Path step2, Path step3, Path step4, double angle, double waitTime) {
         
         Trajectory step2Trajectory = new Trajectory(step2, robot.getDrivetrain().getMaxAcceleration(), robot.getDrivetrain().getMaxVelocity());
         
-        CommandGroup elevatorGroup = new CommandGroup();
-        elevatorGroup.addSequential(new WaitCommand(Math.max(0, step2Trajectory.getDuration() - ELEVATOR_WAIT)));
-        elevatorGroup.addSequential(new SetElevatorPositionCommand(robot.getElevator(), ElevatorSubsystem.TOP_POSITION));
         
         addSequential(new FollowPathCommand(robot.getDrivetrain(), step1));
         addSequential(new SetDrivetrainAngleCommand(robot.getDrivetrain(), angle));
         addSequential(new WaitForTimerCommand(robot.getAutoTimer(), waitTime));
-        addParallel(elevatorGroup);
         addSequential(new FollowPathCommand(robot.getDrivetrain(), step2));
         addSequential(new FollowPathCommand(robot.getDrivetrain(), step3));
-        addSequential(new LaunchCubeCommand(robot.getGatherer(), 0.5));
         addSequential(new FollowPathCommand(robot.getDrivetrain(), step4));
-        addSequential(new SetElevatorPositionCommand(robot.getElevator(), 15));
-        addSequential(new WaitForElevatorPositionCommand(robot.getElevator(), 15));
-        addSequential(new CalibrateElevatorEncoderCommand(robot.getElevator()));
     }
 }
