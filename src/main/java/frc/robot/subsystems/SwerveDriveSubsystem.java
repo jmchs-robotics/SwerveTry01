@@ -242,4 +242,15 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
         }
     }
 
+    /**
+     * Setting all the modules to be brake or coast
+     */
+    public void setBrake(boolean b)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            mSwerveModules[i].setMotorBrake(b);
+        }
+    }
+
 }

@@ -352,6 +352,25 @@ public class SwerveDriveModule extends Subsystem {
         // better to set the motor's speed using the PID controller, i.e.:
         // m_pidControllerDrive.setReference(speed, ControlType.kVelocity);
     }
+    /**
+     * Setting the drive motor to either brake mode of Coast
+     * Takes in a parameter of boolean
+     * if b true, then the brakes are set
+     * else set the motors to coast.
+     * 
+     * Prints true if the brakes or on 
+     * @param b
+     */
+    public void setMotorBrake(boolean b)
+    {
+        if (b == true){
+            mDriveMotor.setIdleMode(IdleMode.kBrake);
+        }
+        else{
+             mDriveMotor.setIdleMode(IdleMode.kCoast);
+        }
+        SmartDashboard.putBoolean("Is motors on Brake?", b);
+    }
 
     public void zeroDistance() {
         // mDriveMotor.setEncPosition(0); // Eric
