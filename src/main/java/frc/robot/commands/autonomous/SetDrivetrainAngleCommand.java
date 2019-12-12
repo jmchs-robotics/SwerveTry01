@@ -21,9 +21,11 @@ public class SetDrivetrainAngleCommand extends Command {
     private boolean isTimerStarted = false;
 
     /**
+
      * turn the robot to the targetAngle
+     Field oriented.
      * @param drivetrain (SwerveDriveSubsystem)
-     * @param targetAngle angle to turn to, in degrees (double)
+     * @param targetAngle angle to turn to, in degrees (double) Positive is CCW, negative is CW.
      */
     public SetDrivetrainAngleCommand(SwerveDriveSubsystem drivetrain, double targetAngle) {
         this.drivetrain = drivetrain;
