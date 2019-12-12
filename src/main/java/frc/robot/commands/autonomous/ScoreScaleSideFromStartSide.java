@@ -3,7 +3,6 @@ package frc.robot.commands.autonomous;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.WaitCommand;
 import frc.robot.Robot;
-//import frc.robot.commands.LaunchCubeCommand;
 import frc.robot.motion.Path;
 import frc.robot.motion.Trajectory;
 import frc.robot.util.Side;
@@ -58,7 +57,6 @@ public class ScoreScaleSideFromStartSide extends CommandGroup {
         addSequential(new FollowPathCommand(robot.getDrivetrain(), step1));
         addSequential(new SetDrivetrainAngleCommand(robot.getDrivetrain(), angle));
         addSequential(new FollowPathCommand(robot.getDrivetrain(), step2));
-//        addSequential(new LaunchCubeCommand(robot.getGatherer(), 0.5));
         addSequential(new FollowPathCommand(robot.getDrivetrain(), step3));
     }
     
@@ -72,7 +70,6 @@ public class ScoreScaleSideFromStartSide extends CommandGroup {
         addSequential(new WaitForTimerCommand(robot.getAutoTimer(), waitTime));
         addSequential(new FollowPathCommand(robot.getDrivetrain(), step2));
         addSequential(new FollowPathCommand(robot.getDrivetrain(), step3));
-//        addSequential(new LaunchCubeCommand(robot.getGatherer(), 0.5));
         addSequential(new FollowPathCommand(robot.getDrivetrain(), step4));
     }
 }

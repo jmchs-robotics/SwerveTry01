@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-//import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -12,12 +11,11 @@ import frc.robot.Robot;
 import static frc.robot.RobotMap.*;
 
 public class SwerveDriveSubsystem extends HolonomicDrivetrain {
-    // TODO: put our dimensions here
-    public static final double WHEELBASE = 14.5;  // Swerve bot: 14.5 Comp bot: 20.5
-    public static final double TRACKWIDTH = 13.5; // Swerve bot: 13.5 Comp bot: 25.5
-
-    public static final double WIDTH = 20;  // Swerve bot: 20 Comp bot: 37
-    public static final double LENGTH = 19; // Swerve bot: 19 Comp bot: 32
+    // set for SwerveyJr 191207
+    public static final double WHEELBASE = 22;
+    public static final double TRACKWIDTH = 19.5;
+    public static final double WIDTH = 25.75;
+    public static final double LENGTH = 28;
 
     private double angle_kP = 3.0;
     private double angle_kI = 0.0;
@@ -62,12 +60,6 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
                 319.357),
             // 11/26/19 less positive angle offset settings turns wheel angle clockwise looking from the top   
         };
-/*
-            // 2910's 2018 code.  We may need to do somethig similar for SwervyJr
-            mSwerveModules[0].setDriveInverted(true);
-            mSwerveModules[3].setDriveInverted(true);
-            */
-      //  }
 
         for (SwerveDriveModule module : mSwerveModules) {
             module.setTargetAngle(0);
@@ -80,6 +72,15 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
         }
     }
 
+    /**
+     * compute the angles of the four modules and return a vector of them
+     * uses private member isFieldOriented to decide to adjust based on gyro reading
+     * @param forward how far forward the robot is going
+     * @param strafe how far to the side the robot is going
+     * @param rotation how much to spin the robot 
+     * @param fo true if the computation is to be based on the field (field oriented)
+     * @return vector of angles of the set points for the four modules, in order: LF, RF, RB, LB
+     */
     public double[] calculateSwerveModuleAngles(double forward, double strafe, double rotation) {
         if (isFieldOriented()) {
             double angleRad = Math.toRadians(getGyroAngle());
@@ -137,8 +138,7 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
     public void holonomicDrive(double forward, double strafe, double rotation, boolean fieldOriented) {
         forward *= getSpeedMultiplier();
         strafe *= getSpeedMultiplier();
-        fieldOriented = SmartDashboard.getBoolean("holonomicDrive is FieldOriented", false);
-
+ 
         if (fieldOriented) {
             double angleRad = Math.toRadians(getGyroAngle());
             double temp = forward * Math.cos(angleRad) +
@@ -146,8 +146,7 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
             strafe = -forward * Math.sin(angleRad) + strafe * Math.cos(angleRad);
             forward = temp;
         }
-        SmartDashboard.putBoolean("holonomicDrive is FieldOriented", fieldOriented);
-
+        
         double a = strafe - rotation * (WHEELBASE / TRACKWIDTH);
         double b = strafe + rotation * (WHEELBASE / TRACKWIDTH);
         double c = forward - rotation * (TRACKWIDTH / WHEELBASE);
@@ -159,6 +158,7 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
                 Math.atan2(a, d) * 180 / Math.PI,
                 Math.atan2(a, c) * 180 / Math.PI
         };
+        
 
         double[] speeds = new double[]{
                 Math.sqrt(b * b + c * c),
@@ -185,65 +185,7 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
             }
             mSwerveModules[i].setTargetSpeed(speeds[i]);
         }
-        // SmartDashboard.putNumber("YahooYahooYahooYahooYahooYahooYahooYahoo YahooYahooYahooYahooYahooYahooYahooYahoo", 100);
-    }
-
-    
-    /*
-    //drive command for spark max and Talon controllers
-    @Override
-    public void holonomicDriveSparkTalon(double forward, double strafe, double rotation, boolean fieldOriented) {
-        forward *= getSpeedMultiplier();
-        strafe *= getSpeedMultiplier();
-
-        if (fieldOriented) {
-            double angleRad = Math.toRadians(getGyroAngle());
-            double temp = forward * Math.cos(angleRad) +
-                    strafe * Math.sin(angleRad);
-            strafe = -forward * Math.sin(angleRad) + strafe * Math.cos(angleRad);
-            forward = temp;
-        }
-
-        double a = strafe - rotation * (WHEELBASE / TRACKWIDTH);
-        double b = strafe + rotation * (WHEELBASE / TRACKWIDTH);
-        double c = forward - rotation * (TRACKWIDTH / WHEELBASE);
-        double d = forward + rotation * (TRACKWIDTH / WHEELBASE);
-
-        double[] angles = new double[]{
-                Math.atan2(b, c) * 180 / Math.PI,
-                Math.atan2(b, d) * 180 / Math.PI,
-                Math.atan2(a, d) * 180 / Math.PI,
-                Math.atan2(a, c) * 180 / Math.PI
-        };
-
-        double[] speeds = new double[]{
-                Math.sqrt(b * b + c * c),
-                Math.sqrt(b * b + d * d),
-                Math.sqrt(a * a + d * d),
-                Math.sqrt(a * a + c * c)
-        };
-
-        double max = speeds[0];
-
-        for (double speed : speeds) {
-            if (speed > max) {
-                max = speed;
-            }
-        }
-
-        for (int i = 0; i < 4; i++) {
-            if (Math.abs(forward) > 0.05 ||
-                    Math.abs(strafe) > 0.05 ||
-                    Math.abs(rotation) > 0.05) {
-                    mSwerveModules[i].setTargetAngle(angles[i] + 180);
-            } else {
-                mSwerveModules[i].setTargetAngle(mSwerveModules[i].getTargetAngle());
-            }
-            mSwerveModules[i].setTargetSpeed(speeds[i]);
-        }
-    }
-    */
-    
+    } 
 
     @Override
     public void stopDriveMotors() {
@@ -297,6 +239,17 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
         angle_kD = k;
         for (int i = 0; i < 4; i++) {
             mSwerveModules[i].setAngleKD( k);
+        }
+    }
+
+    /**
+     * Setting all the modules to be brake or coast
+     */
+    public void setBrake(boolean b)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            mSwerveModules[i].setMotorBrake(b);
         }
     }
 

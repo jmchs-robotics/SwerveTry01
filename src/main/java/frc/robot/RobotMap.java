@@ -8,11 +8,6 @@ package frc.robot;
  */
 public class RobotMap {
 
-//	public static final int GATHERER_LEFT_SOLENOID = 1;
-//	public static final int GATHERER_RIGHT_SOLENOID = 0;
-
-//	public static final int GATHERER_LEFT_MOTOR = 30;
- //   public static final int GATHERER_RIGHT_MOTOR = 29;
 
 	public static final int DRIVETRAIN_FRONT_LEFT_DRIVE_MOTOR = 25;
 	public static final int DRIVETRAIN_FRONT_LEFT_ANGLE_MOTOR = 23;

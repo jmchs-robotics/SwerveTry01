@@ -6,6 +6,10 @@ import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.Robot;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 
+/**
+ * Command to turn the robot (set the robot's pose) to the desired angle
+ * Constructor takes robot's drivetrain and desired angle
+ */
 public class SetDrivetrainAngleCommand extends Command {
     private static final double ANGLE_CHECK_TIME = 0.1;
     private static final double TARGET_ANGLE_BUFFER = 5.0;
@@ -17,10 +21,11 @@ public class SetDrivetrainAngleCommand extends Command {
     private boolean isTimerStarted = false;
 
     /**
-     * Turn the robot to the given angle.
-     * Field oriented.
-     * @param drivetrain
-     * @param targetAngle degrees to turn. Positive is CCW, negative is CW.
+
+     * turn the robot to the targetAngle
+     Field oriented.
+     * @param drivetrain (SwerveDriveSubsystem)
+     * @param targetAngle angle to turn to, in degrees (double) Positive is CCW, negative is CW.
      */
     public SetDrivetrainAngleCommand(SwerveDriveSubsystem drivetrain, double targetAngle) {
         this.drivetrain = drivetrain;
