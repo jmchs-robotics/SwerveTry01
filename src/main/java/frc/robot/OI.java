@@ -27,6 +27,9 @@ public class OI {
         primaryController.getLeftBumperButton().whenPressed(new SetFieldOrientedCommand(mRobot.getDrivetrain(), false));
         primaryController.getLeftBumperButton().whenReleased(new SetFieldOrientedCommand(mRobot.getDrivetrain(), true));
         primaryController.getStartButton().whenPressed(new ZeroDrivetrainGyroCommand(mRobot.getDrivetrain()));
+        //If the swerve is in Brake or Coast Mode... Braking when pressed
+        primaryController.getRightBumperButton().whenPressed(new SetMotorBrakeCommand(mRobot,true));
+        primaryController.getRightBumperButton().whenReleased(new SetMotorBrakeCommand(mRobot,false));
 }
 
     public IGamepad getPrimaryController() {
