@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.commands.ResetMotorsCommand;
+import frc.robot.commands.SetMotorBrakeCommand;
 import frc.robot.commands.autonomous.*;
 import frc.robot.commands.autonomous.stage1.StartingPosition;
 import frc.robot.commands.autonomous.stage2.VisionTargetingCubeCommand;
@@ -160,17 +161,30 @@ public class Robot extends TimedRobot {
 		autoTimer = new Timer();
 		
 		swerveDriveSubsystem.setFieldOriented( true);
+		//swerveDriveSubsystem.setBrake(true);
 		CommandGroup autoGroup = new CommandGroup();
 		
 		//
 		// Testing various autonomous commands, and fixing and tuning them (PIDs etc) 191207
 		//
+		//ALWAYS DO THIS!!!!
+		autoGroup.addSequential(new SetMotorBrakeCommand(this, true));
+
+		double defaultDriveDistance = 144.0;
+
+		//Simple drive Striaght
+		autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , defaultDriveDistance));
+
+		//leftside starting point. going to the right 12" 
+		autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem ,12, defaultDriveDistance));
+
 		//autoGroup.addSequential( autoChooser.getCommand(this)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
 		// autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
 		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.5));
 		// autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , -24.0, 24.0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
 		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 1.0));
-		autoGroup.addSequential( new SetDrivetrainAngleCommand( swerveDriveSubsystem, 90));
+		//autoGroup.addSequential( new SetDrivetrainAngleCommand( swerveDriveSubsystem, 90));
+		
 		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.3));
 		// autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem,90));
         // autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 12.0, 0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
@@ -247,7 +261,7 @@ public class Robot extends TimedRobot {
 		// open the socket connection to read/write the coprocessor, in case it wasn't already done in auto
 		socketVisionInit();
 
-		Command c = new SetAngleCommand(swerveDriveSubsystem,0);
+		Command c = new SetMotorBrakeCommand(this, false);// SetAngleCommand(swerveDriveSubsystem,0);
 		c.start();
 		SmartDashboard.putNumber("WHERE IS MY MAYO!!!!@#%$%#$@#$", 1000000);
 		if (autoCommand != null) autoCommand.cancel();
@@ -256,6 +270,7 @@ public class Robot extends TimedRobot {
 			swerveDriveSubsystem.getSwerveModule(i).zeroDistance();
 		
 		swerveDriveSubsystem.setFieldOriented( true);
+		//swerveDriveSubsystem.setBrake(false);
 	}
 
 	/**
