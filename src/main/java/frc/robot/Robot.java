@@ -43,7 +43,9 @@ public class Robot extends TimedRobot {
 
 	//private final AutonomousChooser autoChooser = new AutonomousChooser();
 	private Command autoCommand;
-	private final SendableChooser<String> startPosChooser = new SendableChooser<>();
+	private final SendableChooser<String> startPosChooser = new SendableChooser<>();	
+	private final SendableChooser<String> loadStationChooser = new SendableChooser<>();
+	
 	private Timer autoTimer;
 
 	//Socket receivers. One is needed for each port to read from
@@ -69,10 +71,20 @@ public class Robot extends TimedRobot {
 
 		mOI.registerControls();
 		
+		// build the Chooser so we can tell the robot which starting position we're in
 		startPosChooser.addOption("Left", "L");
         startPosChooser.setDefaultOption("Center", "C");
         startPosChooser.addOption("Right", "R");
+		// 'print' the Chooser to the dashboard
+		SmartDashboard.putData("Start Position", startPosChooser);
 
+		// build Chooser, what path to proceed to the loading station
+		loadStationChooser.setDefaultOption( "None", "N");
+		loadStationChooser.addOption( "Directly", "D");
+		loadStationChooser.addOption("Back then across", "B");
+		// 'print' the Chooser to the dashboard
+		SmartDashboard.putData("Proceed to Loading Station", loadStationChooser);
+		
 		SmartDashboard.putData("Reset Motors", new ResetMotorsCommand(swerveDriveSubsystem));
 
 		SmartDashboard.putNumber("Angle kP ", swerveDriveSubsystem.getAngleKP());
@@ -177,18 +189,50 @@ public class Robot extends TimedRobot {
 		//ALWAYS DO THIS!!!!
 		autoGroup.addSequential(new SetMotorBrakeCommand(this, true));
 
+		// how far to drive forward.  Is the same for all autonomous paths.
+		// TODO: set this on competition day
 		double defaultDriveDistance = 144.0;
+		// how far from having driven forward to go back to loading station. Is negative.
+		// is a fixed difference between start position boxes and the loading station
+		// TODO: set this on competition day
+		double driveBackToLoadStation = -1;
+		// how far to the right is the loading station from the forward position. Gets set in 'switch (startPos)'
+		double driveRightToLoadStation = 1;
 
 		String startPos = startPosChooser.getSelected();
+		String loadStationPath = loadStationChooser.getSelected();
 
-		SmartDashboard.putString("Parker Is Awesome Today", startPos);
+		SmartDashboard.putString("Got chooser start pos and load station path: ", startPos + " " + loadStationPath);
 
-		//Simple drive Striaght
-		/*autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , defaultDriveDistance));
+		switch (startPos) {
+			case "C":  
+				//Simple drive Striaght.  
+				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, defaultDriveDistance)); 
+				driveRightToLoadStation = 12.0;  // TODO: set this on competition day
+				break;
+			case "L":
+				//left side starting point. going to the right 12" 
+				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, 12, defaultDriveDistance));
+				driveRightToLoadStation = 24.0;  // TODO: set this on competition day
+				break;
+			case "R":
+				// right side starting point.  Go to the left some.  TODO: set how much to the left
+				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, -12, defaultDriveDistance));
+				driveRightToLoadStation = 2.0;  // TODO: set this on competition day
+				break;
+		}
 
-		//leftside starting point. going to the right 12" 
-		autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem ,12, defaultDriveDistance));
-
+		switch (loadStationPath) {
+			case "N":
+				break;
+			case "D":
+				autoGroup.addSequential( new DriveForDistanceCommand( swerveDriveSubsystem, driveRightToLoadStation, driveBackToLoadStation));
+				break;
+			case "B":
+				autoGroup.addSequential( new DriveForDistanceCommand( swerveDriveSubsystem, 0, driveBackToLoadStation));
+				autoGroup.addSequential( new DriveForDistanceCommand( swerveDriveSubsystem, driveRightToLoadStation, 0));
+				break;
+		}
 		//autoGroup.addSequential( autoChooser.getCommand(this)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
 		// autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
 		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.5));
@@ -201,9 +245,7 @@ public class Robot extends TimedRobot {
         // autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 12.0, 0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
 		autoTimer.start();
 		autoGroup.start();
-		*/
-
-
+		
 	}
 	/**
 	 * This autonomous (along with the chooser code above) shows how to select
