@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -38,11 +39,11 @@ public class Robot extends TimedRobot {
 
 	private static OI mOI;
 	private static SwerveDriveSubsystem swerveDriveSubsystem;
-//	private static GathererSubsystem gathererSubsystem;
+	//private static GathererSubsystem gathererSubsystem;
 
-	private final AutonomousChooser autoChooser = new AutonomousChooser();
+	//private final AutonomousChooser autoChooser = new AutonomousChooser();
 	private Command autoCommand;
-
+	private final SendableChooser<String> startPosChooser = new SendableChooser<>();
 	private Timer autoTimer;
 
 	//Socket receivers. One is needed for each port to read from
@@ -67,6 +68,10 @@ public class Robot extends TimedRobot {
 		// elevatorSubsystem = new ElevatorSubsystem();
 
 		mOI.registerControls();
+		
+		startPosChooser.addOption("Left", "L");
+        startPosChooser.setDefaultOption("Center", "C");
+        startPosChooser.addOption("Right", "R");
 
 		SmartDashboard.putData("Reset Motors", new ResetMotorsCommand(swerveDriveSubsystem));
 
@@ -159,6 +164,8 @@ public class Robot extends TimedRobot {
 		socketVisionInit();
 
 		autoTimer = new Timer();
+
+		
 		
 		swerveDriveSubsystem.setFieldOriented( true);
 		//swerveDriveSubsystem.setBrake(true);
@@ -172,8 +179,12 @@ public class Robot extends TimedRobot {
 
 		double defaultDriveDistance = 144.0;
 
+		String startPos = startPosChooser.getSelected();
+
+		SmartDashboard.putString("Parker Is Awesome Today", startPos);
+
 		//Simple drive Striaght
-		autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , defaultDriveDistance));
+		/*autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , defaultDriveDistance));
 
 		//leftside starting point. going to the right 12" 
 		autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem ,12, defaultDriveDistance));
@@ -190,6 +201,9 @@ public class Robot extends TimedRobot {
         // autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 12.0, 0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
 		autoTimer.start();
 		autoGroup.start();
+		*/
+
+
 	}
 	/**
 	 * This autonomous (along with the chooser code above) shows how to select
