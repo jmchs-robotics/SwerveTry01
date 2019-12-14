@@ -74,7 +74,8 @@ public class Robot extends TimedRobot {
 		// build the Chooser so we can tell the robot which starting position we're in
 		startPosChooser.addOption("Left", "L");
         startPosChooser.setDefaultOption("Center", "C");
-        startPosChooser.addOption("Right", "R");
+		startPosChooser.addOption("Right", "R");
+		startPosChooser.addOption("None", "N");
 		// 'print' the Chooser to the dashboard
 		SmartDashboard.putData("Start Position", startPosChooser);
 
@@ -205,6 +206,8 @@ public class Robot extends TimedRobot {
 		SmartDashboard.putString("Got chooser start pos and load station path: ", startPos + " " + loadStationPath);
 
 		switch (startPos) {
+			case "N":
+				break;
 			case "C":  
 				//Simple drive Striaght.  
 				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, defaultDriveDistance)); 
@@ -233,6 +236,7 @@ public class Robot extends TimedRobot {
 				autoGroup.addSequential( new DriveForDistanceCommand( swerveDriveSubsystem, driveRightToLoadStation, 0));
 				break;
 		}
+		
 		//autoGroup.addSequential( autoChooser.getCommand(this)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
 		// autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
 		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.5));
