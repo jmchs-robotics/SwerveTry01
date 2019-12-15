@@ -81,8 +81,8 @@ public class Robot extends TimedRobot {
 
 		// build Chooser, what path to proceed to the loading station
 		loadStationChooser.setDefaultOption( "None", "N");
-		loadStationChooser.addOption( "Directly", "D");
-		loadStationChooser.addOption("Back then across", "B");
+		loadStationChooser.addOption( "DARK", "D");
+		loadStationChooser.addOption("LIGHT", "L");
 		// 'print' the Chooser to the dashboard
 		SmartDashboard.putData("Proceed to Loading Station", loadStationChooser);
 		
@@ -196,7 +196,7 @@ public class Robot extends TimedRobot {
 		// how far from having driven forward to go back to loading station. Is negative.
 		// is a fixed difference between start position boxes and the loading station
 		// TODO: set this on competition day
-		double driveBackToLoadStation = -1;
+		double driveBackToLoadStation = 0;
 		// how far to the right is the loading station from the forward position. Gets set in 'switch (startPos)'
 		double driveRightToLoadStation = 1;
 
@@ -210,29 +210,37 @@ public class Robot extends TimedRobot {
 				break;
 			case "C":  
 				//Simple drive Striaght.  
-				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, defaultDriveDistance)); 
-				driveRightToLoadStation = 12.0;  // TODO: set this on competition day
+				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, 12, defaultDriveDistance));
+				driveRightToLoadStation = 100.0;  
 				break;
 			case "L":
 				//left side starting point. going to the right 12" 
-				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, 12, defaultDriveDistance));
-				driveRightToLoadStation = 24.0;  // TODO: set this on competition day
+				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, 90, defaultDriveDistance));
+				driveRightToLoadStation = 210.0;
 				break;
 			case "R":
 				// right side starting point.  Go to the left some.  TODO: set how much to the left
-				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, -12, defaultDriveDistance));
-				driveRightToLoadStation = 2.0;  // TODO: set this on competition day
+				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, -90, defaultDriveDistance));
+				driveRightToLoadStation = 50.0; 
 				break;
 		}
 
 		switch (loadStationPath) {
 			case "N":
-				break;
-			case "D":
+			break;
+			case "L":
 				autoGroup.addSequential( new DriveForDistanceCommand( swerveDriveSubsystem, driveRightToLoadStation, driveBackToLoadStation));
 				break;
-			case "B":
-				autoGroup.addSequential( new DriveForDistanceCommand( swerveDriveSubsystem, 0, driveBackToLoadStation));
+			case "D":
+				if (driveBackToLoadStation == 50.0){
+					driveBackToLoadStation = -210.0;
+				}
+				else if (driveBackToLoadStation == 210.0){
+					driveBackToLoadStation = -50.0;
+				}
+				else if (driveBackToLoadStation == 100.0){
+					driveBackToLoadStation = -100.0;
+				}
 				autoGroup.addSequential( new DriveForDistanceCommand( swerveDriveSubsystem, driveRightToLoadStation, 0));
 				break;
 		}
