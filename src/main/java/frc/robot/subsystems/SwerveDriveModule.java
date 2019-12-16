@@ -111,8 +111,8 @@ public class SwerveDriveModule extends Subsystem {
         m_pidControllerDrive.setFeedbackDevice(m_encoderDrive);
      
         // 191206 tweaking PID coefficeints
-        m_pidControllerDrive.setP( 0.05); // .05);
-        m_pidControllerDrive.setI(0.00001);
+        m_pidControllerDrive.setP( 0.10); // .05);
+        m_pidControllerDrive.setI(0.0000);
         m_pidControllerDrive.setD(0);
         m_pidControllerDrive.setFF(0);
 

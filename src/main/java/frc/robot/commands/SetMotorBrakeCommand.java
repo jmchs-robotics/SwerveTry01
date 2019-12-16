@@ -18,7 +18,7 @@ public final class SetMotorBrakeCommand extends Command {
     boolean youWantBrake;
     Robot robot;
 
-    @Deprecated
+    //@Deprecated
     public SetMotorBrakeCommand(Robot r, boolean b) {
          this.youWantBrake = b;
          this.robot = r;
