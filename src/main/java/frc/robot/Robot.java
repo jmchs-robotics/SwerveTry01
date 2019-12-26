@@ -53,6 +53,8 @@ public class Robot extends TimedRobot {
 	//Socket constants
 	public static final boolean SHOW_DEBUG_VISION = true;
 
+	private int smartDashCtr1 = 0;
+
 	public static OI getOI() {
 		return mOI;
 	}
@@ -95,50 +97,59 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
-		// display status of all 4 modules
-        for (int i = 0; i < 4; i++) {
-			SmartDashboard.putNumber("Module " + i + " Current Angle ", swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
-			SmartDashboard.putNumber("Module " + i + " Angle Raw Encoder Position ", swerveDriveSubsystem.getSwerveModule(i).getRawSensorPosition());
-			double x = swerveDriveSubsystem.getSwerveModule(i).getAngleVoltage();
-			SmartDashboard.putNumber("Module " + i + " Angle Encoder Voltage ", x); // getSelectedSensorPosition(0));
+		smartDashCtr1 ++;
+		if( smartDashCtr1 > 25) {
+			smartDashCtr1 = 0;
+			// 12/23 jh_vision: display vision data on SmartDash
+			if( rft_ != null) {
+				SmartDashboard.putString("SocketVision string: ", rft_.get_direction());
+			}
 			
-            SmartDashboard.putNumber("Module " + i + " Drive Dist ", (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
-			SmartDashboard.putNumber("Module " + i + " Drive Applied Output ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getAppliedOutput()); // getMotorOutputPercent());
-            SmartDashboard.putNumber("Module " + i + " Drive Position ", swerveDriveSubsystem.getSwerveModule(i).getDrivePosition()); // getDriveMotor().getSelectedSensorPosition(0));
-			SmartDashboard.putNumber("Module " + i + " Drive Output Current ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
-			SmartDashboard.putNumber("Module " + i + " Angle Motor Faults ", swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getFaults());
-		}
-
-		// for debugging and tuning initial swerve software (first module)
-		double x = swerveDriveSubsystem.getSwerveModule(1).getAngleVoltage();
-		if (x > modAngEncMax) {
-				modAngEncMax = x; 
+			// display status of all 4 modules
+			for (int i = 0; i < 4; i++) {
+				SmartDashboard.putNumber("Module " + i + " Current Angle ", swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
+				SmartDashboard.putNumber("Module " + i + " Angle Raw Encoder Position ", swerveDriveSubsystem.getSwerveModule(i).getRawSensorPosition());
+				double x = swerveDriveSubsystem.getSwerveModule(i).getAngleVoltage();
+				SmartDashboard.putNumber("Module " + i + " Angle Encoder Voltage ", x); // getSelectedSensorPosition(0));
+				
+				SmartDashboard.putNumber("Module " + i + " Drive Dist ", (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
+				SmartDashboard.putNumber("Module " + i + " Drive Applied Output ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getAppliedOutput()); // getMotorOutputPercent());
+				SmartDashboard.putNumber("Module " + i + " Drive Position ", swerveDriveSubsystem.getSwerveModule(i).getDrivePosition()); // getDriveMotor().getSelectedSensorPosition(0));
+				SmartDashboard.putNumber("Module " + i + " Drive Output Current ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
+				SmartDashboard.putNumber("Module " + i + " Angle Motor Faults ", swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getFaults());
 			}
-		SmartDashboard.putNumber("Module 1 Endcoder Angle Max ", modAngEncMax);
 
-		if (x < modAngEncMin) {
-				modAngEncMin = x; 
+			// for debugging and tuning initial swerve software (first module)
+			double x = swerveDriveSubsystem.getSwerveModule(1).getAngleVoltage();
+			if (x > modAngEncMax) {
+					modAngEncMax = x; 
+				}
+			SmartDashboard.putNumber("Module 1 Endcoder Angle Max ", modAngEncMax);
+
+			if (x < modAngEncMin) {
+					modAngEncMin = x; 
+				}
+			SmartDashboard.putNumber("Module 1 Endcoder Angle Min ", modAngEncMin);
+			
+			/* Put angle PID onto Smart Dashboard, and read Smart Dashboard for changes to them */
+			
+			double k;
+			k = SmartDashboard.getNumber( "Angle kP ", 0.0);
+			if( k != swerveDriveSubsystem.getAngleKP()) {
+				swerveDriveSubsystem.setAngleKP( k);
 			}
-		SmartDashboard.putNumber("Module 1 Endcoder Angle Min ", modAngEncMin);
-		
-		/* Put angle PID onto Smart Dashboard, and read Smart Dashboard for changes to them */
-		
-		double k;
-		k = SmartDashboard.getNumber( "Angle kP ", 0.0);
-		if( k != swerveDriveSubsystem.getAngleKP()) {
-			swerveDriveSubsystem.setAngleKP( k);
+			k = SmartDashboard.getNumber( "Angle kI ", 0.0);
+			if( k != swerveDriveSubsystem.getAngleKI()) {
+				swerveDriveSubsystem.setAngleKI( k);
+			}
+			k = SmartDashboard.getNumber( "Angle kD ", 0.0);
+			if( k != swerveDriveSubsystem.getAngleKD()) {
+				swerveDriveSubsystem.setAngleKD( k);
+			}
+			
+			
+			SmartDashboard.putNumber("Drivetrain Angle", swerveDriveSubsystem.getGyroAngle());
 		}
-		k = SmartDashboard.getNumber( "Angle kI ", 0.0);
-		if( k != swerveDriveSubsystem.getAngleKI()) {
-			swerveDriveSubsystem.setAngleKI( k);
-		}
-		k = SmartDashboard.getNumber( "Angle kD ", 0.0);
-		if( k != swerveDriveSubsystem.getAngleKD()) {
-			swerveDriveSubsystem.setAngleKD( k);
-		}
-		
-		
-		SmartDashboard.putNumber("Drivetrain Angle", swerveDriveSubsystem.getGyroAngle());
 
 		/*
 		// from 2910's 2018 code, left in comments as example for 2020
@@ -160,6 +171,7 @@ public class Robot extends TimedRobot {
 		for (int i = 0; i < 4; i++) {
 			swerveDriveSubsystem.getSwerveModule(i).robotDisabledInit();
 		}
+		visionShutDown(); // 12/23 jh_vision: shut down the vision socket reader thread
 	}
 
 	@Override
@@ -396,4 +408,23 @@ public class Robot extends TimedRobot {
 			}
 		}
 	}
+
+	/** 
+	 * 12/23 jh_vision: shut down the vision socket reader thread
+	 * This method properly shuts down all coprocessor related objects and joins them to the main thread
+	 * to comply with FRC guidelines during disabled mode. DONT CHANGE A WORD!
+	 */
+	private void visionShutDown() {
+		if (rft_ != null) {
+			try {
+				rft_.stoprunning();
+				rft_.join();
+				rft_ = null;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+
 }

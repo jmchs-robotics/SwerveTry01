@@ -39,7 +39,8 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
 
         @Override
         public double pidGet() {
-            return tx.getDouble(0);
+            // 12/23 jh_vision- read input from SocketVision instead of from NetworkTables
+            return Robot.rft_.get_degrees_x(); // tx.getDouble(0);
         }
 
     }, output -> {
@@ -50,9 +51,9 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
     public VisionLineUpWithCubeCommand(Robot robot) {
         this.robot = robot;
 
-        strafeController.setInputRange(-27, 27);
+        strafeController.setInputRange( -320, 320); // 12/23 jh_vision set for up board range (-27, 27);
         strafeController.setOutputRange(-1, 1);
-        strafeController.setAbsoluteTolerance(5);
+        strafeController.setAbsoluteTolerance(50); // 12/23 jh_vision need to select tolerance based on the game!
 
         angleErrorController = new PIDController(0.01, 0, 0, new PIDSource() {
             @Override
