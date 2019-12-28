@@ -55,7 +55,7 @@ public class Robot extends TimedRobot {
 	//Socket receivers. One is needed for each port to read from
 	public static SocketVision rft_;		   // 5801
 	//Socket constants
-	public static final boolean SHOW_DEBUG_VISION = true;
+	public static final boolean SHOW_DEBUG_VISION = false;
 
 
 	private int smartDashCtr1 = 0;
@@ -79,17 +79,17 @@ public class Robot extends TimedRobot {
 		mOI.registerControls();
 		
 		// build the Chooser so we can tell the robot which starting position we're in
-		startPosChooser.addOption("Left", "L");
-        startPosChooser.setDefaultOption("Center", "C");
-		startPosChooser.addOption("Right", "R");
+		startPosChooser.addOption("Vision Line Up With Cube", "L");
+        startPosChooser.setDefaultOption("Drive For Distance", "C");
+		// startPosChooser.addOption("Right", "R");
 		startPosChooser.addOption("None", "N");
 		// 'print' the Chooser to the dashboard
 		SmartDashboard.putData("Start Position", startPosChooser);
 
 		// build Chooser, what path to proceed to the loading station
-		loadStationChooser.setDefaultOption( "None", "N");
-		loadStationChooser.addOption( "DARK", "D");
-		loadStationChooser.addOption("LIGHT", "L");
+		// loadStationChooser.setDefaultOption( "None", "N");
+		// loadStationChooser.addOption( "DARK", "D");
+		// loadStationChooser.addOption("LIGHT", "L");
 		// 'print' the Chooser to the dashboard
 		SmartDashboard.putData("Proceed to Loading Station", loadStationChooser);
 		
@@ -103,27 +103,30 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
 		smartDashCtr1 ++;
-		if( smartDashCtr1 > 25) {
+		if( smartDashCtr1 > 50) {
 			smartDashCtr1 = 0;
+		}
+		if( smartDashCtr1 == 0 || smartDashCtr1 == 25) {
 			// 12/23 jh_vision: display vision data on SmartDash
 			if( rft_ != null) {
 				SmartDashboard.putString("SocketVision string: ", rft_.get_direction());
 			}
 			
 			// display status of all 4 modules
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0 + smartDashCtr1 % 2; i < 4; i+=2) { // only print 1/2 of them each time
 				SmartDashboard.putNumber("Module " + i + " Current Angle ", swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
-				SmartDashboard.putNumber("Module " + i + " Angle Raw Encoder Position ", swerveDriveSubsystem.getSwerveModule(i).getRawSensorPosition());
+				// SmartDashboard.putNumber("Module " + i + " Angle Raw Encoder Position ", swerveDriveSubsystem.getSwerveModule(i).getRawSensorPosition());
 				double x = swerveDriveSubsystem.getSwerveModule(i).getAngleVoltage();
 				SmartDashboard.putNumber("Module " + i + " Angle Encoder Voltage ", x); // getSelectedSensorPosition(0));
 				
 				SmartDashboard.putNumber("Module " + i + " Drive Dist ", (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
 				SmartDashboard.putNumber("Module " + i + " Drive Applied Output ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getAppliedOutput()); // getMotorOutputPercent());
 				SmartDashboard.putNumber("Module " + i + " Drive Position ", swerveDriveSubsystem.getSwerveModule(i).getDrivePosition()); // getDriveMotor().getSelectedSensorPosition(0));
-				SmartDashboard.putNumber("Module " + i + " Drive Output Current ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
+				// SmartDashboard.putNumber("Module " + i + " Drive Output Current ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
 				SmartDashboard.putNumber("Module " + i + " Angle Motor Faults ", swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getFaults());
 			}
-
+		}
+		if( smartDashCtr1 == 10 || smartDashCtr1 == 35) {
 			// for debugging and tuning initial swerve software (first module)
 			double x = swerveDriveSubsystem.getSwerveModule(1).getAngleVoltage();
 			if (x > modAngEncMax) {
@@ -136,8 +139,9 @@ public class Robot extends TimedRobot {
 				}
 			SmartDashboard.putNumber("Module 1 Endcoder Angle Min ", modAngEncMin);
 			
+		}
+		if( smartDashCtr1 == 15) {
 			/* Put angle PID onto Smart Dashboard, and read Smart Dashboard for changes to them */
-			
 			double k;
 			k = SmartDashboard.getNumber( "Angle kP ", 0.0);
 			if( k != swerveDriveSubsystem.getAngleKP()) {
@@ -209,7 +213,7 @@ public class Robot extends TimedRobot {
 
 		// how far to drive forward.  Is the same for all autonomous paths.
 		// TODO: set this on competition day
-		double defaultDriveDistance = 144.0;
+		double defaultDriveDistance = 36.0;
 		// how far from having driven forward to go back to loading station. Is negative.
 		// is a fixed difference between start position boxes and the loading station
 		// TODO: set this on competition day
@@ -227,12 +231,15 @@ public class Robot extends TimedRobot {
 				break;
 			case "C":  
 				//Simple drive Striaght.  
-				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, 12, defaultDriveDistance));
+				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, 36, 84)); // drive left/right 36" and forward 84"
+				autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.1));
+				autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
+				autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.1));
+				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, -36, 0)); // drive left/right 0" and forward 36"
 				driveRightToLoadStation = 100.0;  
 				break;
 			case "L":
-				//left side starting point. going to the right 12" 
-				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, 90, defaultDriveDistance));
+				autoGroup.addSequential( new VisionLineUpWithCubeCommand( this));
 				driveRightToLoadStation = 210.0;
 				break;
 			case "R":
@@ -241,7 +248,7 @@ public class Robot extends TimedRobot {
 				driveRightToLoadStation = 50.0; 
 				break;
 		}
-
+/*
 		switch (loadStationPath) {
 			case "N":
 			break;
@@ -261,6 +268,7 @@ public class Robot extends TimedRobot {
 				autoGroup.addSequential( new DriveForDistanceCommand( swerveDriveSubsystem, driveRightToLoadStation, 0));
 				break;
 		}
+		*/
 		
 		//autoGroup.addSequential( autoChooser.getCommand(this)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
 		// autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
@@ -348,7 +356,7 @@ public class Robot extends TimedRobot {
 
 		Command c = new SetMotorBrakeCommand(this, false);// SetAngleCommand(swerveDriveSubsystem,0);
 		c.start();
-		SmartDashboard.putNumber("WHERE IS MY MAYO!!!!@#%$%#$@#$", 1000000);
+		// SmartDashboard.putNumber("WHERE IS MY MAYO!!!!@#%$%#$@#$", 1000000);
 		if (autoCommand != null) autoCommand.cancel();
 
 		for (int i = 0; i < 4; i++)
@@ -393,7 +401,7 @@ public class Robot extends TimedRobot {
 	 * and teleop init methods. For ease of access, these objects are global and instantiated through the main class.
 	 */
 	private void socketVisionInit() {
-		if(sender_ == null) {
+		/* if( sender_ == null) {
 			sender_ = new SocketVisionSender("10.59.33.255", 5800);
 			if(SHOW_DEBUG_VISION) {
 				System.out.println("Sender started");
@@ -403,15 +411,15 @@ public class Robot extends TimedRobot {
 			if(!sender_.is_connected()) {
 				if(!sender_.connect()) {
 					if(SHOW_DEBUG_VISION) {
-						System.err.println("Failed to instantiate Sender... I really need to tell the helmsman to get me my mayo!");
+						System.err.println("socketVisionInit() Failed to instantiate Sender... I really need to tell the helmsman to get me my mayo!");
 					}
 				}else {
 					if(SHOW_DEBUG_VISION) {
-						System.out.println("Connected! Mayo shipments, incoming!!");
+						System.out.println("socketVisionInit() Connected! Mayo shipments, incoming!!");
 					}
 				}
 			}
-		} 
+		} */
 		if (rft_ == null) {
 			rft_ = new SocketVision("10.59.33.255", 5801);
 			if (SHOW_DEBUG_VISION) {
@@ -439,6 +447,7 @@ public class Robot extends TimedRobot {
 	 * to comply with FRC guidelines during disabled mode. DONT CHANGE A WORD!
 	 */
 	private void visionShutDown() {
+		System.out.println("trying to shut down visionShutDown");
 		if(sender_ != null) {
 			try {
 				sender_.stoprunning();

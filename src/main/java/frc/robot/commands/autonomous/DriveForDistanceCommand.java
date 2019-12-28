@@ -54,7 +54,7 @@ public class DriveForDistanceCommand extends Command {
         this.distForward = distForward;
 
         this.distance = Math.sqrt(distRight * distRight + distForward * distForward);
-        // 191206 this PID isn't working... probably needs more P
+        // 191206 this PID isn't working... probably needs more P.  Original is 0.02, 0, 0
         angleErrorController = new PIDController(0.02, 0, 0, new PIDSource() {
             @Override
             public void setPIDSourceType(PIDSourceType pidSource) { }

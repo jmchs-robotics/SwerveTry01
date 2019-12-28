@@ -62,7 +62,7 @@ public class SocketVision extends Thread {
 		} catch (UnknownHostException ex) {
 			return false;
 		} catch (IOException ex) {
-			System.out.println("IOExcepton " + ex.getMessage());
+			System.out.println("SocketVision connect IOExcepton: " + ex.getMessage());
 			return false;
 		}
 		return true;
@@ -240,8 +240,8 @@ public class SocketVision extends Thread {
 	 * The number of units from center (L/R) the target is. -1 if no target is found.
 	 */
 	public synchronized double get_degrees_x() {
-		double tmp = degrees_x;
-		degrees_x = 0;
+		double tmp = degrees_x;		
+		// degrees_x = 0;
 		return tmp;
 	}
 

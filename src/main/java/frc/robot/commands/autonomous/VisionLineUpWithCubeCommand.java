@@ -26,7 +26,8 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
     private final Timer finishTimer = new Timer();
     private boolean isFinishTimerRunning = false;
 
-    private PIDController strafeController = new PIDController(0.07, 0.000000001, 0.32, new PIDSource() {
+    // 2910's original PID coefficients:  0.07, 0.000000001, 0.32
+    private PIDController strafeController = new PIDController(0.01, 0, 0, new PIDSource() {
 
         @Override
         public void setPIDSourceType(PIDSourceType pidSource) {
@@ -40,7 +41,10 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
         @Override
         public double pidGet() {
             // 12/23 jh_vision- read input from SocketVision instead of from NetworkTables
-            return Robot.rft_.get_degrees_x(); // tx.getDouble(0);
+            if( Robot.rft_ != null) {
+                return Robot.rft_.get_degrees_x(); // tx.getDouble(0);
+            } 
+            return 0;
         }
 
     }, output -> {
@@ -90,33 +94,38 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
         // Enable snapshots
         NetworkTable limelight = NetworkTableInstance.getDefault().getTable("limelight");
         limelight.getEntry("snapshot").setNumber(1);
+
+        // TODO: jh_vision will want to tell the UP Board which target type to track, via sender_
     }
 
 
     protected void execute() {
-        System.out.println("[INFO]: Vision error: " + strafeController.getError());
+        System.out.println("[INFO]: VisionLineUpWithCubeCommand strafe error: " + strafeController.getError());
 
         if (Math.abs(strafeController.getError()) < 0.5)
             pidStrafeValue = 0;
 
-        SmartDashboard.putNumber("Rotation Factor", rotationFactor);
-        if (tx.getDouble(0) != 0 || ty.getDouble(0) != 0) {    //Else check that we are not already at the tar
+        SmartDashboard.putNumber("VisionLineUpWithCubeCommand Rotation Factor", rotationFactor);
+        /* if (tx.getDouble(0) != 0 || ty.getDouble(0) != 0) {    //Else check that we are not already at the target
             robot.getDrivetrain().holonomicDrive(0, pidStrafeValue, rotationFactor, false);
         } else {
             robot.getDrivetrain().holonomicDrive(0, 0, 0);
         }
+        */
+        robot.getDrivetrain().holonomicDrive(0, pidStrafeValue, rotationFactor, false);
     }
 
     protected boolean isFinished() {
-        if (tv.getDouble(0) == 1 && strafeController.onTarget()) {
-            if (!isFinishTimerRunning) {
+        // if (tv.getDouble(0) == 1 && strafeController.onTarget()) {
+        if ( Robot.rft_.get_degrees_x() != -0.01 && strafeController.onTarget()) {
+                if (!isFinishTimerRunning) {
                 finishTimer.reset();
                 finishTimer.start();
                 isFinishTimerRunning = true;
-                System.out.println("[INFO]: Starting timer");
+                System.out.println("[INFO]: VisionLineUpWithCubeCommand Starting timer");
             }
 
-            System.out.println("[INFO]: Finish timer is at " + finishTimer.get());
+            System.out.println("[INFO]: VisionLineUpWithCubeCommand Finish timer is at " + finishTimer.get());
 
             return finishTimer.hasPeriodPassed(FINISH_TIMER);
         }
