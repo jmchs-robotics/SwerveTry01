@@ -30,6 +30,8 @@ public class OI {
         //If the swerve is in Brake or Coast Mode... Braking when pressed
         primaryController.getRightBumperButton().whenPressed(new SetMotorBrakeCommand(mRobot,true));
         primaryController.getRightBumperButton().whenReleased(new SetMotorBrakeCommand(mRobot,false));
+
+        primaryController.getAButton().whenPressed(new SendVisionCommand(Robot.sender_, SocketVisionSender.PlatformBlueSearch));
 }
 
     public IGamepad getPrimaryController() {

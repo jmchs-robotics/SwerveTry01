@@ -401,7 +401,7 @@ public class Robot extends TimedRobot {
 	 * and teleop init methods. For ease of access, these objects are global and instantiated through the main class.
 	 */
 	private void socketVisionInit() {
-		/* if( sender_ == null) {
+		if( sender_ == null) {
 			sender_ = new SocketVisionSender("10.59.33.255", 5800);
 			if(SHOW_DEBUG_VISION) {
 				System.out.println("Sender started");
@@ -419,7 +419,8 @@ public class Robot extends TimedRobot {
 					}
 				}
 			}
-		} */
+    }
+    
 		if (rft_ == null) {
 			rft_ = new SocketVision("10.59.33.255", 5801);
 			if (SHOW_DEBUG_VISION) {
