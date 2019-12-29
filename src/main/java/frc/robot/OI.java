@@ -5,6 +5,7 @@ import frc.robot.input.DPadButton;
 import frc.robot.input.IGamepad;
 import frc.robot.input.XboxGamepad;
 
+import frc.robot.util.SocketVisionSendKeeper;
 
 /**
  * This class is the glue that binds the controls on the physical operator
@@ -31,8 +32,8 @@ public class OI {
         primaryController.getRightBumperButton().whenPressed(new SetMotorBrakeCommand(mRobot,true));
         primaryController.getRightBumperButton().whenReleased(new SetMotorBrakeCommand(mRobot,false));
 
-        primaryController.getAButton().whenPressed(new SendVisionCommand(mRobot.sender_, SocketVisionSender.PlatformBlueSearch));
-        primaryController.getAButton().whenReleased(new SendVisionCommand(mRobot.sender_, "Pr"));
+        primaryController.getAButton().whenPressed(new SendVisionCommand(mRobot.sender_, "G"));
+        primaryController.getAButton().whenReleased(new SendVisionCommand(mRobot.sender_, "R"));
 }
 
     public IGamepad getPrimaryController() {

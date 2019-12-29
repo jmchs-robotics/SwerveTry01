@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
-import frc.robot.SocketVisionKeeper;
+import frc.robot.util.SocketVisionKeeper;
 import frc.robot.util.Side;
 
 public class VisionLineUpWithCubeCommand extends CommandGroup {

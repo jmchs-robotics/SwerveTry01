@@ -1,6 +1,6 @@
-package frc.robot;
+package frc.robot.util;
 
-import frc.robot.SocketVisionSender;
+import frc.robot.util.SocketVisionSender;
 
 /**
  * Wrapper for SocketVisionSender (one-to-one) so the threaded objects can be handled in an FRC-safe

@@ -1,10 +1,12 @@
-package frc.robot;
+package frc.robot.util;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
+import frc.robot.Robot;
 
 public class SocketVisionSender extends Thread {
 	public static final String StartRFT = "R";

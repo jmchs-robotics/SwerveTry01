@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.util;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -7,6 +7,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import frc.robot.Robot;
 
 public class SocketVision extends Thread {
 	public static final String NADA = "nada";

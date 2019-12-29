@@ -11,7 +11,6 @@ import frc.robot.subsystems.SwerveDriveModule;
 //import frc.robot.subsystems.GathererSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.util.Side;
-
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -21,6 +20,10 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+
+// SocketVision imports
+import frc.robot.util.SocketVisionKeeper;
+import frc.robot.util.SocketVisionSendKeeper;
 
 /**
  * The VM is configured to automatically run this class, and to call the

@@ -1,7 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.SocketVisionSendKeeper;
+import frc.robot.util.SocketVisionSendKeeper;
 
 public class SendVisionCommand extends Command {
   private SocketVisionSendKeeper m_sender;
