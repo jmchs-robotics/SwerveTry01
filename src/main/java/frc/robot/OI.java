@@ -31,8 +31,8 @@ public class OI {
         primaryController.getRightBumperButton().whenPressed(new SetMotorBrakeCommand(mRobot,true));
         primaryController.getRightBumperButton().whenReleased(new SetMotorBrakeCommand(mRobot,false));
 
-        primaryController.getAButton().whenPressed(new SendVisionCommand(Robot.sender_, SocketVisionSender.PlatformBlueSearch));
-        primaryController.getAButton().whenReleased(new SendVisionCommand(Robot.sender_, "Pr"));
+        primaryController.getAButton().whenPressed(new SendVisionCommand(mRobot.sender_, SocketVisionSender.PlatformBlueSearch));
+        primaryController.getAButton().whenReleased(new SendVisionCommand(mRobot.sender_, "Pr"));
 }
 
     public IGamepad getPrimaryController() {

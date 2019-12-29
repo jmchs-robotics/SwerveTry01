@@ -10,9 +10,12 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
+import frc.robot.SocketVisionKeeper;
 import frc.robot.util.Side;
 
 public class VisionLineUpWithCubeCommand extends CommandGroup {
+    private SocketVisionKeeper vision;
+
     public static final double FINISH_TIMER = 0.5;
 
     private final Robot robot;
@@ -41,8 +44,8 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
         @Override
         public double pidGet() {
             // 12/23 jh_vision- read input from SocketVision instead of from NetworkTables
-            if( Robot.rft_.get() != null) {
-                return Robot.rft_.get().get_degrees_x(); // tx.getDouble(0);
+            if( vision.get() != null) {
+                return vision.get().get_degrees_x(); // tx.getDouble(0);
             } 
             return 0;
         }
@@ -52,8 +55,10 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
         SmartDashboard.putNumber("PID Strafe Value", pidStrafeValue);
     });
 
-    public VisionLineUpWithCubeCommand(Robot robot) {
+    public VisionLineUpWithCubeCommand(Robot robot, SocketVisionKeeper socketVisionObject) {
         this.robot = robot;
+
+        vision = socketVisionObject;
 
         strafeController.setInputRange( -320, 320); // 12/23 jh_vision set for up board range (-27, 27);
         strafeController.setOutputRange(-1, 1);
@@ -117,7 +122,7 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
 
     protected boolean isFinished() {
         // if (tv.getDouble(0) == 1 && strafeController.onTarget()) {
-        if ( Robot.rft_.get().get_degrees_x() != -0.01 && strafeController.onTarget()) {
+        if ( vision.get().get_degrees_x() != -0.01 && strafeController.onTarget()) {
                 if (!isFinishTimerRunning) {
                 finishTimer.reset();
                 finishTimer.start();

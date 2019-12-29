@@ -239,7 +239,7 @@ public class Robot extends TimedRobot {
 				driveRightToLoadStation = 100.0;  
 				break;
 			case "L":
-				autoGroup.addSequential( new VisionLineUpWithCubeCommand( this));
+				autoGroup.addSequential( new VisionLineUpWithCubeCommand( this, rft_));
 				driveRightToLoadStation = 210.0;
 				break;
 			case "R":
