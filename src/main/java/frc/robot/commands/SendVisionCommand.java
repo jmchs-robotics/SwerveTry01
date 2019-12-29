@@ -1,26 +1,15 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.command.Command;
-import frc.robot.SocketVisionSender;
+import frc.robot.SocketVisionSendKeeper;
 
 public class SendVisionCommand extends Command {
-  private SocketVisionSender m_sender;
+  private SocketVisionSendKeeper m_sender;
+  String m_message;
 
-	public SendVisionCommand(SocketVisionSender sender, String message) {
-    if(sender == null) return;
-
+	public SendVisionCommand(SocketVisionSendKeeper sender, String message) {
     m_sender = sender;
-    switch(message){
-      case SocketVisionSender.PlatformBlueSearch:
-      case SocketVisionSender.PlatformRedSearch:
-      case SocketVisionSender.StartCubeSearch:
-      case SocketVisionSender.StartDepth:
-      case SocketVisionSender.StartRFT:
-        break;
-      default:
-        message = SocketVisionSender.CarryOnMyWaywardSon;
-    }
-    m_sender.setSendData(message);
+    m_message = message;
 	}
 
 	@Override
@@ -28,6 +17,8 @@ public class SendVisionCommand extends Command {
 
 	@Override
 	protected boolean isFinished() {
+    SocketVisionSendKeeper tmp = m_sender;
+    if(tmp != null) tmp.get().setSendData(m_message);
 		return true;
 	}
 }

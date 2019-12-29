@@ -33,8 +33,9 @@ public class SocketVisionSender extends Thread {
 	 */
 	public boolean connect() {
 		try {
-			socket_ = new DatagramSocket(port_);
-			socket_.connect(InetAddress.getByName(ip_), port_);
+      socket_ = new DatagramSocket(port_);
+      socket_.setReuseAddress(true);
+      socket_.connect(InetAddress.getByName(ip_), port_);
 			
 			is_connected_ = true;
 		} catch (UnknownHostException ex) {
@@ -117,8 +118,8 @@ public class SocketVisionSender extends Thread {
 	 * This function stops the UDP socket properly, so it can be restarted later.
 	 */
 	public void stoprunning() {
-		keep_running = false;
-
+    keep_running = false;
+    
 		socket_.disconnect();
 		socket_.close();
 	}
@@ -128,11 +129,8 @@ public class SocketVisionSender extends Thread {
 	 * @param stringToSend The string to encode into bytes for the datagram packet.
 	 */
 	public synchronized void setSendData(String stringToSend) {
-		if((CarryOnMyWaywardSon + StartCubeSearch + StartDepth + StartRFT).contains(stringToSend)) {
-			data_ = stringToSend.getBytes();
-		}else {
-			data_ = CarryOnMyWaywardSon.getBytes();
-		}
+    if(stringToSend != null) data_ = stringToSend.getBytes();
+    else data_ = CarryOnMyWaywardSon.getBytes();
 	}
 
 	/**

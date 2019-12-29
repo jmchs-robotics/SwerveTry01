@@ -51,9 +51,9 @@ public class Robot extends TimedRobot {
 	//
 	// Socket communications with the Vision Co-Processor, the UP Board
 	// socket sender
-	public static SocketVisionSender sender_;  // 5800
+	public static SocketVisionSendKeeper sender_;  // 5800
 	//Socket receivers. One is needed for each port to read from
-	public static SocketVision rft_;		   // 5801
+	public static SocketVisionKeeper rft_;		   // 5801
 	//Socket constants
 	public static final boolean SHOW_DEBUG_VISION = false;
 
@@ -74,7 +74,11 @@ public class Robot extends TimedRobot {
 
 		// gathererSubsystem = new GathererSubsystem();
 		swerveDriveSubsystem = new SwerveDriveSubsystem();
-		// elevatorSubsystem = new ElevatorSubsystem();
+    // elevatorSubsystem = new ElevatorSubsystem();
+    
+    // Initialize SocketVisionKeeper objects
+    sender_ = new SocketVisionSendKeeper("10.59.33.255", 5800);
+    rft_ = new SocketVisionKeeper("10.59.33.255", 5801);
 
 		mOI.registerControls();
 		
@@ -108,8 +112,8 @@ public class Robot extends TimedRobot {
 		}
 		if( smartDashCtr1 == 0 || smartDashCtr1 == 25) {
 			// 12/23 jh_vision: display vision data on SmartDash
-			if( rft_ != null) {
-				SmartDashboard.putString("SocketVision string: ", rft_.get_direction());
+			if( rft_.get() != null) {
+				SmartDashboard.putString("SocketVision string: ", rft_.get().get_direction());
 			}
 			
 			// display status of all 4 modules
@@ -401,45 +405,8 @@ public class Robot extends TimedRobot {
 	 * and teleop init methods. For ease of access, these objects are global and instantiated through the main class.
 	 */
 	private void socketVisionInit() {
-		if( sender_ == null) {
-			sender_ = new SocketVisionSender("10.59.33.255", 5800);
-			if(SHOW_DEBUG_VISION) {
-				System.out.println("Sender started");
-			}
-
-			sender_.start();
-			if(!sender_.is_connected()) {
-				if(!sender_.connect()) {
-					if(SHOW_DEBUG_VISION) {
-						System.err.println("socketVisionInit() Failed to instantiate Sender... I really need to tell the helmsman to get me my mayo!");
-					}
-				}else {
-					if(SHOW_DEBUG_VISION) {
-						System.out.println("socketVisionInit() Connected! Mayo shipments, incoming!!");
-					}
-				}
-			}
-    }
-    
-		if (rft_ == null) {
-			rft_ = new SocketVision("10.59.33.255", 5801);
-			if (SHOW_DEBUG_VISION) {
-				System.out.println("Vision to RFT started.");
-			}
-			rft_.start();
-
-			if (!rft_.is_connected()) {
-				if (!rft_.connect()) {
-					if (SHOW_DEBUG_VISION) {
-						System.err.println("socketVisionInit() Failed to connect to the Helmsman.");
-					}
-				} else {
-					if (SHOW_DEBUG_VISION) {
-						System.out.println("socketVisionInit() Connected. Love that mayo.");
-					}
-				}
-			}
-		}
+		sender_.init();
+    rft_.init();
 	}
 
 	/** 
@@ -448,26 +415,8 @@ public class Robot extends TimedRobot {
 	 * to comply with FRC guidelines during disabled mode. DONT CHANGE A WORD!
 	 */
 	private void visionShutDown() {
-		System.out.println("trying to shut down visionShutDown");
-		if(sender_ != null) {
-			try {
-				sender_.stoprunning();
-				sender_.join();
-				sender_ = null;
-			}catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		if (rft_ != null) {
-			try {
-				rft_.stoprunning();
-				rft_.join();
-				rft_ = null;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+		System.out.println("trying to shut down vision.");
+    sender_.shutDown();
+    rft_.shutDown();
 	}
-
-
 }

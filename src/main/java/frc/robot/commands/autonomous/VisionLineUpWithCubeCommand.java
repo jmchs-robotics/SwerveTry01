@@ -41,8 +41,8 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
         @Override
         public double pidGet() {
             // 12/23 jh_vision- read input from SocketVision instead of from NetworkTables
-            if( Robot.rft_ != null) {
-                return Robot.rft_.get_degrees_x(); // tx.getDouble(0);
+            if( Robot.rft_.get() != null) {
+                return Robot.rft_.get().get_degrees_x(); // tx.getDouble(0);
             } 
             return 0;
         }
@@ -117,7 +117,7 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
 
     protected boolean isFinished() {
         // if (tv.getDouble(0) == 1 && strafeController.onTarget()) {
-        if ( Robot.rft_.get_degrees_x() != -0.01 && strafeController.onTarget()) {
+        if ( Robot.rft_.get().get_degrees_x() != -0.01 && strafeController.onTarget()) {
                 if (!isFinishTimerRunning) {
                 finishTimer.reset();
                 finishTimer.start();
