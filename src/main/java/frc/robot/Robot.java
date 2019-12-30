@@ -234,6 +234,10 @@ public class Robot extends TimedRobot {
 				break;
 			case "C":  
 				//Simple drive Striaght.  
+				// want to add a command before any DriveForDistance, to align the wheels in the direction we'll be headed.
+				// in testing December 2019, without that pre-alignment, the robot can swerve/spin undesireably as the wheels
+				// align themselves *while* the robot is trying to move to the target position
+				// something like this: autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
 				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, 36, 84)); // drive left/right 36" and forward 84"
 				autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.1));
 				autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
