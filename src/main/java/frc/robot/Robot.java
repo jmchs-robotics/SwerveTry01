@@ -22,8 +22,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 // SocketVision imports
-import frc.robot.util.SocketVisionKeeper;
-import frc.robot.util.SocketVisionSendKeeper;
+import frc.robot.util.SocketVisionWrapper;
+import frc.robot.util.SocketVisionSendWrapper;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -54,9 +54,9 @@ public class Robot extends TimedRobot {
 	//
 	// Socket communications with the Vision Co-Processor, the UP Board
 	// socket sender
-	public final SocketVisionSendKeeper sender_ = new SocketVisionSendKeeper("10.59.33.255", 5800);
+	public final SocketVisionSendWrapper sender_ = new SocketVisionSendWrapper("10.59.33.255", 5800);
 	//Socket receivers. One is needed for each port to read from
-  public final SocketVisionKeeper rft_ = new SocketVisionKeeper("10.59.33.255", 5801);
+  public final SocketVisionWrapper rft_ = new SocketVisionWrapper("10.59.33.255", 5801);
 	//Socket constants
 	public static final boolean SHOW_DEBUG_VISION = false;
 

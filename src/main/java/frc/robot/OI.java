@@ -5,7 +5,7 @@ import frc.robot.input.DPadButton;
 import frc.robot.input.IGamepad;
 import frc.robot.input.XboxGamepad;
 
-import frc.robot.util.SocketVisionSendKeeper;
+import frc.robot.util.SocketVisionSendWrapper;
 
 /**
  * This class is the glue that binds the controls on the physical operator

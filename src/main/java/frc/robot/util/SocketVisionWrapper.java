@@ -6,14 +6,14 @@ import frc.robot.util.SocketVision;
  * Wrapper for SocketVisionSender (one-to-one) so the threaded objects can be handled in an FRC-safe
  * manner and be passed around commands in a more generic way.
  */
-public class SocketVisionKeeper {
+public class SocketVisionWrapper {
 
   private SocketVision m_reader = null;
 
   private int m_port;
   private String m_ip;
 
-  public SocketVisionKeeper( String ip, int port){
+  public SocketVisionWrapper( String ip, int port){
     m_ip = ip;
     m_port = port;
   }

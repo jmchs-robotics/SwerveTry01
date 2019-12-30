@@ -10,11 +10,11 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
-import frc.robot.util.SocketVisionKeeper;
+import frc.robot.util.SocketVisionWrapper;
 import frc.robot.util.Side;
 
 public class VisionLineUpWithCubeCommand extends CommandGroup {
-    private SocketVisionKeeper vision;
+    private SocketVisionWrapper vision;
 
     public static final double FINISH_TIMER = 0.5;
 
@@ -55,7 +55,7 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
         SmartDashboard.putNumber("PID Strafe Value", pidStrafeValue);
     });
 
-    public VisionLineUpWithCubeCommand(Robot robot, SocketVisionKeeper socketVisionObject) {
+    public VisionLineUpWithCubeCommand(Robot robot, SocketVisionWrapper socketVisionObject) {
         this.robot = robot;
 
         vision = socketVisionObject;
