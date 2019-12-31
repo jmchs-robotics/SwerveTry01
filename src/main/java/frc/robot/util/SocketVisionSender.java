@@ -45,7 +45,7 @@ public class SocketVisionSender extends Thread {
 			return false;
 		} catch (IOException ex) {
 			is_connected_ = false;
-			System.out.println("SocketVisionSender connect IOExcepton: " + ex.getMessage());
+			// System.out.println("SocketVisionSender connect IOExcepton: " + ex.getMessage());
 			return false;
 		}
 		return true;

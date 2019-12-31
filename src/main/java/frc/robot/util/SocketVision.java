@@ -64,7 +64,7 @@ public class SocketVision extends Thread {
 		} catch (UnknownHostException ex) {
 			return false;
 		} catch (IOException ex) {
-			System.out.println("SocketVision connect IOExcepton: " + ex.getMessage());
+			// System.out.println("SocketVision connect IOExcepton: " + ex.getMessage());
 			return false;
 		}
 		return true;
@@ -178,7 +178,7 @@ public class SocketVision extends Thread {
 
 				if (Robot.SHOW_DEBUG_VISION) {
 					System.out.println("Done got that data! " + stuffInThePacket);
-					SmartDashboard.putString("Port " + port_ + " output: ", stuffInThePacket);
+					// SmartDashboard.putString("Port " + port_ + " output: ", stuffInThePacket);
 
 				}
 				return true;

@@ -20,10 +20,6 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
 
     private final Robot robot;
     private final PIDController angleErrorController;
-    private NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    private NetworkTableEntry tx = table.getEntry("tx");
-    private NetworkTableEntry ty = table.getEntry("ty");
-    private NetworkTableEntry tv = table.getEntry("tv");
     private double pidStrafeValue;
     private double rotationFactor;
     private final Timer finishTimer = new Timer();
@@ -52,7 +48,6 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
 
     }, output -> {
         pidStrafeValue = -output;
-        SmartDashboard.putNumber("PID Strafe Value", pidStrafeValue);
     });
 
     public VisionLineUpWithCubeCommand(Robot robot, SocketVisionWrapper socketVisionObject) {
@@ -105,12 +100,12 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
 
 
     protected void execute() {
-        System.out.println("[INFO]: VisionLineUpWithCubeCommand strafe error: " + strafeController.getError());
+        // System.out.println("[INFO]: VisionLineUpWithCubeCommand strafe error: " + strafeController.getError());
 
         if (Math.abs(strafeController.getError()) < 0.5)
             pidStrafeValue = 0;
 
-        SmartDashboard.putNumber("VisionLineUpWithCubeCommand Rotation Factor", rotationFactor);
+        // SmartDashboard.putNumber("VisionLineUpWithCubeCommand Rotation Factor", rotationFactor);
         /* if (tx.getDouble(0) != 0 || ty.getDouble(0) != 0) {    //Else check that we are not already at the target
             robot.getDrivetrain().holonomicDrive(0, pidStrafeValue, rotationFactor, false);
         } else {
@@ -130,7 +125,7 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
                 System.out.println("[INFO]: VisionLineUpWithCubeCommand Starting timer");
             }
 
-            System.out.println("[INFO]: VisionLineUpWithCubeCommand Finish timer is at " + finishTimer.get());
+            // System.out.println("[INFO]: VisionLineUpWithCubeCommand Finish timer is at " + finishTimer.get());
 
             return finishTimer.hasPeriodPassed(FINISH_TIMER);
         }
@@ -146,10 +141,5 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
     protected void end() {
         strafeController.disable();
         angleErrorController.disable();
-
-
-        // Disable snapshots
-        NetworkTable limelight = NetworkTableInstance.getDefault().getTable("limelight");
-        limelight.getEntry("snapshot").setNumber(0);
     }
 }

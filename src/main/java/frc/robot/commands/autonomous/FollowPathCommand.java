@@ -81,8 +81,8 @@ public class FollowPathCommand extends Command {
 
 		double pathDirection = path.getDirectionAtDistance(currentDistance);
 
-		SmartDashboard.putNumber("Current distance", currentDistance);
-        SmartDashboard.putNumber("Path direction", pathDirection);
+		// SmartDashboard.putNumber("Current distance", currentDistance);
+    // SmartDashboard.putNumber("Path direction", pathDirection);
 
 		double[] angles = drivetrain.calculateSwerveModuleAngles(
 				Math.cos(Math.toRadians(pathDirection)),

@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -63,6 +64,10 @@ public class Robot extends TimedRobot {
 
 	private int smartDashCtr1 = 0;
 
+  public Robot(){
+    super(0.05); // set watchdog to .05 seconds
+  }
+
 	public static OI getOI() {
 		return mOI;
 	}
@@ -100,68 +105,66 @@ public class Robot extends TimedRobot {
 
 		SmartDashboard.putNumber("Angle kP ", swerveDriveSubsystem.getAngleKP());
 		SmartDashboard.putNumber("Angle kI ", swerveDriveSubsystem.getAngleKI());
-		SmartDashboard.putNumber("Angle kD ", swerveDriveSubsystem.getAngleKD());
-}
+    SmartDashboard.putNumber("Angle kD ", swerveDriveSubsystem.getAngleKD());
+  }
 
     @Override
     public void robotPeriodic() {
-		smartDashCtr1 ++;
-		if( smartDashCtr1 > 50) {
-			smartDashCtr1 = 0;
-		}
-		if( smartDashCtr1 == 0 || smartDashCtr1 == 25) {
-			// 12/23 jh_vision: display vision data on SmartDash
-			if( rft_.get() != null) {
-				SmartDashboard.putString("SocketVision string: ", rft_.get().get_direction());
-			}
+		// smartDashCtr1 ++;
+		// if( smartDashCtr1 > 50) {
+		// 	smartDashCtr1 = 0;
+		// }
+		// if( smartDashCtr1 == 0 || smartDashCtr1 == 25) {
+		// 	// 12/23 jh_vision: display vision data on SmartDash
+		// 	if( rft_.get() != null) {
+		// 		SmartDashboard.putString("SocketVision string: ", rft_.get().get_direction());
+		// 	}
 			
-			// display status of all 4 modules
-			for (int i = 0 + smartDashCtr1 % 2; i < 4; i+=2) { // only print 1/2 of them each time
-				SmartDashboard.putNumber("Module " + i + " Current Angle ", swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
-				// SmartDashboard.putNumber("Module " + i + " Angle Raw Encoder Position ", swerveDriveSubsystem.getSwerveModule(i).getRawSensorPosition());
-				double x = swerveDriveSubsystem.getSwerveModule(i).getAngleVoltage();
-				SmartDashboard.putNumber("Module " + i + " Angle Encoder Voltage ", x); // getSelectedSensorPosition(0));
+		// 	// display status of all 4 modules
+		// 	for (int i = 0 + smartDashCtr1 % 2; i < 4; i+=2) { // only print 1/2 of them each time
+		// 		SmartDashboard.putNumber("Module " + i + " Current Angle ", swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
+		// 		// SmartDashboard.putNumber("Module " + i + " Angle Raw Encoder Position ", swerveDriveSubsystem.getSwerveModule(i).getRawSensorPosition());
+		// 		double x = swerveDriveSubsystem.getSwerveModule(i).getAngleVoltage();
+		// 		SmartDashboard.putNumber("Module " + i + " Angle Encoder Voltage ", x); // getSelectedSensorPosition(0));
 				
-				SmartDashboard.putNumber("Module " + i + " Drive Dist ", (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
-				SmartDashboard.putNumber("Module " + i + " Drive Applied Output ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getAppliedOutput()); // getMotorOutputPercent());
-				SmartDashboard.putNumber("Module " + i + " Drive Position ", swerveDriveSubsystem.getSwerveModule(i).getDrivePosition()); // getDriveMotor().getSelectedSensorPosition(0));
-				// SmartDashboard.putNumber("Module " + i + " Drive Output Current ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
-				SmartDashboard.putNumber("Module " + i + " Angle Motor Faults ", swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getFaults());
-			}
-		}
-		if( smartDashCtr1 == 10 || smartDashCtr1 == 35) {
-			// for debugging and tuning initial swerve software (first module)
-			double x = swerveDriveSubsystem.getSwerveModule(1).getAngleVoltage();
-			if (x > modAngEncMax) {
-					modAngEncMax = x; 
-				}
-			SmartDashboard.putNumber("Module 1 Endcoder Angle Max ", modAngEncMax);
+		// 		SmartDashboard.putNumber("Module " + i + " Drive Dist ", (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
+		// 		SmartDashboard.putNumber("Module " + i + " Drive Applied Output ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getAppliedOutput()); // getMotorOutputPercent());
+		// 		SmartDashboard.putNumber("Module " + i + " Drive Position ", swerveDriveSubsystem.getSwerveModule(i).getDrivePosition()); // getDriveMotor().getSelectedSensorPosition(0));
+		// 		// SmartDashboard.putNumber("Module " + i + " Drive Output Current ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
+		// 		SmartDashboard.putNumber("Module " + i + " Angle Motor Faults ", swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getFaults());
+		// 	}
+		// }
+		// if( smartDashCtr1 == 10 || smartDashCtr1 == 35) {
+		// 	// for debugging and tuning initial swerve software (first module)
+		// 	double x = swerveDriveSubsystem.getSwerveModule(1).getAngleVoltage();
+		// 	if (x > modAngEncMax) {
+		// 			modAngEncMax = x; 
+		// 		}
+		// 	SmartDashboard.putNumber("Module 1 Endcoder Angle Max ", modAngEncMax);
 
-			if (x < modAngEncMin) {
-					modAngEncMin = x; 
-				}
-			SmartDashboard.putNumber("Module 1 Endcoder Angle Min ", modAngEncMin);
+		// 	if (x < modAngEncMin) {
+		// 			modAngEncMin = x; 
+		// 		}
+		// 	SmartDashboard.putNumber("Module 1 Endcoder Angle Min ", modAngEncMin);
 			
-		}
-		if( smartDashCtr1 == 15) {
-			/* Put angle PID onto Smart Dashboard, and read Smart Dashboard for changes to them */
-			double k;
-			k = SmartDashboard.getNumber( "Angle kP ", 0.0);
-			if( k != swerveDriveSubsystem.getAngleKP()) {
-				swerveDriveSubsystem.setAngleKP( k);
-			}
-			k = SmartDashboard.getNumber( "Angle kI ", 0.0);
-			if( k != swerveDriveSubsystem.getAngleKI()) {
-				swerveDriveSubsystem.setAngleKI( k);
-			}
-			k = SmartDashboard.getNumber( "Angle kD ", 0.0);
-			if( k != swerveDriveSubsystem.getAngleKD()) {
-				swerveDriveSubsystem.setAngleKD( k);
-			}
-			
-			
-			SmartDashboard.putNumber("Drivetrain Angle", swerveDriveSubsystem.getGyroAngle());
-		}
+		// }
+		// if( smartDashCtr1 == 15) {
+		// 	/* Put angle PID onto Smart Dashboard, and read Smart Dashboard for changes to them */
+		// 	double k;
+		// 	k = SmartDashboard.getNumber( "Angle kP ", 0.0);
+		// 	if( k != swerveDriveSubsystem.getAngleKP()) {
+		// 		swerveDriveSubsystem.setAngleKP( k);
+		// 	}
+		// 	k = SmartDashboard.getNumber( "Angle kI ", 0.0);
+		// 	if( k != swerveDriveSubsystem.getAngleKI()) {
+		// 		swerveDriveSubsystem.setAngleKI( k);
+		// 	}
+		// 	k = SmartDashboard.getNumber( "Angle kD ", 0.0);
+		// 	if( k != swerveDriveSubsystem.getAngleKD()) {
+		// 		swerveDriveSubsystem.setAngleKD( k);
+		// 	}	
+		//  SmartDashboard.putNumber("Drivetrain Angle", swerveDriveSubsystem.getGyroAngle());
+		// }
 
 		/*
 		// from 2910's 2018 code, left in comments as example for 2020
@@ -206,55 +209,55 @@ public class Robot extends TimedRobot {
 		
 		swerveDriveSubsystem.setFieldOriented( true);
 		//swerveDriveSubsystem.setBrake(true);
-		CommandGroup autoGroup = new CommandGroup();
+		// CommandGroup autoGroup = new CommandGroup();
 		
-		//
-		// Testing various autonomous commands, and fixing and tuning them (PIDs etc) 191207
-		//
-		//ALWAYS DO THIS!!!!
-		autoGroup.addSequential(new SetMotorBrakeCommand(this, true));
+		// //
+		// // Testing various autonomous commands, and fixing and tuning them (PIDs etc) 191207
+		// //
+		// //ALWAYS DO THIS!!!!
+		// autoGroup.addSequential(new SetMotorBrakeCommand(this, true));
 
-		// how far to drive forward.  Is the same for all autonomous paths.
-		// TODO: set this on competition day
-		double defaultDriveDistance = 36.0;
-		// how far from having driven forward to go back to loading station. Is negative.
-		// is a fixed difference between start position boxes and the loading station
-		// TODO: set this on competition day
-		double driveBackToLoadStation = 0;
-		// how far to the right is the loading station from the forward position. Gets set in 'switch (startPos)'
-		double driveRightToLoadStation = 1;
+		// // how far to drive forward.  Is the same for all autonomous paths.
+		// // TODO: set this on competition day
+		// double defaultDriveDistance = 36.0;
+		// // how far from having driven forward to go back to loading station. Is negative.
+		// // is a fixed difference between start position boxes and the loading station
+		// // TODO: set this on competition day
+		// double driveBackToLoadStation = 0;
+		// // how far to the right is the loading station from the forward position. Gets set in 'switch (startPos)'
+		// double driveRightToLoadStation = 1;
 
-		String startPos = startPosChooser.getSelected();
-		String loadStationPath = loadStationChooser.getSelected();
+		// String startPos = startPosChooser.getSelected();
+		// String loadStationPath = loadStationChooser.getSelected();
 
-		SmartDashboard.putString("Got chooser start pos and load station path: ", startPos + " " + loadStationPath);
+		// SmartDashboard.putString("Got chooser start pos and load station path: ", startPos + " " + loadStationPath);
 
-		switch (startPos) {
-			case "N":
-				break;
-			case "C":  
-				//Simple drive Striaght.  
-				// want to add a command before any DriveForDistance, to align the wheels in the direction we'll be headed.
-				// in testing December 2019, without that pre-alignment, the robot can swerve/spin undesireably as the wheels
-				// align themselves *while* the robot is trying to move to the target position
-				// something like this: autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
-				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, 36, 84)); // drive left/right 36" and forward 84"
-				autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.1));
-				autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
-				autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.1));
-				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, -36, 0)); // drive left/right 0" and forward 36"
-				driveRightToLoadStation = 100.0;  
-				break;
-			case "L":
-				autoGroup.addSequential( new VisionLineUpWithCubeCommand( this, rft_));
-				driveRightToLoadStation = 210.0;
-				break;
-			case "R":
-				// right side starting point.  Go to the left some.  TODO: set how much to the left
-				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, -90, defaultDriveDistance));
-				driveRightToLoadStation = 50.0; 
-				break;
-		}
+		// switch (startPos) {
+		// 	case "N":
+		// 		break;
+		// 	case "C":  
+		// 		//Simple drive Striaght.  
+		// 		// want to add a command before any DriveForDistance, to align the wheels in the direction we'll be headed.
+		// 		// in testing December 2019, without that pre-alignment, the robot can swerve/spin undesireably as the wheels
+		// 		// align themselves *while* the robot is trying to move to the target position
+		// 		// something like this: autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
+		// 		autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, 36, 84)); // drive left/right 36" and forward 84"
+		// 		autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.1));
+		// 		autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
+		// 		autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.1));
+		// 		autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, -36, 0)); // drive left/right 0" and forward 36"
+		// 		driveRightToLoadStation = 100.0;  
+		// 		break;
+		// 	case "L":
+		// 		autoGroup.addSequential( new VisionLineUpWithCubeCommand( this, rft_));
+		// 		driveRightToLoadStation = 210.0;
+		// 		break;
+		// 	case "R":
+		// 		// right side starting point.  Go to the left some.  TODO: set how much to the left
+		// 		autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, -90, defaultDriveDistance));
+		// 		driveRightToLoadStation = 50.0; 
+		// 		break;
+		// }
 /*
 		switch (loadStationPath) {
 			case "N":
@@ -287,10 +290,14 @@ public class Robot extends TimedRobot {
 		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.3));
 		// autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem,90));
         // autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 12.0, 0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		autoTimer.start();
-		autoGroup.start();
-		
-	}
+    
+//    autoGroup.close();
+    
+    autoTimer.start();
+    Scheduler.getInstance().add(new VisionLineUpWithCubeCommand(this, rft_));
+    //		autoGroup.start();
+  }
+  
 	/**
 	 * This autonomous (along with the chooser code above) shows how to select
 	 * between different autonomous modes using the dashboard. The sendable
@@ -353,7 +360,7 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		Scheduler.getInstance().run();
+    Scheduler.getInstance().run();
 	}
 
 	@Override
@@ -408,7 +415,7 @@ public class Robot extends TimedRobot {
 	 * and teleop init methods. For ease of access, these objects are global and instantiated through the main class.
 	 */
 	private void socketVisionInit() {
-		sender_.init();
+	  sender_.init();
     rft_.init();
 	}
 
@@ -418,7 +425,7 @@ public class Robot extends TimedRobot {
 	 * to comply with FRC guidelines during disabled mode. DONT CHANGE A WORD!
 	 */
 	private void visionShutDown() {
-		System.out.println("trying to shut down vision.");
+		// System.out.println("trying to shut down vision.");
     sender_.shutDown();
     rft_.shutDown();
 	}
