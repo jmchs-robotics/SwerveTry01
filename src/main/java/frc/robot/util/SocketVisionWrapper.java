@@ -23,9 +23,6 @@ public class SocketVisionWrapper {
 			m_reader = new SocketVision(m_ip, m_port);
 
 			m_reader.start();
-			if(!m_reader.is_connected()) {
-				m_reader.connect();
-			}
     }
   }
 
