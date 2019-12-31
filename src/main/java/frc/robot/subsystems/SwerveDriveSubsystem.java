@@ -247,6 +247,7 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
      */
     public void setBrake(boolean b)
     {
+        System.out.println( "setting brake mode to " + b);
         for (int i = 0; i < 4; i++)
         {
             mSwerveModules[i].setMotorBrake(b);

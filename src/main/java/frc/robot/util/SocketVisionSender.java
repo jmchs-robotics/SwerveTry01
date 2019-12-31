@@ -14,7 +14,7 @@ public class SocketVisionSender extends Thread {
 	public static final String StartCubeSearch = "C";
 	public static final String PlatformRedSearch = "Pr";
 	public static final String PlatformBlueSearch = "Pb";
-	public static final String CarryOnMyWaywardSon = " ";
+	public static final String CarryOnMyWaywardSon = "Heartbeat ";
 
 	private String ip_;
 	private int port_;
@@ -35,12 +35,13 @@ public class SocketVisionSender extends Thread {
 	 */
 	public boolean connect() {
 		try {
-      socket_ = new DatagramSocket(port_);
-      socket_.setReuseAddress(true);
-      socket_.connect(InetAddress.getByName(ip_), port_);
-			
+			System.out.println("SocketVisionSender trying to connect...");
+			socket_ = new DatagramSocket(port_);
+			socket_.setReuseAddress(true);
+			socket_.connect(InetAddress.getByName(ip_), port_);
 			is_connected_ = true;
 		} catch (UnknownHostException ex) {
+			System.out.println("SocketVisionSender connect failed with exception: " + ex.getMessage());
 			is_connected_ = false;
 			return false;
 		} catch (IOException ex) {
@@ -65,31 +66,35 @@ public class SocketVisionSender extends Thread {
 	 * @return true if successful.
 	 */
 	public boolean send() {
-		
-		byte[] data;
-
-		synchronized(this){
-			data = data_;
-		}
-		
-		if(Robot.SHOW_DEBUG_VISION) {
-			System.out.println("Sending: \"" + getData() + "\"...");
-		}
-
-		if(data == null) return false;
-
 		try {
-			DatagramPacket packet = new DatagramPacket(data, data.length, InetAddress.getByName(ip_), port_);			
-			socket_.send(packet);
-		}catch(Exception e) {
-			e.printStackTrace();
-			return false;
-		}
+			byte[] data;
 
-		if(Robot.SHOW_DEBUG_VISION) {
-			System.out.println("Sent: \"" + getData() + ".\"");
+			synchronized(this){
+				data = data_;
+			}
+			
+			if(Robot.SHOW_DEBUG_VISION) {
+				System.out.println("Sending: \"" + getData() + "\"...");
+			}
+
+			if(data == null) return false;
+
+			try {
+				DatagramPacket packet = new DatagramPacket(data, data.length, InetAddress.getByName(ip_), port_);			
+				socket_.send(packet);
+			}catch(Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+
+			if(Robot.SHOW_DEBUG_VISION) {
+				System.out.println("Sent: \"" + getData() + ".\"");
+			}
+		} catch (Exception e){
+			System.out.println("SocketVisionSender failed to send with exception" + e.getMessage());
+			System.out.println("SocketVisionSender send() was trying to send: \"" + getData() + "\"");
 		}
-		
+	
 		return true;
 	}
 
@@ -120,8 +125,7 @@ public class SocketVisionSender extends Thread {
 	 * This function stops the UDP socket properly, so it can be restarted later.
 	 */
 	public void stoprunning() {
-    keep_running = false;
-    
+    	keep_running = false;
 		socket_.disconnect();
 		socket_.close();
 	}
@@ -131,8 +135,10 @@ public class SocketVisionSender extends Thread {
 	 * @param stringToSend The string to encode into bytes for the datagram packet.
 	 */
 	public synchronized void setSendData(String stringToSend) {
-    if(stringToSend != null) data_ = stringToSend.getBytes();
-    else data_ = CarryOnMyWaywardSon.getBytes();
+		if(stringToSend != null) data_ = stringToSend.getBytes();
+		else {
+			data_ = CarryOnMyWaywardSon.getBytes();
+		}
 	}
 
 	/**

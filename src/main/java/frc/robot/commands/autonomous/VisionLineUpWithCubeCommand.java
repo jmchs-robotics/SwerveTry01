@@ -45,7 +45,10 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
         public double pidGet() {
             // 12/23 jh_vision- read input from SocketVision instead of from NetworkTables
             if( vision.get() != null) {
-                return vision.get().get_degrees_x(); // tx.getDouble(0);
+                double x = vision.get().get_degrees_x();
+                System.out.println("[INFO]: VisionLineUpWithCubeCommand got get_degrees_x: " + x);
+
+                return x; // vision.get().get_degrees_x(); // tx.getDouble(0);
             } 
             return 0;
         }
@@ -105,7 +108,7 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
 
 
     protected void execute() {
-        System.out.println("[INFO]: VisionLineUpWithCubeCommand strafe error: " + strafeController.getError());
+        // System.out.println("[INFO]: VisionLineUpWithCubeCommand strafe error: " + strafeController.getError());
 
         if (Math.abs(strafeController.getError()) < 0.5)
             pidStrafeValue = 0;
@@ -122,7 +125,7 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
 
     protected boolean isFinished() {
         // if (tv.getDouble(0) == 1 && strafeController.onTarget()) {
-        if ( vision.get().get_degrees_x() != -0.01 && strafeController.onTarget()) {
+        if ( true /* vision.get().get_degrees_x() != -0.01 */ && strafeController.onTarget()) {
                 if (!isFinishTimerRunning) {
                 finishTimer.reset();
                 finishTimer.start();

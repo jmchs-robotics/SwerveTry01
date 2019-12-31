@@ -46,6 +46,7 @@ public class Robot extends TimedRobot {
 
 	//private final AutonomousChooser autoChooser = new AutonomousChooser();
 	private Command autoCommand;
+	private CommandGroup autoGroup;
 	private final SendableChooser<String> startPosChooser = new SendableChooser<>();	
 	private final SendableChooser<String> loadStationChooser = new SendableChooser<>();
 	
@@ -55,10 +56,10 @@ public class Robot extends TimedRobot {
 	// Socket communications with the Vision Co-Processor, the UP Board
 	// socket sender
 	public final SocketVisionSendWrapper sender_ = new SocketVisionSendWrapper("10.59.33.255", 5800);
-	//Socket receivers. One is needed for each port to read from
-  public final SocketVisionWrapper rft_ = new SocketVisionWrapper("10.59.33.255", 5801);
-	//Socket constants
-	public static final boolean SHOW_DEBUG_VISION = false;
+	// Socket receivers. One is needed for each port to read from
+  	public final SocketVisionWrapper rft_ = new SocketVisionWrapper("10.59.33.255", 5801);
+	// Socket constants
+	public static final boolean SHOW_DEBUG_VISION = true;
 
 
 	private int smartDashCtr1 = 0;
@@ -75,10 +76,11 @@ public class Robot extends TimedRobot {
 	public void robotInit() {
 		mOI = new OI(this);
 
-		// gathererSubsystem = new GathererSubsystem();
+		// create our subsystems
 		swerveDriveSubsystem = new SwerveDriveSubsystem();
-    // elevatorSubsystem = new ElevatorSubsystem();
-
+		swerveDriveSubsystem.setBrake(true);
+		
+    	// initialize using the XBox controllers
 		mOI.registerControls();
 		
 		// build the Chooser so we can tell the robot which starting position we're in
@@ -184,6 +186,9 @@ public class Robot extends TimedRobot {
 			swerveDriveSubsystem.getSwerveModule(i).robotDisabledInit();
 		}
 		visionShutDown(); // 12/23 jh_vision: shut down the vision socket reader thread
+		try {
+			autoGroup.cancel();
+		} catch (Exception e) {}
 	}
 
 	@Override
@@ -201,18 +206,15 @@ public class Robot extends TimedRobot {
 		socketVisionInit();
 
 		autoTimer = new Timer();
-
-		
-		
 		swerveDriveSubsystem.setFieldOriented( true);
-		//swerveDriveSubsystem.setBrake(true);
-		CommandGroup autoGroup = new CommandGroup();
+		swerveDriveSubsystem.setBrake(true);
 		
 		//
 		// Testing various autonomous commands, and fixing and tuning them (PIDs etc) 191207
 		//
+		autoGroup = new CommandGroup();
 		//ALWAYS DO THIS!!!!
-		autoGroup.addSequential(new SetMotorBrakeCommand(this, true));
+		autoGroup.addSequential(new SetMotorBrakeCommand(this, false)); // true));
 
 		// how far to drive forward.  Is the same for all autonomous paths.
 		// TODO: set this on competition day
@@ -238,7 +240,7 @@ public class Robot extends TimedRobot {
 				// in testing December 2019, without that pre-alignment, the robot can swerve/spin undesireably as the wheels
 				// align themselves *while* the robot is trying to move to the target position
 				// something like this: autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
-				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, 36, 84)); // drive left/right 36" and forward 84"
+				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, 36, 884)); // drive left/right 36" and forward 84"
 				autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.1));
 				autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
 				autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.1));
@@ -359,7 +361,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopInit() {
 		// open the socket connection to read/write the coprocessor, in case it wasn't already done in auto
-		socketVisionInit();
+		// socketVisionInit();
 
 		Command c = new SetMotorBrakeCommand(this, false);// SetAngleCommand(swerveDriveSubsystem,0);
 		c.start();
@@ -408,8 +410,9 @@ public class Robot extends TimedRobot {
 	 * and teleop init methods. For ease of access, these objects are global and instantiated through the main class.
 	 */
 	private void socketVisionInit() {
+		System.out.println("trying to init vision.");
 		sender_.init();
-    rft_.init();
+    	rft_.init();
 	}
 
 	/** 
@@ -419,7 +422,7 @@ public class Robot extends TimedRobot {
 	 */
 	private void visionShutDown() {
 		System.out.println("trying to shut down vision.");
-    sender_.shutDown();
-    rft_.shutDown();
+		sender_.shutDown();
+		rft_.shutDown();
 	}
 }
