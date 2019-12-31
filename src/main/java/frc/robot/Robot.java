@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -64,6 +65,10 @@ public class Robot extends TimedRobot {
 
 	private int smartDashCtr1 = 0;
 
+  public Robot(){
+    super(0.05); // set watchdog to .05 seconds
+  }
+
 	public static OI getOI() {
 		return mOI;
 	}
@@ -102,68 +107,66 @@ public class Robot extends TimedRobot {
 
 		SmartDashboard.putNumber("Angle kP ", swerveDriveSubsystem.getAngleKP());
 		SmartDashboard.putNumber("Angle kI ", swerveDriveSubsystem.getAngleKI());
-		SmartDashboard.putNumber("Angle kD ", swerveDriveSubsystem.getAngleKD());
-}
+    SmartDashboard.putNumber("Angle kD ", swerveDriveSubsystem.getAngleKD());
+  }
 
     @Override
     public void robotPeriodic() {
-		smartDashCtr1 ++;
-		if( smartDashCtr1 > 50) {
-			smartDashCtr1 = 0;
-		}
-		if( smartDashCtr1 == 0 || smartDashCtr1 == 25) {
-			// 12/23 jh_vision: display vision data on SmartDash
-			if( rft_.get() != null) {
-				SmartDashboard.putString("SocketVision string: ", rft_.get().get_direction());
-			}
+		// smartDashCtr1 ++;
+		// if( smartDashCtr1 > 50) {
+		// 	smartDashCtr1 = 0;
+		// }
+		// if( smartDashCtr1 == 0 || smartDashCtr1 == 25) {
+		// 	// 12/23 jh_vision: display vision data on SmartDash
+		// 	if( rft_.get() != null) {
+		// 		SmartDashboard.putString("SocketVision string: ", rft_.get().get_direction());
+		// 	}
 			
-			// display status of all 4 modules
-			for (int i = 0 + smartDashCtr1 % 2; i < 4; i+=2) { // only print 1/2 of them each time
-				SmartDashboard.putNumber("Module " + i + " Current Angle ", swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
-				// SmartDashboard.putNumber("Module " + i + " Angle Raw Encoder Position ", swerveDriveSubsystem.getSwerveModule(i).getRawSensorPosition());
-				double x = swerveDriveSubsystem.getSwerveModule(i).getAngleVoltage();
-				SmartDashboard.putNumber("Module " + i + " Angle Encoder Voltage ", x); // getSelectedSensorPosition(0));
+		// 	// display status of all 4 modules
+		// 	for (int i = 0 + smartDashCtr1 % 2; i < 4; i+=2) { // only print 1/2 of them each time
+		// 		SmartDashboard.putNumber("Module " + i + " Current Angle ", swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
+		// 		// SmartDashboard.putNumber("Module " + i + " Angle Raw Encoder Position ", swerveDriveSubsystem.getSwerveModule(i).getRawSensorPosition());
+		// 		double x = swerveDriveSubsystem.getSwerveModule(i).getAngleVoltage();
+		// 		SmartDashboard.putNumber("Module " + i + " Angle Encoder Voltage ", x); // getSelectedSensorPosition(0));
 				
-				SmartDashboard.putNumber("Module " + i + " Drive Dist ", (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
-				SmartDashboard.putNumber("Module " + i + " Drive Applied Output ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getAppliedOutput()); // getMotorOutputPercent());
-				SmartDashboard.putNumber("Module " + i + " Drive Position ", swerveDriveSubsystem.getSwerveModule(i).getDrivePosition()); // getDriveMotor().getSelectedSensorPosition(0));
-				// SmartDashboard.putNumber("Module " + i + " Drive Output Current ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
-				SmartDashboard.putNumber("Module " + i + " Angle Motor Faults ", swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getFaults());
-			}
-		}
-		if( smartDashCtr1 == 10 || smartDashCtr1 == 35) {
-			// for debugging and tuning initial swerve software (first module)
-			double x = swerveDriveSubsystem.getSwerveModule(1).getAngleVoltage();
-			if (x > modAngEncMax) {
-					modAngEncMax = x; 
-				}
-			SmartDashboard.putNumber("Module 1 Endcoder Angle Max ", modAngEncMax);
+		// 		SmartDashboard.putNumber("Module " + i + " Drive Dist ", (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
+		// 		SmartDashboard.putNumber("Module " + i + " Drive Applied Output ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getAppliedOutput()); // getMotorOutputPercent());
+		// 		SmartDashboard.putNumber("Module " + i + " Drive Position ", swerveDriveSubsystem.getSwerveModule(i).getDrivePosition()); // getDriveMotor().getSelectedSensorPosition(0));
+		// 		// SmartDashboard.putNumber("Module " + i + " Drive Output Current ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
+		// 		SmartDashboard.putNumber("Module " + i + " Angle Motor Faults ", swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getFaults());
+		// 	}
+		// }
+		// if( smartDashCtr1 == 10 || smartDashCtr1 == 35) {
+		// 	// for debugging and tuning initial swerve software (first module)
+		// 	double x = swerveDriveSubsystem.getSwerveModule(1).getAngleVoltage();
+		// 	if (x > modAngEncMax) {
+		// 			modAngEncMax = x; 
+		// 		}
+		// 	SmartDashboard.putNumber("Module 1 Endcoder Angle Max ", modAngEncMax);
 
-			if (x < modAngEncMin) {
-					modAngEncMin = x; 
-				}
-			SmartDashboard.putNumber("Module 1 Endcoder Angle Min ", modAngEncMin);
+		// 	if (x < modAngEncMin) {
+		// 			modAngEncMin = x; 
+		// 		}
+		// 	SmartDashboard.putNumber("Module 1 Endcoder Angle Min ", modAngEncMin);
 			
-		}
-		if( smartDashCtr1 == 15) {
-			/* Put angle PID onto Smart Dashboard, and read Smart Dashboard for changes to them */
-			double k;
-			k = SmartDashboard.getNumber( "Angle kP ", 0.0);
-			if( k != swerveDriveSubsystem.getAngleKP()) {
-				swerveDriveSubsystem.setAngleKP( k);
-			}
-			k = SmartDashboard.getNumber( "Angle kI ", 0.0);
-			if( k != swerveDriveSubsystem.getAngleKI()) {
-				swerveDriveSubsystem.setAngleKI( k);
-			}
-			k = SmartDashboard.getNumber( "Angle kD ", 0.0);
-			if( k != swerveDriveSubsystem.getAngleKD()) {
-				swerveDriveSubsystem.setAngleKD( k);
-			}
-			
-			
-			SmartDashboard.putNumber("Drivetrain Angle", swerveDriveSubsystem.getGyroAngle());
-		}
+		// }
+		// if( smartDashCtr1 == 15) {
+		// 	/* Put angle PID onto Smart Dashboard, and read Smart Dashboard for changes to them */
+		// 	double k;
+		// 	k = SmartDashboard.getNumber( "Angle kP ", 0.0);
+		// 	if( k != swerveDriveSubsystem.getAngleKP()) {
+		// 		swerveDriveSubsystem.setAngleKP( k);
+		// 	}
+		// 	k = SmartDashboard.getNumber( "Angle kI ", 0.0);
+		// 	if( k != swerveDriveSubsystem.getAngleKI()) {
+		// 		swerveDriveSubsystem.setAngleKI( k);
+		// 	}
+		// 	k = SmartDashboard.getNumber( "Angle kD ", 0.0);
+		// 	if( k != swerveDriveSubsystem.getAngleKD()) {
+		// 		swerveDriveSubsystem.setAngleKD( k);
+		// 	}	
+		//  SmartDashboard.putNumber("Drivetrain Angle", swerveDriveSubsystem.getGyroAngle());
+		// }
 
 		/*
 		// from 2910's 2018 code, left in comments as example for 2020
@@ -207,6 +210,7 @@ public class Robot extends TimedRobot {
 
 		autoTimer = new Timer();
 		swerveDriveSubsystem.setFieldOriented( true);
+
 		swerveDriveSubsystem.setBrake(true);
 		
 		//
@@ -289,10 +293,14 @@ public class Robot extends TimedRobot {
 		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.3));
 		// autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem,90));
         // autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 12.0, 0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		autoTimer.start();
-		autoGroup.start();
-		
-	}
+    
+//    autoGroup.close();
+    
+    autoTimer.start();
+    Scheduler.getInstance().add(new VisionLineUpWithCubeCommand(this, rft_));
+    //		autoGroup.start();
+  }
+  
 	/**
 	 * This autonomous (along with the chooser code above) shows how to select
 	 * between different autonomous modes using the dashboard. The sendable
@@ -355,7 +363,7 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		Scheduler.getInstance().run();
+    Scheduler.getInstance().run();
 	}
 
 	@Override
@@ -410,9 +418,14 @@ public class Robot extends TimedRobot {
 	 * and teleop init methods. For ease of access, these objects are global and instantiated through the main class.
 	 */
 	private void socketVisionInit() {
+<<<<<<< HEAD
 		System.out.println("trying to init vision.");
 		sender_.init();
     	rft_.init();
+=======
+	  sender_.init();
+    rft_.init();
+>>>>>>> 4eb027fa2b05abe461d661d206a118cf1e7f8300
 	}
 
 	/** 
@@ -421,8 +434,14 @@ public class Robot extends TimedRobot {
 	 * to comply with FRC guidelines during disabled mode. DONT CHANGE A WORD!
 	 */
 	private void visionShutDown() {
+<<<<<<< HEAD
 		System.out.println("trying to shut down vision.");
 		sender_.shutDown();
 		rft_.shutDown();
+=======
+		// System.out.println("trying to shut down vision.");
+    sender_.shutDown();
+    rft_.shutDown();
+>>>>>>> 4eb027fa2b05abe461d661d206a118cf1e7f8300
 	}
 }

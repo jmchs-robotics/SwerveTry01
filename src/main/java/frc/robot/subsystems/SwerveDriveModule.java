@@ -131,9 +131,7 @@ public class SwerveDriveModule extends Subsystem {
         // Set amperage limits
         angleMotor.setSmartCurrentLimit(25, 25);
         driveMotor.setSmartCurrentLimit(25, 25);
-
-        
-    	SmartDashboard.putBoolean("Motor Jammed" + moduleNumber, angleMotorJam);
+    	// SmartDashboard.putBoolean("Motor Jammed" + moduleNumber, angleMotorJam);
     }
 
     /**
@@ -291,7 +289,7 @@ public class SwerveDriveModule extends Subsystem {
 
         targetAngle %= 360;
 
-        SmartDashboard.putNumber("Module " + moduleNumber + " Target Angle Desired ", targetAngle % 360);
+        // SmartDashboard.putNumber("Module " + moduleNumber + " Target Angle Desired ", targetAngle % 360);
 
         targetAngle += mZeroOffset;
 
@@ -325,7 +323,7 @@ public class SwerveDriveModule extends Subsystem {
 
         targetAngle = targetAngle  / 360.0; // * 3.3;  // changed 11/13/19 to be range of [0, 1) 11/29 range [0, 3.3)
         m_pidControllerAngle.setReference(targetAngle, ControlType.kPosition); // new for all Spark Max controllers
-        SmartDashboard.putNumber("Module " + moduleNumber + " Target Angle Set ", targetAngle);
+        // SmartDashboard.putNumber("Module " + moduleNumber + " Target Angle Set ", targetAngle);
 
     }
 
@@ -335,7 +333,7 @@ public class SwerveDriveModule extends Subsystem {
 
         distance = inchesToEncoderTicks(distance);
 
-        SmartDashboard.putNumber("Module " + moduleNumber + " Drive Ticks ", distance);
+        // SmartDashboard.putNumber("Module " + moduleNumber + " Drive Ticks ", distance);
 
         // TODO: confirm the distance is set in the right units
         m_pidControllerDrive.setReference(distance, ControlType.kPosition);
@@ -344,7 +342,7 @@ public class SwerveDriveModule extends Subsystem {
 
     public void setTargetSpeed(double speed) {
         if (driveInverted) speed = -speed;
-        
+
         mDriveMotor.set(speed);  
         // 10/26/19:
         // If for some reason the simple approach of setting the speed 
@@ -369,7 +367,7 @@ public class SwerveDriveModule extends Subsystem {
         else{
              mDriveMotor.setIdleMode(IdleMode.kCoast);
         }
-        SmartDashboard.putBoolean("Is motors on Brake?", b);
+        // SmartDashboard.putBoolean("Is motors on Brake?", b);
     }
 
     public void zeroDistance() {
@@ -380,7 +378,7 @@ public class SwerveDriveModule extends Subsystem {
     public void resetMotor() {
     	angleMotorJam = false;
     	mStallTimeBegin = Long.MAX_VALUE;
-    	SmartDashboard.putBoolean("Module " + moduleNumber + " Angle Motor Jammed ", angleMotorJam);
+    	// SmartDashboard.putBoolean("Module " + moduleNumber + " Angle Motor Jammed ", angleMotorJam);
     }
 
     /**

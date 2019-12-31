@@ -62,7 +62,6 @@ public class VisionTargetingCubeCommand extends CommandGroup{
 		
 	}, output -> {
 		pidStrafeValue = -output;
-		SmartDashboard.putNumber("PID Strafe Value", pidStrafeValue);
 	});
 
 	public VisionTargetingCubeCommand(Robot robot, Side side) {
@@ -113,7 +112,7 @@ public class VisionTargetingCubeCommand extends CommandGroup{
 		if (Math.abs(strafeController.getError()) < 0.5)
 			pidStrafeValue = 0;
 
-		SmartDashboard.putNumber("Rotation Factor", rotationFactor);
+		// SmartDashboard.putNumber("Rotation Factor", rotationFactor);
 		if(tv.getDouble(0) == 0){	//If there is no target
 			if(side == Side.RIGHT) {
 				robot.getDrivetrain().holonomicDrive(0, -.4, rotationFactor);
