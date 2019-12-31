@@ -85,7 +85,7 @@ public class Robot extends TimedRobot {
 		swerveDriveSubsystem = new SwerveDriveSubsystem();
 		swerveDriveSubsystem.setBrake(true);
 		
-    	// initialize using the XBox controllers
+    // initialize using the XBox controllers
 		mOI.registerControls();
 		
 		// build the Chooser so we can tell the robot which starting position we're in
@@ -212,93 +212,9 @@ public class Robot extends TimedRobot {
 		swerveDriveSubsystem.setFieldOriented( true);
 
 		swerveDriveSubsystem.setBrake(true);
-		
-		//
-		// Testing various autonomous commands, and fixing and tuning them (PIDs etc) 191207
-		//
-		autoGroup = new CommandGroup();
-		//ALWAYS DO THIS!!!!
-		autoGroup.addSequential(new SetMotorBrakeCommand(this, false)); // true));
-
-		// how far to drive forward.  Is the same for all autonomous paths.
-		// TODO: set this on competition day
-		double defaultDriveDistance = 36.0;
-		// how far from having driven forward to go back to loading station. Is negative.
-		// is a fixed difference between start position boxes and the loading station
-		// TODO: set this on competition day
-		double driveBackToLoadStation = 0;
-		// how far to the right is the loading station from the forward position. Gets set in 'switch (startPos)'
-		double driveRightToLoadStation = 1;
-
-		String startPos = startPosChooser.getSelected();
-		String loadStationPath = loadStationChooser.getSelected();
-
-		SmartDashboard.putString("Got chooser start pos and load station path: ", startPos + " " + loadStationPath);
-
-		switch (startPos) {
-			case "N":
-				break;
-			case "C":  
-				//Simple drive Striaght.  
-				// want to add a command before any DriveForDistance, to align the wheels in the direction we'll be headed.
-				// in testing December 2019, without that pre-alignment, the robot can swerve/spin undesireably as the wheels
-				// align themselves *while* the robot is trying to move to the target position
-				// something like this: autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
-				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, 36, 884)); // drive left/right 36" and forward 84"
-				autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.1));
-				autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
-				autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.1));
-				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, -36, 0)); // drive left/right 0" and forward 36"
-				driveRightToLoadStation = 100.0;  
-				break;
-			case "L":
-				autoGroup.addSequential( new VisionLineUpWithCubeCommand( this, rft_));
-				driveRightToLoadStation = 210.0;
-				break;
-			case "R":
-				// right side starting point.  Go to the left some.  TODO: set how much to the left
-				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, -90, defaultDriveDistance));
-				driveRightToLoadStation = 50.0; 
-				break;
-		}
-/*
-		switch (loadStationPath) {
-			case "N":
-			break;
-			case "L":
-				autoGroup.addSequential( new DriveForDistanceCommand( swerveDriveSubsystem, driveRightToLoadStation, driveBackToLoadStation));
-				break;
-			case "D":
-				if (driveBackToLoadStation == 50.0){
-					driveBackToLoadStation = -210.0;
-				}
-				else if (driveBackToLoadStation == 210.0){
-					driveBackToLoadStation = -50.0;
-				}
-				else if (driveBackToLoadStation == 100.0){
-					driveBackToLoadStation = -100.0;
-				}
-				autoGroup.addSequential( new DriveForDistanceCommand( swerveDriveSubsystem, driveRightToLoadStation, 0));
-				break;
-		}
-		*/
-		
-		//autoGroup.addSequential( autoChooser.getCommand(this)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		// autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
-		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.5));
-		// autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , -24.0, 24.0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 1.0));
-		//autoGroup.addSequential( new SetDrivetrainAngleCommand( swerveDriveSubsystem, 90));
-		
-		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.3));
-		// autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem,90));
-        // autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 12.0, 0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-    
-//    autoGroup.close();
     
     autoTimer.start();
     Scheduler.getInstance().add(new VisionLineUpWithCubeCommand(this, rft_));
-    //		autoGroup.start();
   }
   
 	/**
@@ -418,14 +334,8 @@ public class Robot extends TimedRobot {
 	 * and teleop init methods. For ease of access, these objects are global and instantiated through the main class.
 	 */
 	private void socketVisionInit() {
-<<<<<<< HEAD
-		System.out.println("trying to init vision.");
-		sender_.init();
-    	rft_.init();
-=======
 	  sender_.init();
     rft_.init();
->>>>>>> 4eb027fa2b05abe461d661d206a118cf1e7f8300
 	}
 
 	/** 
@@ -434,14 +344,8 @@ public class Robot extends TimedRobot {
 	 * to comply with FRC guidelines during disabled mode. DONT CHANGE A WORD!
 	 */
 	private void visionShutDown() {
-<<<<<<< HEAD
-		System.out.println("trying to shut down vision.");
-		sender_.shutDown();
-		rft_.shutDown();
-=======
 		// System.out.println("trying to shut down vision.");
     sender_.shutDown();
     rft_.shutDown();
->>>>>>> 4eb027fa2b05abe461d661d206a118cf1e7f8300
 	}
 }
