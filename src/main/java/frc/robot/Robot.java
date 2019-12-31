@@ -418,14 +418,9 @@ public class Robot extends TimedRobot {
 	 * and teleop init methods. For ease of access, these objects are global and instantiated through the main class.
 	 */
 	private void socketVisionInit() {
-<<<<<<< HEAD
 		System.out.println("trying to init vision.");
 		sender_.init();
     	rft_.init();
-=======
-	  sender_.init();
-    rft_.init();
->>>>>>> 4eb027fa2b05abe461d661d206a118cf1e7f8300
 	}
 
 	/** 
@@ -434,14 +429,8 @@ public class Robot extends TimedRobot {
 	 * to comply with FRC guidelines during disabled mode. DONT CHANGE A WORD!
 	 */
 	private void visionShutDown() {
-<<<<<<< HEAD
 		System.out.println("trying to shut down vision.");
 		sender_.shutDown();
 		rft_.shutDown();
-=======
-		// System.out.println("trying to shut down vision.");
-    sender_.shutDown();
-    rft_.shutDown();
->>>>>>> 4eb027fa2b05abe461d661d206a118cf1e7f8300
 	}
 }
