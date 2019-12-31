@@ -1,22 +1,11 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.commands.ResetMotorsCommand;
-import frc.robot.commands.SetMotorBrakeCommand;
-import frc.robot.commands.autonomous.*;
-import frc.robot.commands.autonomous.stage1.StartingPosition;
-import frc.robot.commands.autonomous.stage2.VisionTargetingCubeCommand;
-import frc.robot.motion.AutonomousPaths;
-import frc.robot.subsystems.SwerveDriveModule;
-//import frc.robot.subsystems.GathererSubsystem;
+import frc.robot.commands.autonomous.DriveForDistanceCommand;
+import frc.robot.commands.autonomous.VisionLineUpWithCubeCommand;
 import frc.robot.subsystems.SwerveDriveSubsystem;
-import frc.robot.util.Side;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -57,13 +46,12 @@ public class Robot extends TimedRobot {
 	// socket sender
 	public final SocketVisionSendWrapper sender_ = new SocketVisionSendWrapper("10.59.33.255", 5800);
 	// Socket receivers. One is needed for each port to read from
-  	public final SocketVisionWrapper rft_ = new SocketVisionWrapper("10.59.33.255", 5801);
+  public final SocketVisionWrapper rft_ = new SocketVisionWrapper("10.59.33.255", 5801);
 	// Socket constants
-	public static final boolean SHOW_DEBUG_VISION = true;
+	public static final boolean SHOW_DEBUG_VISION = false;
 
-
-	private int smartDashCtr1 = 0;
-
+  // Constructor for the class. Call the superconstructor with
+  // the Watchdog period (in seconds) that you want to use. Default is 0.02.
   public Robot(){
     super(0.05); // set watchdog to .05 seconds
   }

@@ -1,8 +1,8 @@
 package frc.robot.commands.autonomous;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
+// import edu.wpi.first.networktables.NetworkTable;
+// import edu.wpi.first.networktables.NetworkTableEntry;
+// import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
@@ -93,10 +93,6 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
 
         finishTimer.stop();
         finishTimer.reset();
-
-        // Enable snapshots
-        NetworkTable limelight = NetworkTableInstance.getDefault().getTable("limelight");
-        limelight.getEntry("snapshot").setNumber(1);
 
         // TODO: jh_vision will want to tell the UP Board which target type to track, via sender_
     }
