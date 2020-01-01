@@ -20,43 +20,41 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
 
     private final Robot robot;
     private final PIDController angleErrorController;
+    private final PIDController strafeController;
     private double pidStrafeValue;
     private double rotationFactor;
     private final Timer finishTimer = new Timer();
     private boolean isFinishTimerRunning = false;
 
-    // 2910's original PID coefficients:  0.07, 0.000000001, 0.32
-    private PIDController strafeController = new PIDController(0.01, 0, 0, new PIDSource() {
-
-        @Override
-        public void setPIDSourceType(PIDSourceType pidSource) {
-        }
-
-        @Override
-        public PIDSourceType getPIDSourceType() {
-            return PIDSourceType.kDisplacement;
-        }
-
-        @Override
-        public double pidGet() {
-            // 12/23 jh_vision- read input from SocketVision instead of from NetworkTables
-            if( vision.get() != null) {
-                double x = vision.get().get_degrees_x();
-                System.out.println("[INFO]: VisionLineUpWithCubeCommand got get_degrees_x: " + x);
-
-                return x; // vision.get().get_degrees_x(); // tx.getDouble(0);
-            } 
-            return 0;
-        }
-
-    }, output -> {
-        pidStrafeValue = -output;
-    });
-
     public VisionLineUpWithCubeCommand(Robot robot, SocketVisionWrapper socketVisionObject) {
         this.robot = robot;
 
         vision = socketVisionObject;
+
+        // 2910's original PID coefficients:  0.07, 0.000000001, 0.32
+        strafeController = new PIDController(0.01, 0, 0, new PIDSource() {
+
+          @Override
+          public void setPIDSourceType(PIDSourceType pidSource) {
+          }
+  
+          @Override
+          public PIDSourceType getPIDSourceType() {
+              return PIDSourceType.kDisplacement;
+          }
+  
+          @Override
+          public double pidGet() {
+              // 12/23 jh_vision- read input from SocketVision instead of from NetworkTables
+              if( vision.get() != null) {
+                  return vision.get().get_degrees_x();
+              } 
+              return 0;
+          }
+  
+        }, output -> {
+            pidStrafeValue = -output;
+        });
 
         strafeController.setInputRange( -320, 320); // 12/23 jh_vision set for up board range (-27, 27);
         strafeController.setOutputRange(-1, 1);

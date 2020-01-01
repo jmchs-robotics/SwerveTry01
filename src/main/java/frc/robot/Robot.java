@@ -152,7 +152,7 @@ public class Robot extends TimedRobot {
       case "L":
         autoCommand = new VisionLineUpWithCubeCommand(this, rft_); // Pass in robot object (this) and vision scanner for PID
         break;
-      case "R":
+      case "C":
         autoCommand = new DriveForDistanceCommand(swerveDriveSubsystem, 25); // Distance in inches
         break;
       // Put other cases in here
@@ -163,7 +163,12 @@ public class Robot extends TimedRobot {
     
     // AutoTimer is not necessary, but autoCommand.start or scheduler.add(autocommand) should always be last
     autoTimer.start();
-    if( autoCommand != null) autoCommand.start();
+    if( autoCommand != null){
+      autoCommand.start();
+      SmartDashboard.putString("Autonomous Command Running:", autoCommand.toString());
+    } else {
+      SmartDashboard.putString("Autonomous Command Running:", "None");
+    }
   }
 
 
