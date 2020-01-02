@@ -86,7 +86,7 @@ public class Robot extends TimedRobot {
 		swerveDriveSubsystem = new SwerveDriveSubsystem();
 		swerveDriveSubsystem.setBrake(true);
 		
-    	// initialize using the XBox controllers
+    // initialize using the XBox controllers
 		mOI.registerControls();
 		
 		// build the Chooser so we can tell the robot which starting position we're in
