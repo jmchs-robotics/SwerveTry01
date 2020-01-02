@@ -1,26 +1,19 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.commands.ResetMotorsCommand;
-import frc.robot.commands.SetMotorBrakeCommand;
-import frc.robot.commands.autonomous.*;
-import frc.robot.commands.autonomous.stage1.StartingPosition;
-import frc.robot.commands.autonomous.stage2.VisionTargetingCubeCommand;
-import frc.robot.motion.AutonomousPaths;
-import frc.robot.subsystems.SwerveDriveModule;
-//import frc.robot.subsystems.GathererSubsystem;
+import frc.robot.commands.autonomous.DriveForDistanceCommand;
+import frc.robot.commands.autonomous.VisionLineUpWithCubeCommand;
 import frc.robot.subsystems.SwerveDriveSubsystem;
-import frc.robot.util.Side;
-
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+
+// SocketVision imports
+import frc.robot.util.SocketVisionWrapper;
+import frc.robot.util.SocketVisionSendWrapper;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -48,10 +41,26 @@ public class Robot extends TimedRobot {
 	
 	private Timer autoTimer;
 
-	//Socket receivers. One is needed for each port to read from
-	public static SocketVision rft_;		//5801
-	//Socket constants
-	public static final boolean SHOW_DEBUG_VISION = true;
+	//
+	// Socket communications with the Vision Co-Processor, the UP Board
+	// socket sender
+	public final SocketVisionSendWrapper sender_ = new SocketVisionSendWrapper("10.59.33.255", 5800);
+	// Socket receivers. One is needed for each port to read from
+	// rft_ on 5801 is when looking for for retroflective tape
+	// listen to 5805 when looking for game piece 
+  public final SocketVisionWrapper rft_ = new SocketVisionWrapper("10.59.33.255", 5801);
+  public final SocketVisionWrapper piece_ = new SocketVisionWrapper("10.59.33.255", 5805);
+	// Socket constants
+	public static final boolean SHOW_DEBUG_VISION = false;
+	
+	// reduce the rate at which things are written to / read from the Smart Dashboard
+	private int smartDashCtr1 = 0;
+
+  // Constructor for the class. Call the superconstructor with
+  // the Watchdog period (in seconds) that you want to use. Default is 0.02.
+  public Robot(){
+    // super(0.02); // set watchdog to this many seconds.  0.02 is default.
+  }
 
 	public static OI getOI() {
 		return mOI;
@@ -65,24 +74,25 @@ public class Robot extends TimedRobot {
 	public void robotInit() {
 		mOI = new OI(this);
 
-		// gathererSubsystem = new GathererSubsystem();
+		// create our subsystems
 		swerveDriveSubsystem = new SwerveDriveSubsystem();
-		// elevatorSubsystem = new ElevatorSubsystem();
-
+		swerveDriveSubsystem.setBrake(true);
+		
+    // initialize using the XBox controllers
 		mOI.registerControls();
 		
 		// build the Chooser so we can tell the robot which starting position we're in
-		startPosChooser.addOption("Left", "L");
-        startPosChooser.setDefaultOption("Center", "C");
-		startPosChooser.addOption("Right", "R");
+		startPosChooser.addOption("Vision Line Up With Cube", "L");
+    startPosChooser.setDefaultOption("Drive For Distance", "C");
+		// startPosChooser.addOption("Right", "R");
 		startPosChooser.addOption("None", "N");
 		// 'print' the Chooser to the dashboard
 		SmartDashboard.putData("Start Position", startPosChooser);
 
 		// build Chooser, what path to proceed to the loading station
-		loadStationChooser.setDefaultOption( "None", "N");
-		loadStationChooser.addOption( "DARK", "D");
-		loadStationChooser.addOption("LIGHT", "L");
+		// loadStationChooser.setDefaultOption( "None", "N");
+		// loadStationChooser.addOption( "DARK", "D");
+		// loadStationChooser.addOption("LIGHT", "L");
 		// 'print' the Chooser to the dashboard
 		SmartDashboard.putData("Proceed to Loading Station", loadStationChooser);
 		
@@ -90,65 +100,13 @@ public class Robot extends TimedRobot {
 
 		SmartDashboard.putNumber("Angle kP ", swerveDriveSubsystem.getAngleKP());
 		SmartDashboard.putNumber("Angle kI ", swerveDriveSubsystem.getAngleKI());
-		SmartDashboard.putNumber("Angle kD ", swerveDriveSubsystem.getAngleKD());
-}
+    SmartDashboard.putNumber("Angle kD ", swerveDriveSubsystem.getAngleKD());
+  }
 
     @Override
     public void robotPeriodic() {
-		// display status of all 4 modules
-        for (int i = 0; i < 4; i++) {
-			SmartDashboard.putNumber("Module " + i + " Current Angle ", swerveDriveSubsystem.getSwerveModule(i).getCurrentAngle());
-			SmartDashboard.putNumber("Module " + i + " Angle Raw Encoder Position ", swerveDriveSubsystem.getSwerveModule(i).getRawSensorPosition());
-			double x = swerveDriveSubsystem.getSwerveModule(i).getAngleVoltage();
-			SmartDashboard.putNumber("Module " + i + " Angle Encoder Voltage ", x); // getSelectedSensorPosition(0));
-			
-            SmartDashboard.putNumber("Module " + i + " Drive Dist ", (swerveDriveSubsystem.getSwerveModule(i).getDriveDistance()));
-			SmartDashboard.putNumber("Module " + i + " Drive Applied Output ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getAppliedOutput()); // getMotorOutputPercent());
-            SmartDashboard.putNumber("Module " + i + " Drive Position ", swerveDriveSubsystem.getSwerveModule(i).getDrivePosition()); // getDriveMotor().getSelectedSensorPosition(0));
-			SmartDashboard.putNumber("Module " + i + " Drive Output Current ", swerveDriveSubsystem.getSwerveModule(i).getDriveMotor().getOutputCurrent()); // getMotorOutputPercent());
-			SmartDashboard.putNumber("Module " + i + " Angle Motor Faults ", swerveDriveSubsystem.getSwerveModule(i).getAngleMotor().getFaults());
-		}
 
-		// for debugging and tuning initial swerve software (first module)
-		double x = swerveDriveSubsystem.getSwerveModule(1).getAngleVoltage();
-		if (x > modAngEncMax) {
-				modAngEncMax = x; 
-			}
-		SmartDashboard.putNumber("Module 1 Endcoder Angle Max ", modAngEncMax);
-
-		if (x < modAngEncMin) {
-				modAngEncMin = x; 
-			}
-		SmartDashboard.putNumber("Module 1 Endcoder Angle Min ", modAngEncMin);
-		
-		/* Put angle PID onto Smart Dashboard, and read Smart Dashboard for changes to them */
-		
-		double k;
-		k = SmartDashboard.getNumber( "Angle kP ", 0.0);
-		if( k != swerveDriveSubsystem.getAngleKP()) {
-			swerveDriveSubsystem.setAngleKP( k);
-		}
-		k = SmartDashboard.getNumber( "Angle kI ", 0.0);
-		if( k != swerveDriveSubsystem.getAngleKI()) {
-			swerveDriveSubsystem.setAngleKI( k);
-		}
-		k = SmartDashboard.getNumber( "Angle kD ", 0.0);
-		if( k != swerveDriveSubsystem.getAngleKD()) {
-			swerveDriveSubsystem.setAngleKD( k);
-		}
-		
-		
-		SmartDashboard.putNumber("Drivetrain Angle", swerveDriveSubsystem.getGyroAngle());
-
-		/*
-		// from 2910's 2018 code, left in comments as example for 2020
-		SmartDashboard.putNumber("Elevator encoder", elevatorSubsystem.getEncoderValue());
-		SmartDashboard.putNumber("Elevator height", elevatorSubsystem.getCurrentHeight() + Math.random() * 1e-9);
-		SmartDashboard.putNumber("Elevator target", elevatorSubsystem.getTargetHeight() + Math.random() * 1e-9);
-		SmartDashboard.putNumber("Elevator percent", elevatorSubsystem.getMotors()[0].getMotorOutputPercent() + Math.random() * 1e-9);
-		SmartDashboard.putNumber("Elevator speed", elevatorSubsystem.getMotors()[0].getSelectedSensorVelocity(0));
-		*/
-	}
+    }
 
 	/**
 	 * This function is called once each time the robot enters Disabled mode.
@@ -157,9 +115,15 @@ public class Robot extends TimedRobot {
 	 */
 	@Override
 	public void disabledInit() {
+    // 
 		for (int i = 0; i < 4; i++) {
 			swerveDriveSubsystem.getSwerveModule(i).robotDisabledInit();
-		}
+    }
+    
+		visionShutDown(); // 12/23 jh_vision: shut down the vision socket reader thread
+		try {
+			autoCommand.cancel();
+		} catch (Exception e) {}
 	}
 
 	@Override
@@ -168,177 +132,85 @@ public class Robot extends TimedRobot {
 	}
 
 	/**
-	 * Super-simple autonomous command, first try 12/1/19.
-	 * also simplified the autonomousChooser.getCommand() to only return "auto line" path
+	 * AutonomousInit
+   * Called just before Autonomous is run the first time.
+   * Primes subsystems for autonomous periodic; uses the Chooser to set the auto
+   * command. Starts autonomous and the auto timer.
 	 */
 	@Override
 	public void autonomousInit() {
 		// open the socket connection to comminucate with the coprocessor, i.e. the UP Board
 		socketVisionInit();
 
-		autoTimer = new Timer();
-
-		
-		
+    // Instantiate the auto timer
+    autoTimer = new Timer();
+    
+    // Prime the subsystems for auto (could be in a swerveDriveSubsystem.autoInit())
 		swerveDriveSubsystem.setFieldOriented( true);
-		//swerveDriveSubsystem.setBrake(true);
-		CommandGroup autoGroup = new CommandGroup();
-		
-		//
-		// Testing various autonomous commands, and fixing and tuning them (PIDs etc) 191207
-		//
-		//ALWAYS DO THIS!!!!
-		autoGroup.addSequential(new SetMotorBrakeCommand(this, true));
+		swerveDriveSubsystem.setBrake(true);
 
-		// how far to drive forward.  Is the same for all autonomous paths.
-		// TODO: set this on competition day
-		double defaultDriveDistance = 144.0;
-		// how far from having driven forward to go back to loading station. Is negative.
-		// is a fixed difference between start position boxes and the loading station
-		// TODO: set this on competition day
-		double driveBackToLoadStation = 0;
-		// how far to the right is the loading station from the forward position. Gets set in 'switch (startPos)'
-		double driveRightToLoadStation = 1;
+    // Cancel any residual autonomous commands (or command groups)
+    if(autoCommand != null) autoCommand.cancel();
+    
+    // Let the local autocommand be the final word in selecting autonomous, so disabledInit
+    // can cancel it.
+    switch(startPosChooser.getSelected()){ // this is a switch on the Strings in startPosChooser
+      case "L":
+        autoCommand = new VisionLineUpWithCubeCommand(this, rft_); // Pass in robot object (this) and vision scanner for PID
+        break;
+      case "C":
+        autoCommand = new DriveForDistanceCommand(swerveDriveSubsystem, 25); // Distance in inches
+        break;
+      // Put other cases in here
+      // Because CommandGroup extends Command, autoCommand can be set to a CommandGroup as well
+      default:
+        autoCommand = null;
+    }
+    
+    // AutoTimer is not necessary, but autoCommand.start or scheduler.add(autocommand) should always be last
+    autoTimer.start();
+    if( autoCommand != null){
+      autoCommand.start();
+      SmartDashboard.putString("Autonomous Command Running:", autoCommand.toString());
+    } else {
+      SmartDashboard.putString("Autonomous Command Running:", "None");
+    }
+  }
 
-		String startPos = startPosChooser.getSelected();
-		String loadStationPath = loadStationChooser.getSelected();
-
-		SmartDashboard.putString("Got chooser start pos and load station path: ", startPos + " " + loadStationPath);
-
-		switch (startPos) {
-			case "N":
-				break;
-			case "C":  
-				//Simple drive Striaght.  
-				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, 12, defaultDriveDistance));
-				driveRightToLoadStation = 100.0;  
-				break;
-			case "L":
-				//left side starting point. going to the right 12" 
-				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, 90, defaultDriveDistance));
-				driveRightToLoadStation = 210.0;
-				break;
-			case "R":
-				// right side starting point.  Go to the left some.  TODO: set how much to the left
-				autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem, -90, defaultDriveDistance));
-				driveRightToLoadStation = 50.0; 
-				break;
-		}
-
-		switch (loadStationPath) {
-			case "N":
-			break;
-			case "L":
-				autoGroup.addSequential( new DriveForDistanceCommand( swerveDriveSubsystem, driveRightToLoadStation, driveBackToLoadStation));
-				break;
-			case "D":
-				if (driveBackToLoadStation == 50.0){
-					driveBackToLoadStation = -210.0;
-				}
-				else if (driveBackToLoadStation == 210.0){
-					driveBackToLoadStation = -50.0;
-				}
-				else if (driveBackToLoadStation == 100.0){
-					driveBackToLoadStation = -100.0;
-				}
-				autoGroup.addSequential( new DriveForDistanceCommand( swerveDriveSubsystem, driveRightToLoadStation, 0));
-				break;
-		}
-		
-		//autoGroup.addSequential( autoChooser.getCommand(this)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		// autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem, 45));
-		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.5));
-		// autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , -24.0, 24.0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 1.0));
-		//autoGroup.addSequential( new SetDrivetrainAngleCommand( swerveDriveSubsystem, 90));
-		
-		// autoGroup.addSequential( new WaitForTimerCommand( getAutoTimer(), 0.3));
-		// autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem,90));
-        // autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 12.0, 0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
-		autoTimer.start();
-		autoGroup.start();
-		
-	}
-	/**
-	 * This autonomous (along with the chooser code above) shows how to select
-	 * between different autonomous modes using the dashboard. The sendable
-	 * chooser code works with the Java SmartDashboard. If you prefer the
-	 * LabVIEW Dashboard, remove all of the chooser code and uncomment the
-	 * getString code to get the auto name from the text box below the Gyro
-	 * <p>
-	 * You can add additional auto modes by adding additional commands to the
-	 * chooser code above (like the commented example) or additional comparisons
-	 * to the switch structure below with additional strings & commands.
-	 */
-	/*
-	@Override
-	public void autonomousInit() {
-		autoTimer = new Timer();
-
-		if (autoCommand != null)
-			autoCommand.cancel();
-//		gathererSubsystem.setRightArm(GathererSubsystem.Position.IN);
-//		gathererSubsystem.setLeftArm(GathererSubsystem.Position.IN);
-
-		// Sometimes the FMS doesn't give the game string right away.
-		// Wait a little bit for the game string to be given.
-		// If no game string is received, go to the auto line.
-
-        System.out.println("[INFO]: Waiting for field info");
-		Timer waitTimer = new Timer();
-		waitTimer.start();
-
-		while (DriverStation.getInstance().getGameSpecificMessage().isEmpty()
-				&& !waitTimer.hasPeriodPassed(FIELD_INFO_TIMEOUT)) {
-			Scheduler.getInstance().run();
-		}
-
-		swerveDriveSubsystem.setFieldOriented(true);
-
-		if (waitTimer.hasPeriodPassed(FIELD_INFO_TIMEOUT)) {
-		    System.err.printf("[ERROR]: Could not get field info in time (%.3f sec), running auto line%n", FIELD_INFO_TIMEOUT);
-
-			autoCommand = new DriveForTimeCommand(swerveDriveSubsystem, 2.5, 0.5, 0);
-		} else {
-			String fieldString = DriverStation.getInstance().getGameSpecificMessage();
-
-			System.out.printf("[INFO]: Got field info: '%s'%n", fieldString);
-
-			Side switchSide = fieldString.charAt(0) == 'L' ? Side.LEFT : Side.RIGHT;
-			Side scaleSide = fieldString.charAt(1) == 'L' ? Side.LEFT : Side.RIGHT;
-
-			autoCommand = autoChooser.getCommand(this, switchSide, scaleSide);
-		}
-
-		autoTimer.start();
-		
-		autoCommand.start();
-	}
-	*/
 
 	/**
 	 * This function is called periodically during autonomous
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		Scheduler.getInstance().run();
+    Scheduler.getInstance().run();
 	}
 
+  /**
+   * Sets up the robot for teleop mode:
+   * Initialize socketvision, sets up subsystems, resets encoders.
+   * Does NOT start any commands because subsystem defaults and buttons
+   * will handle commands from here on out.
+   */
 	@Override
 	public void teleopInit() {
 		// open the socket connection to read/write the coprocessor, in case it wasn't already done in auto
-		socketVisionInit();
+    socketVisionInit();
 
-		Command c = new SetMotorBrakeCommand(this, false);// SetAngleCommand(swerveDriveSubsystem,0);
-		c.start();
-		SmartDashboard.putNumber("WHERE IS MY MAYO!!!!@#%$%#$@#$", 1000000);
+    // Set up the drivetrain
+    swerveDriveSubsystem.setBrake(false);
+    swerveDriveSubsystem.setFieldOriented( true);
+
+    /*********** Set up other subsystems here ************/
+
+    // Cancel autonomous just in case
 		if (autoCommand != null) autoCommand.cancel();
 
+    // Reset the swerve modules' encoders
 		for (int i = 0; i < 4; i++)
 			swerveDriveSubsystem.getSwerveModule(i).zeroDistance();
-		
-		swerveDriveSubsystem.setFieldOriented( true);
-		//swerveDriveSubsystem.setBrake(false);
+    
+    // We don't need to start any commands because subsystem defaults will run
 	}
 
 	/**
@@ -353,17 +225,18 @@ public class Robot extends TimedRobot {
 	 * This function is called periodically during test mode
 	 */
 	@Override
-	public void testPeriodic() { }
+	public void testPeriodic() { 
+    Scheduler.getInstance().run();
+  }
 
+  /********* Put getters here (subsystems, objects, etc.) ************/
+
+  // Return the drivetrain
 	public SwerveDriveSubsystem getDrivetrain() {
 		return swerveDriveSubsystem;
 	}
 
-
-	//public GathererSubsystem getGatherer() {
-	//	return gathererSubsystem;
-	//}
-
+  // Return the timer for autonomous
 	public Timer getAutoTimer() {
 		return autoTimer;
 	}
@@ -376,24 +249,19 @@ public class Robot extends TimedRobot {
 	 * and teleop init methods. For ease of access, these objects are global and instantiated through the main class.
 	 */
 	private void socketVisionInit() {
-		if (rft_ == null) {
-			rft_ = new SocketVision("10.59.33.255", 5801);
-			if (SHOW_DEBUG_VISION) {
-				System.out.println("Vision to RFT started.");
-			}
-			rft_.start();
+	  sender_.init();
+    rft_.init();
+    piece_.init();
+	}
 
-			if (!rft_.is_connected()) {
-				if (!rft_.connect()) {
-					if (SHOW_DEBUG_VISION) {
-						System.err.println("socketVisionInit() Failed to connect to the Helmsman.");
-					}
-				} else {
-					if (SHOW_DEBUG_VISION) {
-						System.out.println("socketVisionInit() Connected. Love that mayo.");
-					}
-				}
-			}
-		}
+	/** 
+	 * 12/23 jh_vision: shut down the vision socket reader thread
+	 * This method properly shuts down all coprocessor related objects and joins them to the main thread
+	 * to comply with FRC guidelines during disabled mode. DONT CHANGE A WORD!
+	 */
+	private void visionShutDown() {
+    sender_.shutDown();
+    rft_.shutDown();
+    piece_.shutDown();
 	}
 }

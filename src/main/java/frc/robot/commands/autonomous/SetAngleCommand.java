@@ -6,6 +6,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.subsystems.SwerveDriveModule;
 
+/** 
+ * Point all the wheels toward a given angle.  Don't drive anywhere or move the chassis at all.
+ */
 public class SetAngleCommand extends Command {
 
     private final SwerveDriveSubsystem drivetrain;
@@ -25,10 +28,7 @@ public class SetAngleCommand extends Command {
         for (SwerveDriveModule module : drivetrain.getSwerveModules()) {
             module.setTargetAngle(angleWant);
         }
-        SmartDashboard.putNumber("YahoooooooooYEAH!!!!!!!@@#$@$@$$", 100);
-
-
-
+        // SmartDashboard.putNumber("YahoooooooooYEAH!!!!!!!@@#$@$@$$", 100);
     }
 
     @Override

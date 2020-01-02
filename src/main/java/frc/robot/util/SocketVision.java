@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robot.util;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -7,6 +7,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import frc.robot.Robot;
 
 public class SocketVision extends Thread {
 	public static final String NADA = "nada";
@@ -20,7 +22,8 @@ public class SocketVision extends Thread {
 	private byte[] data_ = new byte[1024];
 	private DatagramSocket socket_;
 	private String direction_ = new String();
-	private double degrees_x = 0;
+	// private double degrees_x = 0;
+	private volatile double degrees_x = 0;
 	private double degrees_y = 0;
 	private double degrees_width = 0;
 
@@ -55,14 +58,16 @@ public class SocketVision extends Thread {
 	 */
 	public boolean connect() {
 		try {
+			System.out.println("SocketVision trying to connect...");
 			socket_ = new DatagramSocket(port_);
 			socket_.setSoTimeout(1000);
 			InetAddress.getByName(ip_);
 			is_connected_ = true;
 		} catch (UnknownHostException ex) {
+			System.out.println("SocketVision connect Exception: " + ex.getMessage());
 			return false;
 		} catch (IOException ex) {
-			System.out.println("IOExcepton " + ex.getMessage());
+			// System.out.println("SocketVision connect IOExcepton: " + ex.getMessage());
 			return false;
 		}
 		return true;
@@ -165,7 +170,8 @@ public class SocketVision extends Thread {
 					ldirection_ = NADA;
 				}
 
-				synchronized (this) {
+				// synchronized (this) 
+				{
 					degrees_x = ldegrees_x;
 //					degrees_y = ldegrees_y;
 //					degrees_width = ldegrees_width;
@@ -176,7 +182,7 @@ public class SocketVision extends Thread {
 
 				if (Robot.SHOW_DEBUG_VISION) {
 					System.out.println("Done got that data! " + stuffInThePacket);
-					SmartDashboard.putString("Port " + port_ + " output: ", stuffInThePacket);
+					// SmartDashboard.putString("Port " + port_ + " output: ", stuffInThePacket);
 
 				}
 				return true;
@@ -239,9 +245,10 @@ public class SocketVision extends Thread {
 	 * @return
 	 * The number of units from center (L/R) the target is. -1 if no target is found.
 	 */
-	public synchronized double get_degrees_x() {
-		double tmp = degrees_x;
-		degrees_x = 0;
+	// public synchronized double get_degrees_x() {
+	public double get_degrees_x() {
+			double tmp = degrees_x;		
+		// degrees_x = 0;
 		return tmp;
 	}
 

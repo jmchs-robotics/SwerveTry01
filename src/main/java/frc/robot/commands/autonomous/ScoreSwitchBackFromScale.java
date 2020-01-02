@@ -31,7 +31,7 @@ public class ScoreSwitchBackFromScale extends CommandGroup {
         CommandGroup intakeGroup = new CommandGroup();
         intakeGroup.addSequential(new WaitCommand(Math.max(0, trajectoryToCube.getDuration() - INTAKE_TIME)));
 
-        addSequential(new VisionLineUpWithCubeCommand(robot));
+        // addSequential(new VisionLineUpWithCubeCommand(robot, robot.rft_));
         addParallel(intakeGroup);
         addSequential(new FollowPathCommand(robot.getDrivetrain(), pathToCube));
 	}
