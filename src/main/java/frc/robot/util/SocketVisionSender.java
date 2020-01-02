@@ -14,7 +14,7 @@ public class SocketVisionSender extends Thread {
 	public static final String StartCubeSearch = "C";
 	public static final String PlatformRedSearch = "Pr";
 	public static final String PlatformBlueSearch = "Pb";
-	public static final String CarryOnMyWaywardSon = "Heartbeat ";
+	public static final String CarryOnMyWaywardSon = "_";
 
 	private String ip_;
 	private int port_;
@@ -46,7 +46,7 @@ public class SocketVisionSender extends Thread {
 			return false;
 		} catch (IOException ex) {
 			is_connected_ = false;
-			// System.out.println("SocketVisionSender connect IOExcepton: " + ex.getMessage());
+			System.out.println("SocketVisionSender connect IOExcepton: " + ex.getMessage());
 			return false;
 		}
 		return true;

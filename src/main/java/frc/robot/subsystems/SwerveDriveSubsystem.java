@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 
+import edu.wpi.first.wpilibj.*; // import PIDController stuff
+
 import static frc.robot.RobotMap.*;
 
 public class SwerveDriveSubsystem extends HolonomicDrivetrain {
@@ -30,6 +32,14 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
     private SwerveDriveModule[] mSwerveModules;
 
     private AHRS mNavX = new AHRS(SPI.Port.kMXP, (byte) 200);
+    
+    /* Software PID Controllers */
+    protected double rotationFactor;
+    public PIDController angleController;
+    protected double strafeDestination;
+    public PIDController strafeController;
+
+    private long lastExecuteTime;
 
     public SwerveDriveSubsystem() {
         super(WIDTH, LENGTH);
@@ -105,7 +115,10 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
     public AHRS getNavX() {
         return mNavX;
     }
-
+    /** returns the current pose angle of the robot in the range [0, 360) by
+     * reading the NavX gyro, which counts continually upwards past 360 and downwards past 0
+     * and then applying modulo math and also adapting if the Rio is upside down in the robot.
+     */
     public double getGyroAngle() {
         double angle = mNavX.getAngle() - getAdjustmentAngle();
         angle %= 360;
@@ -136,6 +149,7 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
 
     @Override
     public void holonomicDrive(double forward, double strafe, double rotation, boolean fieldOriented) {
+
         forward *= getSpeedMultiplier();
         strafe *= getSpeedMultiplier();
  
@@ -243,7 +257,9 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
     }
 
     /**
-     * Setting all the modules to be brake or coast
+     * Setting all the wheel drive modules to be brake or coast.  
+     * 'true' for brake, 'false' for coast.
+     * Side note, the angle motors are always in brake mode.
      */
     public void setBrake(boolean b)
     {
@@ -252,6 +268,85 @@ public class SwerveDriveSubsystem extends HolonomicDrivetrain {
         {
             mSwerveModules[i].setMotorBrake(b);
         }
+    }
+
+    /**
+     * Provide a PID controller for rotation of the chassis, or 'pose angle'.  
+     * For example, during autonomous translational movement we'll want 
+     * the robot to maintain it's original pose angle.  This PID can be 
+     * used for that by giving it a targetAngle that is the starting pose angle,
+     * read from the gyro.  Then this PID will compute the 'nudge' to then give
+     * to the angle motors to help the robot stay in that orientation.
+     */
+    public PIDController setAndRunAngleController( double targetAngle) {
+        
+        angleController = new PIDController(0.02, 0.0, 0.0, new PIDSource() {
+            
+            public void setPIDSourceType(PIDSourceType pidSource) { }
+
+            @Override
+            public PIDSourceType getPIDSourceType() {
+                return PIDSourceType.kDisplacement;
+            }
+
+            @Override
+            public double pidGet() {
+                return getGyroAngle();
+            }
+        }, output -> {
+            rotationFactor = output;
+        });
+
+        angleController.setInputRange(0, 360);
+        angleController.setOutputRange(-0.5, 0.5);
+        angleController.setContinuous(true);
+        angleController.setSetpoint( targetAngle);
+        angleController.enable();
+        return angleController;
+    }
+
+    public void stopAngleController() {
+        angleController.disable();
+        angleController.close();
+    }
+
+    /**
+     * Provide a PID controller for rotation of the chassis, or 'pose angle'.  
+     * For example, during autonomous translational movement we'll want 
+     * the robot to maintain it's original pose angle.  This PID can be 
+     * used for that by giving it a targetAngle that is the starting pose angle,
+     * read from the gyro.  Then this PID will compute the 'nudge' to then give
+     * to the angle motors to help the robot stay in that orientation.
+     */
+    public PIDController setAndRunStrafeController( double s ) {
+        
+        strafeController = new PIDController(0.02, 0.0, 0.0, new PIDSource() {
+            
+            public void setPIDSourceType(PIDSourceType pidSource) { }
+
+            @Override
+            public PIDSourceType getPIDSourceType() {
+                return PIDSourceType.kDisplacement;
+            }
+
+            @Override
+            public double pidGet() {
+                return getGyroAngle();
+            }
+        }, output -> {
+            rotationFactor = output;
+        });
+
+        strafeController.setInputRange(0, 360);
+        strafeController.setOutputRange(-0.5, 0.5);
+        strafeController.setContinuous(true);
+
+        return strafeController;
+    }
+
+    public void stopStrafeController() {
+        strafeController.disable();
+        strafeController.close();
     }
 
 }

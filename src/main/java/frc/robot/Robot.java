@@ -3,17 +3,15 @@ package frc.robot;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.commands.ResetMotorsCommand;
 import frc.robot.commands.SetMotorBrakeCommand;
-import frc.robot.commands.autonomous.*;
-import frc.robot.commands.autonomous.stage1.StartingPosition;
-import frc.robot.commands.autonomous.stage2.VisionTargetingCubeCommand;
-import frc.robot.motion.AutonomousPaths;
+import frc.robot.commands.autonomous.DriveForDistanceCommand;
+import frc.robot.commands.autonomous.WaitForTimerCommand;
+import frc.robot.commands.autonomous.SetAngleCommand;
+import frc.robot.commands.autonomous.VisionLineUpWithCubeCommand;
 import frc.robot.subsystems.SwerveDriveModule;
-//import frc.robot.subsystems.GathererSubsystem;
 import frc.robot.subsystems.SwerveDriveSubsystem;
 import frc.robot.util.Side;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Watchdog;
@@ -55,18 +53,21 @@ public class Robot extends TimedRobot {
 
 	//
 	// Socket communications with the Vision Co-Processor, the UP Board
-	// socket sender
-	public final SocketVisionSendWrapper sender_ = new SocketVisionSendWrapper("10.59.33.255", 5800);
-	// Socket receivers. One is needed for each port to read from
-  	public final SocketVisionWrapper rft_ = new SocketVisionWrapper("10.59.33.255", 5801);
+	// socket sender to tell the UP Board which kind of vision target to track
+	 public final SocketVisionSendWrapper sender_ = new SocketVisionSendWrapper("10.59.33.255", 5800);
+	// Socket receivers. One is needed for each port to read from. 
+	// rft_ on 5801 is when looking for for retroflective tape
+	// listen to 5805 when looking for game piece 
+	public final SocketVisionWrapper rft_ = new SocketVisionWrapper("10.59.33.255", 5801);
+	  
 	// Socket constants
-	public static final boolean SHOW_DEBUG_VISION = true;
+	public static final boolean SHOW_DEBUG_VISION = false; // true;
 
-
+	// reduce the rate at which things are written to / read from the Smart Dashboard
 	private int smartDashCtr1 = 0;
 
   public Robot(){
-    super(0.05); // set watchdog to .05 seconds
+    // super(0.02); // set watchdog to this many seconds.  0.02 is default.
   }
 
 	public static OI getOI() {
@@ -211,15 +212,17 @@ public class Robot extends TimedRobot {
 		autoTimer = new Timer();
 		swerveDriveSubsystem.setFieldOriented( true);
 
-		swerveDriveSubsystem.setBrake(true);
+		// In autonomous, ALWAYS set brake mode on!!!!
+		swerveDriveSubsystem.setBrake( true);
+
+		// Default: tell the UP Board to start looking for RFT
+		sender_.get().setSendData( "R");
 		
 		//
 		// Testing various autonomous commands, and fixing and tuning them (PIDs etc) 191207
 		//
 		autoGroup = new CommandGroup();
-		//ALWAYS DO THIS!!!!
-		autoGroup.addSequential(new SetMotorBrakeCommand(this, false)); // true));
-
+		
 		// how far to drive forward.  Is the same for all autonomous paths.
 		// TODO: set this on competition day
 		double defaultDriveDistance = 36.0;
@@ -294,10 +297,10 @@ public class Robot extends TimedRobot {
 		// autoGroup.addSequential( new SetAngleCommand( swerveDriveSubsystem,90));
         // autoGroup.addSequential( new DriveForDistanceCommand(swerveDriveSubsystem , 12.0, 0)); // , Side.LEFT, Side.LEFT); // switchSide, scaleSide); ignoring parameters in getCommand()
     
-//    autoGroup.close();
+	autoGroup.close();
     
     autoTimer.start();
-    Scheduler.getInstance().add(new VisionLineUpWithCubeCommand(this, rft_));
+    Scheduler.getInstance().add( autoGroup);
     //		autoGroup.start();
   }
   
@@ -369,18 +372,18 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopInit() {
 		// open the socket connection to read/write the coprocessor, in case it wasn't already done in auto
-		// socketVisionInit();
+		socketVisionInit();
 
-		Command c = new SetMotorBrakeCommand(this, false);// SetAngleCommand(swerveDriveSubsystem,0);
-		c.start();
-		// SmartDashboard.putNumber("WHERE IS MY MAYO!!!!@#%$%#$@#$", 1000000);
+		// Turn off brake mode.  The driver can enable brake mode on the right bumper button.
+		swerveDriveSubsystem.setBrake( false);
+
 		if (autoCommand != null) autoCommand.cancel();
 
 		for (int i = 0; i < 4; i++)
 			swerveDriveSubsystem.getSwerveModule(i).zeroDistance();
 		
 		swerveDriveSubsystem.setFieldOriented( true);
-		//swerveDriveSubsystem.setBrake(false);
+		
 	}
 
 	/**
@@ -418,7 +421,7 @@ public class Robot extends TimedRobot {
 	 * and teleop init methods. For ease of access, these objects are global and instantiated through the main class.
 	 */
 	private void socketVisionInit() {
-		System.out.println("trying to init vision.");
+		System.out.println("Robot.java trying to init vision.");
 		sender_.init();
     	rft_.init();
 	}
@@ -429,7 +432,7 @@ public class Robot extends TimedRobot {
 	 * to comply with FRC guidelines during disabled mode. DONT CHANGE A WORD!
 	 */
 	private void visionShutDown() {
-		System.out.println("trying to shut down vision.");
+		System.out.println("Robot.java trying to shut down vision.");
 		sender_.shutDown();
 		rft_.shutDown();
 	}
