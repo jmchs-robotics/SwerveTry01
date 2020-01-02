@@ -1,19 +1,20 @@
 package frc.robot;
 
-import frc.robot.commands.*;
-import frc.robot.input.DPadButton;
+import frc.robot.commands.SendVisionCommand;
+import frc.robot.commands.SetFieldOrientedCommand;
+import frc.robot.commands.SetMotorBrakeCommand;
+import frc.robot.commands.ZeroDrivetrainGyroCommand;
+import frc.robot.commands.autonomous.VisionCommandGroup;
+import frc.robot.commands.autonomous.VisionLineUpWithCubeCommand;
 import frc.robot.input.IGamepad;
 import frc.robot.input.XboxGamepad;
-
-import frc.robot.util.SocketVisionSendWrapper;
+import frc.robot.input.DPadButton.Direction;
 
 /**
  * This class is the glue that binds the controls on the physical operator
  * interface to the commands and command groups that allow control of the robot.
  */
 public class OI {
-    private static final double SOFT_PLACEMENT_VELOCITY = 2.0;
-    private static final double SOFT_PLACEMENT_ACCELERATION = 0.5;
 
     private IGamepad primaryController = new XboxGamepad(0);
     private IGamepad secondaryController = new XboxGamepad(1);
@@ -32,8 +33,10 @@ public class OI {
         primaryController.getRightBumperButton().whenPressed(new SetMotorBrakeCommand(mRobot,true));
         primaryController.getRightBumperButton().whenReleased(new SetMotorBrakeCommand(mRobot,false));
 
-        primaryController.getAButton().whenPressed(new SendVisionCommand(mRobot.sender_, "G"));
-        primaryController.getAButton().whenReleased(new SendVisionCommand(mRobot.sender_, "R"));
+        primaryController.getAButton().whenPressed(new VisionCommandGroup(mRobot, mRobot.sender_, "R", mRobot.rft_));
+        primaryController.getBButton().whenPressed(new VisionCommandGroup(mRobot, mRobot.sender_, "G", mRobot.piece_));
+        // Example of using DPad to run commands:
+        // primaryController.getDPadButton(Direction.CENTER).whenActive(new SendVisionCommand(mRobot.sender_, "B"));;
 }
 
     public IGamepad getPrimaryController() {

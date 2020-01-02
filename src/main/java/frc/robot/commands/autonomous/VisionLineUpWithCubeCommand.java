@@ -27,40 +27,33 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
     private boolean isFinishTimerRunning = false;
 
     public VisionLineUpWithCubeCommand(Robot robot, SocketVisionWrapper socketVisionObject) {
-        // these 2 lines must stay here.  Don't change them.  Don't even think about it.  Move on.  Keep moving.
         this.robot = robot;
         requires(robot.getDrivetrain());
 
-       vision = socketVisionObject;
-
-        // 2910's original PID coefficients were:  0.07, 0.000000001, 0.32
+        // 2910's original PID coefficients:  0.07, 0.000000001, 0.32
         strafeController = new PIDController(0.01, 0, 0, new PIDSource() {
 
-            @Override
-            public void setPIDSourceType(PIDSourceType pidSource) {
-            }
-
-            @Override
-            public PIDSourceType getPIDSourceType() {
-                return PIDSourceType.kDisplacement;
-            }
-
-            @Override
-            public double pidGet() {
-                // 12/23 jh_vision- read input from SocketVision instead of from NetworkTables
-                if( vision.get() != null) {
-                    double x = vision.get().get_degrees_x();
-                    // System.out.println("[INFO]: VisionLineUpWithCubeCommand got get_degrees_x: " + x);
-
-                    return x; // vision.get().get_degrees_x(); // tx.getDouble(0);
-                } 
-                return 0;
-            }
-
+          @Override
+          public void setPIDSourceType(PIDSourceType pidSource) {
+          }
+  
+          @Override
+          public PIDSourceType getPIDSourceType() {
+              return PIDSourceType.kDisplacement;
+          }
+  
+          @Override
+          public double pidGet() {
+              // 12/23 jh_vision- read input from SocketVision instead of from NetworkTables
+              if( vision.get() != null) {
+                  return vision.get().get_degrees_x();
+              } 
+              return 0;
+          }
+  
         }, output -> {
             pidStrafeValue = -output;
-        }, 1.0); 
-
+        });
 
         strafeController.setInputRange( -320, 320); // 12/23 jh_vision set for up board range (-27, 27);
         strafeController.setOutputRange(-1, 1);
@@ -97,10 +90,6 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
 
         finishTimer.stop();
         finishTimer.reset();
-
-        // Enable snapshots
-        // NetworkTable limelight = NetworkTableInstance.getDefault().getTable("limelight");
-        // limelight.getEntry("snapshot").setNumber(1);
 
         // TODO: jh_vision will want to tell the UP Board which target type to track, via sender_
     }

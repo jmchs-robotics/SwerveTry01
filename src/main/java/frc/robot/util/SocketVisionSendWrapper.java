@@ -23,9 +23,6 @@ public class SocketVisionSendWrapper {
 			m_sender = new SocketVisionSender(m_ip, m_port);
 
 			m_sender.start();
-			if(!m_sender.is_connected()) {
-				m_sender.connect();
-			}
     }
   }
 
