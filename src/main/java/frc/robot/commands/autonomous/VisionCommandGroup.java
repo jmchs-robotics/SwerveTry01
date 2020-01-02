@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.command.CommandGroup;
 import frc.robot.Robot;
 import frc.robot.commands.SendVisionCommand;
 import frc.robot.util.SocketVisionSendWrapper;
+import frc.robot.util.SocketVisionSender;
 import frc.robot.util.SocketVisionWrapper;
 
 public class VisionCommandGroup extends CommandGroup {
@@ -21,6 +22,6 @@ public class VisionCommandGroup extends CommandGroup {
   public VisionCommandGroup(Robot robot, SocketVisionSendWrapper sender, String message, SocketVisionWrapper receiver) {
     addSequential(new SendVisionCommand(sender, message));
     addSequential(new VisionLineUpWithCubeCommand(robot, receiver));
-    addSequential(new SendVisionCommand(sender, " "));
+    addSequential(new SendVisionCommand(sender, SocketVisionSender.CarryOnMyWaywardSon));
   }
 }

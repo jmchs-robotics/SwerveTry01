@@ -115,7 +115,7 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
 
     protected boolean isFinished() {
         // if (tv.getDouble(0) == 1 && strafeController.onTarget()) {
-        if ( true /* vision.get().get_degrees_x() != -0.01 */ && strafeController.onTarget()) {
+        if (strafeController.onTarget()) {
                 if (!isFinishTimerRunning) {
                 finishTimer.reset();
                 finishTimer.start();

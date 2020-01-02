@@ -14,7 +14,7 @@ public class SocketVisionSender extends Thread {
 	public static final String StartCubeSearch = "C";
 	public static final String PlatformRedSearch = "Pr";
 	public static final String PlatformBlueSearch = "Pb";
-	public static final String CarryOnMyWaywardSon = "Heartbeat ";
+	public static final String CarryOnMyWaywardSon = "_";
 
 	private String ip_;
 	private int port_;
