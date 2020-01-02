@@ -4,6 +4,8 @@ import frc.robot.commands.SendVisionCommand;
 import frc.robot.commands.SetFieldOrientedCommand;
 import frc.robot.commands.SetMotorBrakeCommand;
 import frc.robot.commands.ZeroDrivetrainGyroCommand;
+import frc.robot.commands.autonomous.VisionCommandGroup;
+import frc.robot.commands.autonomous.VisionLineUpWithCubeCommand;
 import frc.robot.input.IGamepad;
 import frc.robot.input.XboxGamepad;
 import frc.robot.input.DPadButton.Direction;
@@ -31,8 +33,8 @@ public class OI {
         primaryController.getRightBumperButton().whenPressed(new SetMotorBrakeCommand(mRobot,true));
         primaryController.getRightBumperButton().whenReleased(new SetMotorBrakeCommand(mRobot,false));
 
-        primaryController.getAButton().whenPressed(new SendVisionCommand(mRobot.sender_, "G"));
-        primaryController.getBButton().whenPressed(new SendVisionCommand(mRobot.sender_, "R"));
+        primaryController.getAButton().whenPressed(new VisionCommandGroup(mRobot, mRobot.sender_, "R", mRobot.rft_));
+        primaryController.getAButton().whenPressed(new VisionCommandGroup(mRobot, mRobot.sender_, "G", mRobot.piece_));
         // Example of using DPad to run commands:
         // primaryController.getDPadButton(Direction.CENTER).whenActive(new SendVisionCommand(mRobot.sender_, "B"));;
 }

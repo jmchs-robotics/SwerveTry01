@@ -47,6 +47,7 @@ public class Robot extends TimedRobot {
 	public final SocketVisionSendWrapper sender_ = new SocketVisionSendWrapper("10.59.33.255", 5800);
 	// Socket receivers. One is needed for each port to read from
   public final SocketVisionWrapper rft_ = new SocketVisionWrapper("10.59.33.255", 5801);
+  public final SocketVisionWrapper piece_ = new SocketVisionWrapper("10.59.33.255", 5805);
 	// Socket constants
 	public static final boolean SHOW_DEBUG_VISION = false;
 
@@ -245,6 +246,7 @@ public class Robot extends TimedRobot {
 	private void socketVisionInit() {
 	  sender_.init();
     rft_.init();
+    piece_.init();
 	}
 
 	/** 
@@ -255,5 +257,6 @@ public class Robot extends TimedRobot {
 	private void visionShutDown() {
     sender_.shutDown();
     rft_.shutDown();
+    piece_.shutDown();
 	}
 }
