@@ -8,10 +8,10 @@ import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.CommandGroup;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import frc.robot.util.SocketVisionWrapper;
-import frc.robot.util.Side;
+// import frc.robot.util.Side;
 
 public class VisionLineUpWithCubeCommand extends CommandGroup {
     private SocketVisionWrapper vision;
@@ -29,8 +29,6 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
     public VisionLineUpWithCubeCommand(Robot robot, SocketVisionWrapper socketVisionObject) {
         this.robot = robot;
         requires(robot.getDrivetrain());
-
-        vision = socketVisionObject;
 
         // 2910's original PID coefficients:  0.07, 0.000000001, 0.32
         strafeController = new PIDController(0.01, 0, 0, new PIDSource() {
@@ -77,7 +75,7 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
             }
         }, output -> {
             rotationFactor = -output;
-        });
+        }, 1.0);
 
         angleErrorController.setInputRange(0, 360);
         angleErrorController.setOutputRange(-0.5, 0.5);
@@ -110,12 +108,14 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
             robot.getDrivetrain().holonomicDrive(0, 0, 0);
         }
         */
+        
         robot.getDrivetrain().holonomicDrive(0, pidStrafeValue, rotationFactor, false);
+        
     }
 
     protected boolean isFinished() {
         // if (tv.getDouble(0) == 1 && strafeController.onTarget()) {
-        if (strafeController.onTarget()) {
+        if ( vision.get().get_degrees_x() != -0.01 && strafeController.onTarget()) {
                 if (!isFinishTimerRunning) {
                 finishTimer.reset();
                 finishTimer.start();
@@ -137,6 +137,8 @@ public class VisionLineUpWithCubeCommand extends CommandGroup {
     }
 
     protected void end() {
+        System.out.println( "VisionLineUpWithCubeCommand ending.");
+
         strafeController.disable();
         angleErrorController.disable();
     }

@@ -46,15 +46,20 @@ public class Robot extends TimedRobot {
 	// socket sender
 	public final SocketVisionSendWrapper sender_ = new SocketVisionSendWrapper("10.59.33.255", 5800);
 	// Socket receivers. One is needed for each port to read from
+	// rft_ on 5801 is when looking for for retroflective tape
+	// listen to 5805 when looking for game piece 
   public final SocketVisionWrapper rft_ = new SocketVisionWrapper("10.59.33.255", 5801);
   public final SocketVisionWrapper piece_ = new SocketVisionWrapper("10.59.33.255", 5805);
 	// Socket constants
 	public static final boolean SHOW_DEBUG_VISION = false;
+	
+	// reduce the rate at which things are written to / read from the Smart Dashboard
+	private int smartDashCtr1 = 0;
 
   // Constructor for the class. Call the superconstructor with
   // the Watchdog period (in seconds) that you want to use. Default is 0.02.
   public Robot(){
-    super(0.05); // set watchdog to .05 seconds
+    // super(0.02); // set watchdog to this many seconds.  0.02 is default.
   }
 
 	public static OI getOI() {
