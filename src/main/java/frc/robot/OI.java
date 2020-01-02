@@ -32,7 +32,7 @@ public class OI {
         primaryController.getRightBumperButton().whenReleased(new SetMotorBrakeCommand(mRobot,false));
 
         primaryController.getAButton().whenPressed(new SendVisionCommand(mRobot.sender_, "G"));
-        primaryController.getAButton().whenReleased(new SendVisionCommand(mRobot.sender_, "R"));
+        primaryController.getBButton().whenPressed(new SendVisionCommand(mRobot.sender_, "R"));
         // Example of using DPad to run commands:
         // primaryController.getDPadButton(Direction.CENTER).whenActive(new SendVisionCommand(mRobot.sender_, "B"));;
 }
